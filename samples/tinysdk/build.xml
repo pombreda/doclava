@@ -1,0 +1,48 @@
+<project name="TinySDKDocs" default="androiddoc" basedir=".">
+
+<!-- To build documentation for TinySDK:
+
+	1. Download GWT from SVN:
+		cd /path/to/gwtdoc
+		svn checkout http://google-web-toolkit.googlecode.com/svn/trunk/ gwt-src
+
+	2. run: `ant androiddoc`
+		Documentation will be built for the files listed in input/tinysdk-src-list.
+		This file lists a small sampling of classes from java.lang.
+-->
+
+  <property name="anddroiddoc.file" 
+    value="../../build/dist/androiddoc-0.1.6/androiddoc-0.1.6.jar"/>
+
+  <target name="androiddoc" description="Generate documentation">
+    <taskdef name="androiddoc" classname="AndroiddocTask" classpath="${anddroiddoc.file}"/>
+      <androiddoc>
+        <arguments>
+        	-quiet
+        	-doclet DroidDoc
+        	-docletpath ${anddroiddoc.file}
+        	-classpath /usr/lib/jvm/java-6-sun/jre/lib/rt.jar
+        	-templatedir ../android/doclava/templates-sdk
+        	-templatedir ../android/doclava/templates
+        	-htmldir ../android/doclava/html
+        	-d build/api
+                -hdf page.build MASTER-eng.bjdodson.20100623.095852
+                -hdf page.now "23 Jun 2010  9:58"
+        	-hdf sdk.version 2.2
+        	-hdf sdk.rel.id 1 -hdf sdk.current 2.2_r1
+        	-hdf adt.zip.version 0.9.7
+        	-hdf adt.zip.download ADT-0.9.7.zip
+        	-hdf adt.zip.bytes 8033750
+        	-hdf adt.zip.checksum de2431c8d4786d127ae5bfc95b4605dfoooooo
+        	-stubs build/stubs
+        	-apixml build/public_api.xml
+        	@doclava/tinysdk-src-list
+      	</arguments>
+      </androiddoc>
+  </target>
+
+  <target name="clean" description="Remove generated files.">
+    <delete dir="build"/> 
+  </target>
+
+</project>

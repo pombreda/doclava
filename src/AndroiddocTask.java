@@ -27,8 +27,7 @@ public class AndroiddocTask extends Task {
         try {
           
           // TODO: fork a process to run java on DroidDoc.main
-          //DroidDoc.main(args.getArguments());
-          //com.sun.tools.javadoc.Main.execute(args.getArguments());
+          com.sun.tools.javadoc.Main.execute(args.getArguments());
           
             
         } catch (Exception e) {

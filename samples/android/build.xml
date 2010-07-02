@@ -1,0 +1,64 @@
+ 
+<!--
+ 
+  This build file works off of the generated layout of the Android build system.
+	    
+--> 
+ 
+<project name="AndroidDocs" default="androiddoc"> 
+  <property name="release" value="0.1"/>
+	<property name="jar.dir" value="build/dist/mocksdk-${release}"/>
+	<property name="jar.file" value="${jar.dir}/mocksdk-${release}.jar"/>
+	
+	<property name="droiddoc.file" 
+	  value="../../build/dist/androiddoc-0.1.6/androiddoc-0.1.6.jar"/>
+	
+  <property environment="env"/> 
+  <property name="javahome" value="${env.JAVA_HOME}" />
+  <property name="android.path" value="/usr/local/google/bjdodson/platforms/android/"/>
+  
+	<target name="androiddoc" description="Generate documentation">
+	    <taskdef name="androiddoc" classname="AndroiddocTask" classpath="${droiddoc.file}"/>
+      <androiddoc>
+        <arguments>
+        	-quiet
+        	-doclet DroidDoc
+        	-docletpath ${droiddoc.file}
+        	-templatedir ${android.path}build/tools/droiddoc/templates-sdk
+        	-templatedir ${android.path}build/tools/droiddoc/templates
+        	-templatedir ${android.path}frameworks/base/docs/html        	
+         	-htmldir ${android.path}frameworks/base/docs/html
+        	-classpath /usr/lib/jvm/java-6-sun/jre/lib/rt.jar:${android.path}out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar:${android.path}out/target/common/obj/JAVA_LIBRARIES/ext_intermediates/classes.jar:${android.path}out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/classes.jar
+        	-sourcepath ${android.path}frameworks/base/core/java:${android.path}frameworks/base/graphics/java:${android.path}frameworks/base/location/java:${android.path}frameworks/base/media/java:${android.path}frameworks/base/opengl/java:${android.path}frameworks/base/sax/java:${android.path}frameworks/base/telephony/java:${android.path}frameworks/base/wifi/java:${android.path}frameworks/base/vpn/java:${android.path}frameworks/base/keystore/java:${android.path}frameworks/base/icu4j/java:${android.path}out/target/common/obj/JAVA_LIBRARIES/core_intermediates/classes.jar:${android.path}out/target/common/obj/JAVA_LIBRARIES/ext_intermediates/classes.jar:${android.path}out/target/common/obj/JAVA_LIBRARIES/framework_intermediates/classes.jar
+        	-d build/api
+        	-since ${android.path}./frameworks/base/api/1.xml 1
+        	-since ${android.path}./frameworks/base/api/2.xml 2
+        	-since ${android.path}./frameworks/base/api/3.xml 3
+        	-since ${android.path}./frameworks/base/api/4.xml 4
+        	-since ${android.path}./frameworks/base/api/5.xml 5
+        	-since ${android.path}./frameworks/base/api/6.xml 6
+        	-since ${android.path}./frameworks/base/api/7.xml 7
+        	-since ${android.path}./frameworks/base/api/8.xml 8
+        	-error 1 -error 2 -warning 3 -error 4 -error 6 -error 8
+        	-overview ${android.path}frameworks/base/core/java/overview.html
+          	-hdf page.build MASTER-eng.bjdodson.20100623.095852
+         	-hdf page.now "23 Jun 2010  9:58"
+        	-hdf sdk.version 2.2
+        	-hdf sdk.rel.id 1 -hdf sdk.current 2.2_r1
+        	-hdf adt.zip.version 0.9.7
+        	-hdf adt.zip.download ADT-0.9.7.zip
+        	-hdf adt.zip.bytes 8033750
+        	-hdf adt.zip.checksum de2431c8d4786d127ae5bfc95b4605df
+        	-stubs build/stubs
+        	-apixml build/public_api.xml
+        	@doclava/android-src-list
+      	</arguments>
+      </androiddoc>
+	</target>
+
+  <target name="clean"
+      description="Remove generated files."> 
+    <delete dir="build"/> 
+  </target> 
+ 
+</project> 

@@ -1,0 +1,45 @@
+<project name="JunctionDocs" default="androiddoc" basedir=".">
+
+<!-- To build documentation for TinySDK:
+
+	1. Download Junction's source code:
+		cd samples/junction; svn co http://prpl.stanford.edu/svn/prpl/junction/lib/JAVAJunction .
+	2. 
+		rm doclava/src-list; find src/main -name '*.java' >> doclava/src-list
+		mvn assembly:assembly # builds a jar with dependencies
+
+	2. run: `ant androiddoc`
+		Documentation will be built for the files listed in doclava/src-list.
+-->
+
+  <property name="androiddoc.file" 
+    value="../../build/dist/androiddoc-0.1.6/androiddoc-0.1.6.jar"/>
+
+  <target name="androiddoc" description="Generate documentation">
+    <taskdef name="androiddoc" classname="AndroiddocTask" classpath="${androiddoc.file}"/>
+      <androiddoc>
+        <arguments>
+        	-quiet
+        	-doclet DroidDoc
+        	-docletpath ${androiddoc.file}
+        	-classpath /usr/lib/jvm/java-6-openjdk/jre/lib/rt.jar:target/JAVAJunction-0.6.7-SNAPSHOT-jar-with-dependencies.jar
+        	-d build/api
+ 	       	-hdf project.name "Junction"
+                -hdf page.build MASTER-eng.bjdodson.20100623.095852
+                -hdf page.now "23 Jun 2010  9:58"
+        	-stubs build/stubs
+        	-apixml build/public_api.xml
+        	@doclava/src-list
+      	</arguments>
+      </androiddoc>
+  </target>
+
+<!--
+        	-docletpath ${anddroiddoc.file}
+
+ -->
+  <target name="clean" description="Remove generated files.">
+    <delete dir="build"/> 
+  </target>
+
+</project>

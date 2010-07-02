@@ -1,0 +1,56 @@
+<project name="openjdk" default="doclava" basedir=".">
+ 
+	<!-- To build documentation for GWT:
+
+	  1. Locate a copy of the OpenJDK source package:
+	         export OPENJDK_SRC=/path/to/openjdk/src
+
+    2. Generate list of source files:
+           rm doclava/jdk-src-list; \
+           for d in $OPENJDK_SRC/com \
+                    $OPENJDK_SRC/java \
+                    $OPENJDK_SRC/javax \
+                    $OPENJDK_SRC/org \
+                    $OPENJDK_SRC/sun \
+                    $OPENJDK_SRC/sunw; \
+                    do find $d -name '*.java' \
+                    | grep -v 'X\-' | grep -v '\-X' >> doclava/jdk-src-list; done
+           
+	  3. run: `ant doclava`
+	    Documentation will be built for the files listed in doclava/jdk-src-list.
+	-->
+	
+  <property name="droiddoc.file" 
+    value="../../build/dist/androiddoc-0.1.6/androiddoc-0.1.6.jar"/>
+
+  <target name="doclava" description="Generate documentation">
+    <taskdef name="droiddoc" classname="DroiddocTask" classpath="${droiddoc.file}"/>
+      <droiddoc>
+        <arguments>
+        	-quiet
+        	-doclet DroidDoc
+        	-docletpath ${droiddoc.file}
+        	-templatedir ../android/doclava/templates-sdk
+        	-templatedir ../android/doclava/templates
+        	-htmldir ../android/doclava/html
+        	-d build/api
+         	-hdf page.build MASTER-eng.bjdodson.20100623.095852
+       		-hdf page.now "23 Jun 2010  9:58"
+        	-hdf sdk.version 2.2
+        	-hdf sdk.rel.id 1 -hdf sdk.current 2.2_r1
+        	-hdf adt.zip.version 0.9.7
+        	-hdf adt.zip.download ADT-0.9.7.zip
+        	-hdf adt.zip.bytes 8033750
+        	-hdf adt.zip.checksum de2431c8d4786d127ae5bfc95b4605df
+        	-stubs build/stubs
+        	-apixml build/public_api.xml
+        	@doclava/jdk-src-list
+      	</arguments>
+      </droiddoc>
+	</target>
+
+	
+  <target name="clean" description="Remove generated files.">
+    <delete dir="build"/> 
+  </target>
+</project>

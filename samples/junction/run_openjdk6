@@ -1,0 +1,11 @@
+JAVA_HOME=/usr/lib/jvm/java-6-openjdk /usr/lib/jvm/java-6-openjdk/bin/javadoc \
+         	-quiet \
+        	-doclet DroidDoc \
+        	-docletpath /usr/local/google/bjdodson/droiddoc_extern/build/dist/androiddoc-0.1.6/androiddoc-0.1.6.jar \
+        	-classpath /usr/lib/jvm/java-6-openjdk/jre/lib/rt.jar:/usr/local/google/bjdodson/droiddoc_extern/samples/JavaJunction/target/JAVAJunction-0.6.7-SNAPSHOT-jar-with-dependencies.jar \
+        	-bootclasspath /usr/lib/jvm/java-6-openjdk/lib/tools.jar \
+        	-d build/api \
+ 	       	-hdf project.name "Junction" \
+        	-stubs build/stubs \
+        	-apixml build/public_api.xml \
+        	@doclava/src-list

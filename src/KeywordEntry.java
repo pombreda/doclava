@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import org.clearsilver.HDF;
+import com.google.clearsilver.jsilver.data.Data;
+
 import org.clearsilver.CS;
 
 class KeywordEntry implements Comparable
@@ -26,7 +27,7 @@ class KeywordEntry implements Comparable
         this.comment = comment;
     }
 
-    public void makeHDF(HDF data, String base)
+    public void makeHDF(Data data, String base)
     {
         data.setValue(base + ".label", this.label);
         data.setValue(base + ".href", this.href);

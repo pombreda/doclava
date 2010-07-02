@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import org.clearsilver.HDF;
+
+import com.google.clearsilver.jsilver.data.Data;
+
 import org.clearsilver.CS;
 import java.util.*;
 import java.io.*;
@@ -57,7 +59,7 @@ public class DocFile
     public static void writePage(String docfile, String relative,
                                     String outfile)
     {
-        HDF hdf = DroidDoc.makeHDF();
+        Data hdf = DroidDoc.makeHDF();
 
         /*
         System.out.println("docfile='" + docfile

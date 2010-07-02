@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+package com.android.apicheck;
 
-public interface InheritedTags
-{
-    TagInfo[] tags();
-    InheritedTags inherited();
+public interface AbstractMethodInfo {
+  
+    public void addException(String exec);
+    public void addParameter(ParameterInfo p);
+
 }
-

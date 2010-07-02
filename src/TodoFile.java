@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import org.clearsilver.HDF;
+
+import com.google.clearsilver.jsilver.data.Data;
+
 import org.clearsilver.CS;
 import java.util.*;
 import java.io.*;
@@ -45,7 +47,7 @@ public class TodoFile {
         return false;
     }
 
-    public static void setHDF(HDF data, String base, SourcePositionInfo pos, String name,
+    public static void setHDF(Data data, String base, SourcePositionInfo pos, String name,
             String descr) {
         data.setValue(base + ".pos", pos.toString());
         data.setValue(base + ".name", name);
@@ -63,7 +65,7 @@ public class TodoFile {
     }
 
     public static void writeTodoFile(String filename) {
-        HDF data = DroidDoc.makeHDF();
+        Data data = DroidDoc.makeHDF();
         DroidDoc.setPageTitle(data, "Missing Documentation");
         TreeMap<String,PackageStats> packageStats = new TreeMap<String,PackageStats>();
 

@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
+import com.google.clearsilver.jsilver.data.Data;
+
 import com.sun.javadoc.*;
-import com.sun.tools.doclets.*;
-import org.clearsilver.HDF;
-import org.clearsilver.CS;
 import java.util.*;
-import java.io.*;
 
 public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Scoped
 {
@@ -837,7 +835,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
         }
     }
 
-    public void makeLink(HDF data, String base)
+    public void makeLink(Data data, String base)
     {
         data.setValue(base + ".label", this.name());
         if (!this.isPrimitive() && this.isIncluded() && this.checkLevel()) {
@@ -845,7 +843,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
         }
     }
 
-    public static void makeLinkListHDF(HDF data, String base, ClassInfo[] classes) {
+    public static void makeLinkListHDF(Data data, String base, ClassInfo[] classes) {
         final int N = classes.length;
         for (int i=0; i<N; i++) {
             ClassInfo cl = classes[i];
@@ -858,7 +856,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     /**
      * Used in lists of this class (packages, nested classes, known subclasses)
      */
-    public void makeShortDescrHDF(HDF data, String base)
+    public void makeShortDescrHDF(Data data, String base)
     {
         mTypeInfo.makeHDF(data, base + ".type");
         data.setValue(base + ".kind", this.kind());
@@ -870,7 +868,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     /**
      * Turns into the main class page
      */
-    public void makeHDF(HDF data)
+    public void makeHDF(Data data)
     {
         int i, j, n;
         String name = name();
@@ -1131,7 +1129,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
         }
     }
 
-    private static void makeInheritedHDF(HDF data, int index, ClassInfo cl)
+    private static void makeInheritedHDF(Data data, int index, ClassInfo cl)
     {
         int i;
 

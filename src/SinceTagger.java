@@ -1,5 +1,8 @@
 // Copyright 2009 Google Inc. All Rights Reserved.
 
+
+import com.google.clearsilver.jsilver.data.Data;
+
 import com.android.apicheck.ApiCheck;
 import com.android.apicheck.ApiInfo;
 
@@ -9,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Collections;
 
-import org.clearsilver.HDF;
 
 /**
  * Applies version information to the DroidDoc class model from apicheck XML
@@ -51,11 +53,15 @@ public class SinceTagger {
             warnForMissingVersions(classDocs);
         }
     }
+    
+    public boolean hasVersions() {
+        return !xmlToName.isEmpty();
+    }
 
     /**
      * Writes an index of the version names to {@code data}. 
      */
-    public void writeVersionNames(HDF data) {
+    public void writeVersionNames(Data data) {
         int index = 1;
         for (String version : xmlToName.values()) {
             data.setValue("since." + index + ".name", version);

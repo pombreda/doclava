@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-import com.sun.javadoc.*;
+import com.google.clearsilver.jsilver.JSilver;
+import com.google.clearsilver.jsilver.data.Data;
+import com.google.clearsilver.jsilver.resourceloader.ClassLoaderResourceLoader;
+import com.google.clearsilver.jsilver.resourceloader.CompositeResourceLoader;
+import com.google.clearsilver.jsilver.resourceloader.FileSystemResourceLoader;
+import com.google.clearsilver.jsilver.resourceloader.InMemoryResourceLoader;
+import com.google.clearsilver.jsilver.resourceloader.ResourceLoader;
 
-import org.clearsilver.HDF;
+import com.sun.javadoc.*;
 
 import java.util.*;
 import java.io.*;
@@ -28,6 +34,10 @@ import java.lang.reflect.Method;
 
 public class DroidDoc
 {
+  static {
+    System.out.println("DROIDDOC INITIALIZING!!!");
+  }
+  
     private static final String SDK_CONSTANT_ANNOTATION = "android.annotation.SdkConstant";
     private static final String SDK_CONSTANT_TYPE_ACTIVITY_ACTION = "android.annotation.SdkConstant.SdkConstantType.ACTIVITY_INTENT_ACTION";
     private static final String SDK_CONSTANT_TYPE_BROADCAST_ACTION = "android.annotation.SdkConstant.SdkConstantType.BROADCAST_INTENT_ACTION";
@@ -59,6 +69,8 @@ public class DroidDoc
     public static String title = "";
     public static SinceTagger sinceTagger = new SinceTagger();
 
+    public static JSilver jSilver = null;
+    
     public static boolean checkLevel(int level)
     {
         return (showLevel & level) == level;
@@ -88,7 +100,7 @@ public class DroidDoc
 
     public static void main(String[] args)
     {
-        com.sun.tools.javadoc.Main.main(args);
+        com.sun.tools.javadoc.Main.execute(args);
     }
     
     public static boolean start(RootDoc r)
@@ -183,7 +195,7 @@ public class DroidDoc
                 stubsDir = a[1];
             }
             else if (a[0].equals("-stubpackages")) {
-                stubPackages = new HashSet();
+                stubPackages = new HashSet<String>();
                 for (String pkg: a[1].split(":")) {
                     stubPackages.add(pkg);
                 }
@@ -206,15 +218,35 @@ public class DroidDoc
             }
         }
 
-        // read some prefs from the template
-        if (!readTemplateSettings()) {
-            return false;
-        }
 
         // Set up the data structures
         Converter.makeInfo(r);
 
         if (!noDocs) {
+            ClearPage.addBundledTemplateDir("assets/customizations");
+            ClearPage.addBundledTemplateDir("assets/templates");
+            
+            List<ResourceLoader>resourceLoaders = new ArrayList<ResourceLoader>();
+            List<String>templates = ClearPage.getTemplateDirs();
+            for (String tmpl : templates) {
+                resourceLoaders.add(new FileSystemResourceLoader(tmpl));
+            }
+            
+            templates = ClearPage.getBundledTemplateDirs();
+            for (String tmpl : templates) {
+                resourceLoaders.add(new ClassLoaderResourceLoader(
+                                                Thread.currentThread().getContextClassLoader(),
+                                                tmpl));
+            }
+            
+            ResourceLoader compositeResourceLoader = new CompositeResourceLoader(resourceLoaders);
+            jSilver = new JSilver(compositeResourceLoader);
+            
+            if (!DroidDoc.readTemplateSettings())
+            {
+                return false;
+            }
+            
             long startTime = System.nanoTime();
 
             // Apply @since tags from the XML file
@@ -232,16 +264,15 @@ public class DroidDoc
             if (ClearPage.htmlDir != null) {
                 writeHTMLPages();
             }
+            
+            writeAssets();
 
             // Navigation tree
             NavTree.writeNavTree(javadocDir);
 
             // Packages Pages
-            writePackages(javadocDir
-                            + (ClearPage.htmlDir!=null
-                                ? "packages" + htmlExtension
-                                : "index" + htmlExtension));
-
+            writePackages(javadocDir + "packages" + htmlExtension);
+            
             // Classes
             writeClassLists();
             writeClasses();
@@ -283,14 +314,18 @@ public class DroidDoc
     }
 
     private static void writeIndex() {
-        HDF data = makeHDF();
+        Data data = makeHDF();
         ClearPage.write(data, "index.cs", javadocDir + "index" + htmlExtension);
     }
 
     private static boolean readTemplateSettings()
     {
-        HDF data = makeHDF();
-        htmlExtension = data.getValue("template.extension", ".html");
+        Data data = makeHDF();
+        
+        // The .html extension is hard-coded in several .cs files,
+        // and so you cannot currently set it as a property.
+        htmlExtension = ".html";
+        //htmlExtension = data.getValue("template.extension", ".html");
         int i=0;
         while (true) {
             String k = data.getValue("template.escape." + i + ".key", "");
@@ -338,7 +373,7 @@ public class DroidDoc
         return s;
     }
 
-    public static void setPageTitle(HDF data, String title)
+    public static void setPageTitle(Data data, String title)
     {
         String s = title;
         if (DroidDoc.title.length() > 0) {
@@ -347,10 +382,12 @@ public class DroidDoc
         data.setValue("page.title", s);
     }
 
+    
     public static LanguageVersion languageVersion()
     {
-        return LanguageVersion.JAVA_1_5;
+      return LanguageVersion.JAVA_1_5;
     }
+    
 
     public static int optionLength(String option)
     {
@@ -454,29 +491,22 @@ public class DroidDoc
         return true;
     }
 
-    public static HDF makeHDF()
+    public static Data makeHDF()
     {
-        HDF data = new HDF();
-
+        Data data = jSilver.createData();
+        
         for (String[] p: mHDFData) {
             data.setValue(p[0], p[1]);
         }
 
-        try {
-            for (String p: ClearPage.hdfFiles) {
-                data.readFile(p);
-            }
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         return data;
     }
+    
+    
 
-    public static HDF makePackageHDF()
+    public static Data makePackageHDF()
     {
-        HDF data = makeHDF();
+        Data data = makeHDF();
         ClassInfo[] classes = Converter.rootClasses();
 
         SortedMap<String, PackageInfo> sorted = new TreeMap<String, PackageInfo>();
@@ -537,7 +567,8 @@ public class DroidDoc
                 continue;
             }
 
-            data.setValue("reference", "true");
+            data.setValue("reference", "1");
+            data.setValue("reference.apilevels", sinceTagger.hasVersions() ? "1" : "0");
             data.setValue("docs.packages." + i + ".name", s);
             data.setValue("docs.packages." + i + ".link", pkg.htmlPage());
             data.setValue("docs.packages." + i + ".since", pkg.getSince());
@@ -550,7 +581,7 @@ public class DroidDoc
         return data;
     }
 
-    public static void writeDirectory(File dir, String relative)
+    private static void writeDirectory(File dir, String relative, JSilver js)
     {
         File[] files = dir.listFiles();
         int i, count = files.length;
@@ -560,9 +591,9 @@ public class DroidDoc
                 String templ = relative + f.getName();
                 int len = templ.length();
                 if (len > 3 && ".cs".equals(templ.substring(len-3))) {
-                    HDF data = makeHDF();
+                    Data data = makeHDF();
                     String filename = templ.substring(0,len-3) + htmlExtension;
-                    ClearPage.write(data, templ, filename);
+                    ClearPage.write(data, templ, filename, js);
                 }
                 else if (len > 3 && ".jd".equals(templ.substring(len-3))) {
                     String filename = templ.substring(0,len-3) + htmlExtension;
@@ -573,7 +604,7 @@ public class DroidDoc
                 }
             }
             else if (f.isDirectory()) {
-                writeDirectory(f, relative + f.getName() + "/");
+                writeDirectory(f, relative + f.getName() + "/", js);
             }
         }
     }
@@ -584,12 +615,46 @@ public class DroidDoc
         if (!f.isDirectory()) {
             System.err.println("htmlDir not a directory: " + ClearPage.htmlDir);
         }
-        writeDirectory(f, "");
+        
+        ResourceLoader loader = new FileSystemResourceLoader(f);
+        JSilver js = new JSilver(loader);
+        writeDirectory(f, "", js);
+    }
+    
+    public static void writeAssets()
+    {
+        try {
+            String assetsdir;
+            List<String> templatedirs = ClearPage.getBundledTemplateDirs();
+            for (String templatedir : templatedirs)
+            {
+                assetsdir = templatedir + "/assets";
+                try {
+                    JarUtils.resourcesToDirectory(assetsdir, ClearPage.outputDir + "/assets");
+                } catch (IllegalStateException e) {
+                    // Not in a jar file
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error copying assets directory.");
+            e.printStackTrace();
+            return ;
+        }
+        
+        List<String> templatedirs = ClearPage.getTemplateDirs();
+        for (String templatedir : templatedirs)
+        {
+            File assets = new File(templatedir + "/assets");
+            if (assets.isDirectory())
+            {
+                writeDirectory(assets, "assets/", null);
+            }
+        }
     }
 
     public static void writeLists()
     {
-        HDF data = makeHDF();
+        Data data = makeHDF();
 
         ClassInfo[] classes = Converter.rootClasses();
 
@@ -711,7 +776,7 @@ public class DroidDoc
             sorted.put(name, pkg);
         }
 
-        ArrayList<PackageInfo> result = new ArrayList();
+        ArrayList<PackageInfo> result = new ArrayList<PackageInfo>();
 
         for (String s: sorted.keySet()) {
             PackageInfo pkg = sorted.get(s);
@@ -767,7 +832,7 @@ public class DroidDoc
 
     public static void writePackages(String filename)
     {
-        HDF data = makePackageHDF();
+        Data data = makePackageHDF();
 
         int i = 0;
         for (PackageInfo pkg: choosePackages()) {
@@ -797,7 +862,7 @@ public class DroidDoc
     {
         // these this and the description are in the same directory,
         // so it's okay
-        HDF data = makePackageHDF();
+        Data data = makePackageHDF();
 
         String name = pkg.name();
 
@@ -833,7 +898,7 @@ public class DroidDoc
     public static void writeClassLists()
     {
         int i;
-        HDF data = makePackageHDF();
+        Data data = makePackageHDF();
 
         ClassInfo[] classes = PackageInfo.filterHidden(
                                     Converter.convertClasses(root.classes()));
@@ -920,7 +985,7 @@ public class DroidDoc
                 info.add(cl);
             }
         }
-        HDF data = makePackageHDF();
+        Data data = makePackageHDF();
         Hierarchy.makeHierarchy(data, info.toArray(new ClassInfo[info.size()]));
         setPageTitle(data, "Class Hierarchy");
         ClearPage.write(data, "hierarchy.cs", javadocDir + "hierarchy" + htmlExtension);
@@ -931,14 +996,14 @@ public class DroidDoc
         ClassInfo[] classes = Converter.rootClasses();
 
         for (ClassInfo cl: classes) {
-            HDF data = makePackageHDF();
+            Data data = makePackageHDF();
             if (!cl.isHidden()) {
                 writeClass(cl, data);
             }
         }
     }
 
-    public static void writeClass(ClassInfo cl, HDF data)
+    public static void writeClass(ClassInfo cl, Data data)
     {
         cl.makeHDF(data);
 
@@ -948,7 +1013,7 @@ public class DroidDoc
         Proofread.writeClass(cl.htmlPage(), cl);
     }
 
-    public static void makeClassListHDF(HDF data, String base,
+    public static void makeClassListHDF(Data data, String base,
             ClassInfo[] classes)
     {
         for (int i=0; i<classes.length; i++) {

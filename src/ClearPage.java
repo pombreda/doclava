@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
+import com.google.clearsilver.jsilver.JSilver;
+import com.google.clearsilver.jsilver.data.Data;
+
 import com.sun.javadoc.*;
-import org.clearsilver.HDF;
 import org.clearsilver.CS;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ClearPage
 {
@@ -37,11 +41,11 @@ public class ClearPage
     }
     */
 
-    public static ArrayList<String> hdfFiles = new ArrayList<String>();
-
     private static ArrayList<String> mTemplateDirs = new ArrayList<String>();
     private static boolean mTemplateDirSet = false;
 
+    private static ArrayList<String> mBundledTemplateDirs = new ArrayList<String>();
+    
     public static String outputDir = "docs";
     public static String htmlDir = null;
     public static String toroot = null;
@@ -50,11 +54,20 @@ public class ClearPage
     {
         mTemplateDirSet = true;
         mTemplateDirs.add(dir);
-
-        File hdfFile = new File(dir, "data.hdf");
-        if (hdfFile.canRead()) {
-            hdfFiles.add(hdfFile.getPath());
-        }
+    }
+    
+    public static List<String> getTemplateDirs() {
+        return mTemplateDirs;
+    }
+    
+    public static void addBundledTemplateDir(String dir)
+    {
+        mTemplateDirSet = true;
+        mBundledTemplateDirs.add(dir);
+    }
+    
+    public static List<String> getBundledTemplateDirs() {
+        return mBundledTemplateDirs;
     }
 
     private static int countSlashes(String s)
@@ -69,12 +82,21 @@ public class ClearPage
         return slashcount;
     }
 
-    public static void write(HDF data, String templ, String filename)
+   public static void write(Data data, String templ, String filename, JSilver cs)
+   {
+       write(data, templ, filename, false, cs);
+   }
+    
+    public static void write(Data data, String templ, String filename)
     {
-        write(data, templ, filename, false);
+        write(data, templ, filename, false, DroidDoc.jSilver);
     }
 
-    public static void write(HDF data, String templ, String filename, boolean fullPath)
+    public static void write(Data data, String templ, String filename, boolean fullPath) {
+        write(data, templ, filename, false, DroidDoc.jSilver);
+    }
+    
+    public static void write(Data data, String templ, String filename, boolean fullPath, JSilver cs)
     {
         if (htmlDir != null) {
             data.setValue("hasindex", "true");
@@ -115,9 +137,6 @@ public class ClearPage
         } else {
             data.setValue("hdf.loadpaths." + i, "templates");
         }
-        
-        CS cs = new CS(data);
-        cs.parseFile(templ);
 
         File file = new File(outputFilename(filename));
         
@@ -127,7 +146,7 @@ public class ClearPage
         try {
             stream = new OutputStreamWriter(
                             new FileOutputStream(file), "UTF-8");
-            String rendered = cs.render();
+            String rendered = cs.render(templ,data);
             stream.write(rendered, 0, rendered.length());
         }
         catch (IOException e) {
@@ -213,7 +232,7 @@ public class ClearPage
         catch (IOException e) {
         }
     }
-    
+   
     /** Takes a string that ends w/ .html and changes the .html to htmlExtension */
     public static String outputFilename(String htmlFile) {
         if (!DroidDoc.htmlExtension.equals(".html") && htmlFile.endsWith(".html")) {

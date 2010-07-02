@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import org.clearsilver.HDF;
+
+import com.google.clearsilver.jsilver.data.Data;
+
 import org.clearsilver.CS;
 import java.util.*;
 import java.io.*;
@@ -101,7 +103,7 @@ public class SampleCode {
         // write the index page
         int i;
 
-        HDF hdf = writeIndex(dir);
+        Data hdf = writeIndex(dir);
         hdf.setValue("subdir", subdir);
         i=0;
         for (String d: dirs) {
@@ -119,14 +121,14 @@ public class SampleCode {
     }
 
     public void writeIndexOnly(File dir, String relative, Boolean offline) {
-        HDF hdf = writeIndex(dir);
+        Data hdf = writeIndex(dir);
         if (!offline) relative = "/" + relative;
         ClearPage.write(hdf, "sampleindex.cs", relative + "index" +
                         DroidDoc.htmlExtension);
     }
 
-    public HDF writeIndex(File dir) {
-        HDF hdf = DroidDoc.makeHDF();
+    public Data writeIndex(File dir) {
+        Data hdf = DroidDoc.makeHDF();
 
         hdf.setValue("page.title", dir.getName() + " - " + mTitle);
         hdf.setValue("projectTitle", mTitle);
@@ -150,8 +152,8 @@ public class SampleCode {
         String data = SampleTagInfo.readFile(new SourcePositionInfo(filename, -1,-1), filename,
                                                 "sample code", true, true, true);
         data = DroidDoc.escape(data);
-        
-        HDF hdf = DroidDoc.makeHDF();
+
+        Data hdf = DroidDoc.makeHDF();
 
         hdf.setValue("page.title", name);
         hdf.setValue("subdir", subdir);
@@ -165,8 +167,8 @@ public class SampleCode {
         String name = f.getName();
 
         String data = "<img src=\"" + name + "\" title=\"" + name + "\" />";
-        
-        HDF hdf = DroidDoc.makeHDF();
+
+        Data hdf = DroidDoc.makeHDF();
 
         hdf.setValue("page.title", name);
         hdf.setValue("subdir", subdir);

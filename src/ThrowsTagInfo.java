@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import org.clearsilver.HDF;
+
+import com.google.clearsilver.jsilver.data.Data;
+
 import org.clearsilver.CS;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -67,7 +69,7 @@ public class ThrowsTagInfo extends ParsedTagInfo
         }
     }
 
-    public static void makeHDF(HDF data, String base, ThrowsTagInfo[] tags)
+    public static void makeHDF(Data data, String base, ThrowsTagInfo[] tags)
     {
         for (int i=0; i<tags.length; i++) {
             TagInfo.makeHDF(data, base + '.' + i + ".comment",

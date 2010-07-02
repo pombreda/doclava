@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+
+import com.google.clearsilver.jsilver.data.Data;
+
 import com.sun.javadoc.*;
 import com.sun.tools.doclets.*;
-import org.clearsilver.HDF;
 import org.clearsilver.CS;
 import java.util.*;
 import java.io.*;
@@ -108,7 +110,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo
         return out.toArray(new ClassInfo[0]);
     }
 
-    public void makeLink(HDF data, String base)
+    public void makeLink(Data data, String base)
     {
         if (checkLevel()) {
             data.setValue(base + ".link", htmlPage());
@@ -117,7 +119,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo
         data.setValue(base + ".since", getSince());
     }
 
-    public void makeClassLinkListHDF(HDF data, String base)
+    public void makeClassLinkListHDF(Data data, String base)
     {
         makeLink(data, base);
         ClassInfo.makeLinkListHDF(data, base + ".interfaces", interfaces());

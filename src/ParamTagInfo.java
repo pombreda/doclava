@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+import com.google.clearsilver.jsilver.data.Data;
+
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import org.clearsilver.HDF;
 import org.clearsilver.CS;
 
 public class ParamTagInfo extends ParsedTagInfo
@@ -77,14 +78,14 @@ public class ParamTagInfo extends ParsedTagInfo
     }
 
     @Override
-    public void makeHDF(HDF data, String base)
+    public void makeHDF(Data data, String base)
     {
         data.setValue(base + ".name", parameterName());
         data.setValue(base + ".isTypeParameter", isTypeParameter() ? "1" : "0");
         TagInfo.makeHDF(data, base + ".comment", commentTags());
     }
 
-    public static void makeHDF(HDF data, String base, ParamTagInfo[] tags)
+    public static void makeHDF(Data data, String base, ParamTagInfo[] tags)
     {
         for (int i=0; i<tags.length; i++) {
             // don't output if the comment is ""

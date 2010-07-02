@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
-import java.util.Comparator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -30,7 +29,7 @@ public class Stubs {
     public static void writeStubs(String stubsDir, Boolean writeXML, String xmlFile,
             HashSet<String> stubPackages) {
         // figure out which classes we need
-        notStrippable = new HashSet();
+        notStrippable = new HashSet<ClassInfo>();
         ClassInfo[] all = Converter.allClasses();
         File  xml = new File(xmlFile);
         xml.getParentFile().mkdirs();

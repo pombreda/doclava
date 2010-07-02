@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import org.clearsilver.HDF;
+import com.google.clearsilver.jsilver.data.Data;
 
 import java.util.*;
 
@@ -546,7 +546,7 @@ public class MethodInfo extends MemberInfo
         return true;
     }
 
-    public void makeHDF(HDF data, String base)
+    public void makeHDF(Data data, String base)
     {
         data.setValue(base + ".kind", kind());
         data.setValue(base + ".name", name());

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import org.clearsilver.HDF;
+import com.google.clearsilver.jsilver.data.Data;
+
 import org.clearsilver.CS;
 
 import java.io.Reader;
@@ -275,7 +276,7 @@ public class SampleTagInfo extends TagInfo
     }
 
     @Override
-    public void makeHDF(HDF data, String base)
+    public void makeHDF(Data data, String base)
     {
         data.setValue(base + ".name", name());
         data.setValue(base + ".kind", kind());

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import org.clearsilver.HDF;
-import org.clearsilver.CS;
+import com.google.clearsilver.jsilver.data.Data;
 
 import java.util.Comparator;
 
@@ -212,7 +211,7 @@ public class FieldInfo extends MemberInfo
     }
 
 
-    public void makeHDF(HDF data, String base)
+    public void makeHDF(Data data, String base)
     {
         data.setValue(base + ".kind", kind());
         type().makeHDF(data, base + ".type");

@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
+import com.google.clearsilver.jsilver.data.Data;
+
 import java.util.HashMap;
 import java.util.TreeSet;
 import java.util.Set;
-import org.clearsilver.HDF;
 
 public class Hierarchy
 {
-    public static void makeHierarchy(HDF hdf, ClassInfo[] classes)
+    public static void makeHierarchy(Data hdf, ClassInfo[] classes)
     {
         HashMap<String,TreeSet<String>> nodes
                                     = new HashMap<String,TreeSet<String>>();
@@ -65,7 +66,7 @@ public class Hierarchy
         hdf.setValue("classes.0", "");
         hdf.setValue("colspan", "" + depth);
 
-        recurse(nodes, "java.lang.Object", hdf.getObj("classes.0"),depth,depth);
+        recurse(nodes, "java.lang.Object", hdf.getChild("classes.0"),depth,depth);
 
         if (false) {
             Set<String> keys = nodes.keySet();
@@ -101,7 +102,7 @@ public class Hierarchy
     }
 
     private static void recurse(HashMap<String,TreeSet<String>> nodes,
-                                String name, HDF hdf, 
+                                String name, Data hdf, 
                                 int totalDepth, int remainingDepth)
     {
         int i;
@@ -137,13 +138,13 @@ public class Hierarchy
         TreeSet<String> derived = nodes.get(name);
         if (derived != null && derived.size() > 0) {
             hdf.setValue("derived", "");
-            HDF children = hdf.getObj("derived");
+            Data children = hdf.getChild("derived");
             i = 0;
             remainingDepth--;
             for (String s: derived) {
                 String index = "" + i;
                 children.setValue(index, "");
-                recurse(nodes, s, children.getObj(index), totalDepth,
+                recurse(nodes, s, children.getChild(index), totalDepth,
                         remainingDepth);
                 i++;
             }

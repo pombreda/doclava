@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+
+import com.google.clearsilver.jsilver.data.Data;
+
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import org.clearsilver.HDF;
 import org.clearsilver.CS;
 
 
@@ -109,7 +111,7 @@ public class AttrTagInfo extends TagInfo
     }
 
     @Override
-    public void makeHDF(HDF data, String base)
+    public void makeHDF(Data data, String base)
     {
         super.makeHDF(data, base);
     }
@@ -118,7 +120,7 @@ public class AttrTagInfo extends TagInfo
         mAttrInfo = info;
     }
 
-    public static void makeReferenceHDF(HDF data, String base, AttrTagInfo[] tags)
+    public static void makeReferenceHDF(Data data, String base, AttrTagInfo[] tags)
     {
         int i=0;
         for (AttrTagInfo t: tags) {

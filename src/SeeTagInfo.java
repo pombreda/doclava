@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import org.clearsilver.HDF;
-import org.clearsilver.CS;
-import java.util.ArrayList;
+
+import com.google.clearsilver.jsilver.data.Data;
 
 public class SeeTagInfo extends TagInfo
 {
@@ -46,7 +43,7 @@ public class SeeTagInfo extends TagInfo
     }
 
     @Override
-    public void makeHDF(HDF data, String base)
+    public void makeHDF(Data data, String base)
     {
         LinkReference linkRef = linkReference();
         if (linkRef.kind != null) {
@@ -67,7 +64,7 @@ public class SeeTagInfo extends TagInfo
         return linkReference().checkLevel();
     }
 
-    public static void makeHDF(HDF data, String base, SeeTagInfo[] tags)
+    public static void makeHDF(Data data, String base, SeeTagInfo[] tags)
     {
         int j=0;
         for (SeeTagInfo tag: tags) {

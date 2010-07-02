@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import org.clearsilver.HDF;
+import com.google.clearsilver.jsilver.data.Data;
+
 import org.clearsilver.CS;
 
 public class TagInfo
@@ -55,24 +56,24 @@ public class TagInfo
         mKind = kind;
     }
 
-    public void makeHDF(HDF data, String base)
+    public void makeHDF(Data data, String base)
     {
         data.setValue(base + ".name", name());
         data.setValue(base + ".text", text());
         data.setValue(base + ".kind", kind());
     }
 
-    public static void makeHDF(HDF data, String base, TagInfo[] tags)
+    public static void makeHDF(Data data, String base, TagInfo[] tags)
     {
         makeHDF(data, base, tags, null, 0, 0);
     }
 
-    public static void makeHDF(HDF data, String base, InheritedTags tags)
+    public static void makeHDF(Data data, String base, InheritedTags tags)
     {
         makeHDF(data, base, tags.tags(), tags.inherited(), 0, 0);
     }
 
-    private static int makeHDF(HDF data, String base, TagInfo[] tags,
+    private static int makeHDF(Data data, String base, TagInfo[] tags,
                                 InheritedTags inherited, int j, int depth)
     {
         int i;

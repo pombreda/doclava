@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
+
 import com.sun.javadoc.*;
-import com.sun.tools.doclets.*;
-import org.clearsilver.HDF;
-import org.clearsilver.CS;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -228,7 +226,8 @@ public class Converter
         }
         ClassDoc c;
         ClassInfo cl;
-    };
+    }
+    
     private static ArrayList<ClassNeedingInit> mClassesNeedingInit
                                             = new ArrayList<ClassNeedingInit>();
 
@@ -280,7 +279,7 @@ public class Converter
         @Override
         ClassInfo[] all()
         {
-            return (ClassInfo[])mCache.values().toArray(new ClassInfo[mCache.size()]);
+            return mCache.values().toArray(new ClassInfo[mCache.size()]);
         }
     };
 
@@ -689,8 +688,10 @@ public class Converter
     }
 
     // annotation values
-    private static HashMap<AnnotationValue,AnnotationValueInfo> mAnnotationValues = new HashMap();
-    private static HashSet<AnnotationValue> mAnnotationValuesNeedingInit = new HashSet();
+    private static HashMap<AnnotationValue,AnnotationValueInfo> mAnnotationValues =
+        new HashMap<AnnotationValue,AnnotationValueInfo>();
+    private static HashSet<AnnotationValue> mAnnotationValuesNeedingInit =
+        new HashSet<AnnotationValue>();
 
     private static AnnotationValueInfo obtainAnnotationValue(AnnotationValue o, MethodInfo element)
     {
@@ -743,7 +744,7 @@ public class Converter
         int depth = 0;
         while (mAnnotationValuesNeedingInit.size() > 0) {
             HashSet<AnnotationValue> set = mAnnotationValuesNeedingInit;
-            mAnnotationValuesNeedingInit = new HashSet();
+            mAnnotationValuesNeedingInit = new HashSet<AnnotationValue>();
             for (AnnotationValue o: set) {
                 AnnotationValueInfo v = mAnnotationValues.get(o);
                 initAnnotationValue(o, v);

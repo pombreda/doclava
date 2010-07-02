@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import org.clearsilver.HDF;
+import com.google.clearsilver.jsilver.data.Data;
 
 import java.util.ArrayList;
 
@@ -38,7 +38,7 @@ public class NavTree {
             node.renderChildren(buf);
         }
 
-        HDF data = DroidDoc.makeHDF();
+        Data data = DroidDoc.makeHDF();
         data.setValue("reference_tree", buf.toString());
         ClearPage.write(data, "navtree_data.cs", "navtree_data.js");
     }

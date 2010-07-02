@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
+import com.google.clearsilver.jsilver.data.Data;
+
 import java.util.ArrayList;
 import java.util.Comparator;
-
-import org.clearsilver.HDF;
-import org.clearsilver.CS;
 
 public class AttributeInfo {
     public static final Comparator<AttributeInfo> comparator = new Comparator<AttributeInfo>() {
@@ -75,7 +74,7 @@ public class AttributeInfo {
         return mClass.htmlPage() + "#" + anchor();
     }
 
-    public void makeHDF(HDF data, String base) {
+    public void makeHDF(Data data, String base) {
         data.setValue(base + ".name", name());
         data.setValue(base + ".anchor", anchor());
         data.setValue(base + ".href", htmlPage());

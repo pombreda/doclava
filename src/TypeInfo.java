@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import org.clearsilver.HDF;
+import com.google.clearsilver.jsilver.data.Data;
+
 import org.clearsilver.CS;
 import java.util.*;
 import java.io.*;
@@ -125,28 +126,28 @@ public class TypeInfo
         return mTypeArguments;
     }
 
-    public void makeHDF(HDF data, String base)
+    public void makeHDF(Data data, String base)
     {
         makeHDFRecursive(data, base, false, false, new HashSet<String>());
     }
 
-    public void makeQualifiedHDF(HDF data, String base)
+    public void makeQualifiedHDF(Data data, String base)
     {
         makeHDFRecursive(data, base, true, false, new HashSet<String>());
     }
 
-    public void makeHDF(HDF data, String base, boolean isLastVararg,
+    public void makeHDF(Data data, String base, boolean isLastVararg,
             HashSet<String> typeVariables)
     {
         makeHDFRecursive(data, base, false, isLastVararg, typeVariables);
     }
 
-    public void makeQualifiedHDF(HDF data, String base, HashSet<String> typeVariables)
+    public void makeQualifiedHDF(Data data, String base, HashSet<String> typeVariables)
     {
         makeHDFRecursive(data, base, true, false, typeVariables);
     }
 
-    private void makeHDFRecursive(HDF data, String base, boolean qualified,
+    private void makeHDFRecursive(Data data, String base, boolean qualified,
             boolean isLastVararg, HashSet<String> typeVars)
     {
         String label = qualified ? qualifiedTypeName() : simpleTypeName();
@@ -181,7 +182,7 @@ public class TypeInfo
         }
     }
 
-    public static void makeHDF(HDF data, String base, TypeInfo[] types, boolean qualified,
+    public static void makeHDF(Data data, String base, TypeInfo[] types, boolean qualified,
             HashSet<String> typeVariables)
     {
         final int N = types.length;
@@ -190,7 +191,7 @@ public class TypeInfo
         }
     }
 
-    public static void makeHDF(HDF data, String base, TypeInfo[] types, boolean qualified)
+    public static void makeHDF(Data data, String base, TypeInfo[] types, boolean qualified)
     {
         makeHDF(data, base, types, qualified, new HashSet<String>());
     }

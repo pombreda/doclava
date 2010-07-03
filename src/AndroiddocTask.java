@@ -12,7 +12,7 @@ public final class AndroiddocTask extends Task {
   @Override
   public void execute() {
     if (args == null) {
-      throw new BuildException("No command specified.");
+      throw new BuildException("No arguments specified.");
     }
 
     try {
@@ -31,6 +31,9 @@ public final class AndroiddocTask extends Task {
    * 
    */
   public Arguments createArguments() {
+    if (args != null) {
+      throw new BuildException("Arguments parameter set multiple times.");
+    }
     args = new Arguments();
     return args;
   }
@@ -58,8 +61,8 @@ public final class AndroiddocTask extends Task {
 
       List<String> parts = new ArrayList<String>();
       int currentPosition = 0, length = text.length();
+      
       while (currentPosition < length) {
-
         int openQuotePosition = text.indexOf('"', currentPosition);
         int closeQuotePosition;
         if (openQuotePosition == -1) {

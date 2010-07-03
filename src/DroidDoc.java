@@ -25,6 +25,7 @@ import com.google.clearsilver.jsilver.resourceloader.ResourceLoader;
 import com.sun.javadoc.*;
 
 import java.util.*;
+import java.util.jar.JarFile;
 import java.io.*;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Array;
@@ -623,28 +624,27 @@ public class DroidDoc
     
     public static void writeAssets()
     {
-        try {
-            String assetsdir;
-            List<String> templatedirs = ClearPage.getBundledTemplateDirs();
-            for (String templatedir : templatedirs)
-            {
-                assetsdir = templatedir + "/assets";
-                try {
-                    JarUtils.resourcesToDirectory(assetsdir, ClearPage.outputDir + "/assets");
-                } catch (IllegalStateException e) {
-                    // Not in a jar file
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Error copying assets directory.");
-            e.printStackTrace();
-            return ;
+        JarFile thisJar = JarUtils.jarForClass(DroidDoc.class, null);
+        if (thisJar != null) {
+          try {      
+              List<String> templateDirs = ClearPage.getBundledTemplateDirs();
+              for (String templateDir : templateDirs)
+              {
+                  String assetsDir = templateDir + "/assets";
+                  JarUtils.copyResourcesToDirectory(thisJar, assetsDir,
+                    ClearPage.outputDir + "/assets");
+              }
+          } catch (IOException e) {
+              System.err.println("Error copying assets directory.");
+              e.printStackTrace();
+              return ;
+          }
         }
         
-        List<String> templatedirs = ClearPage.getTemplateDirs();
-        for (String templatedir : templatedirs)
+        List<String> templateDirs = ClearPage.getTemplateDirs();
+        for (String templateDir : templateDirs)
         {
-            File assets = new File(templatedir + "/assets");
+            File assets = new File(templateDir + "/assets");
             if (assets.isDirectory())
             {
                 writeDirectory(assets, "assets/", null);

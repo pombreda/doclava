@@ -13,11 +13,12 @@ import java.util.jar.JarFile;
 
 public class JarUtils {
     /**
-     * Returns the .jar for this context.
+     * Returns the jar file used to load class clazz, or defaultJar if clazz was
+     * not loaded from a jar.
      */
-    private static File thisJar() {
-        String path = JarUtils.class.getName().replace('.', '/') + ".class";
-        URL jarUrl = JarUtils.class.getResource(path);
+    public static JarFile jarForClass(Class<?> clazz, JarFile defaultJar) {
+        String path = clazz.getName().replace('.', '/') + ".class";
+        URL jarUrl = clazz.getResource(path);
         if (jarUrl == null) {
             throw new IllegalStateException("Cannot find context's own .jar");
         }
@@ -26,37 +27,35 @@ public class JarUtils {
         int bang = url.indexOf("!");
         String JAR_URI_PREFIX = "jar:file:";
         if (url.startsWith(JAR_URI_PREFIX) && bang != -1) {
-            return new File(url.substring(JAR_URI_PREFIX.length(), bang));
+          try {
+            return new JarFile(url.substring(JAR_URI_PREFIX.length(), bang));
+          } catch (IOException e) {
+            throw new IllegalStateException("Error loading jar file.",e);
+          }
         } else {
-            throw new IllegalStateException("Cannot find this context's .jar file in " + jarUrl);
+            return defaultJar;
         }
     }
     
     /**
-     * Copies a directory within this context's jar file to an external directory
-     * @param sourceDir
-     * @param destDir
+     * Copies a directory from a jar file to an external directory.
      */
-    public static void resourcesToDirectory(String sourceDir, String destDir)
+    public static void copyResourcesToDirectory(JarFile fromJar, String jarDir, String destDir)
         throws IOException
     {
-        File file = thisJar();
-        JarFile jar = new JarFile(file);
-        
-        Enumeration<JarEntry> entries = jar.entries();
-        while (entries.hasMoreElements())
+        for (Enumeration<JarEntry> entries = fromJar.entries(); entries.hasMoreElements(); )
         {
             JarEntry entry = entries.nextElement();
-            if (entry.getName().startsWith(sourceDir+"/") && !entry.isDirectory())
+            if (entry.getName().startsWith(jarDir+"/") && !entry.isDirectory())
             {
-                File dest = new File(destDir + "/" + entry.getName().substring(sourceDir.length()+1));
+                File dest = new File(destDir + "/" + entry.getName().substring(jarDir.length()+1));
                 File parent = dest.getParentFile();
                 if (parent != null) {
                     parent.mkdirs();
                 }
                 
                 FileOutputStream out = new FileOutputStream(dest);
-                InputStream in = jar.getInputStream(entry);
+                InputStream in = fromJar.getInputStream(entry);
                 
                 try {
                     byte[] buffer = new byte[8*1024];
@@ -67,9 +66,6 @@ public class JarUtils {
                         out.write(buffer, 0, s);
                     }
                 } catch (IOException e) {
-                    try {
-                        dest.delete();
-                    } catch (Exception ignored) {}
                     throw new IOException("Could not copy asset from jar file", e);
                 } finally {
                     try {
@@ -83,5 +79,6 @@ public class JarUtils {
         }
         
     }
-
+    
+    private JarUtils() {} // non-instantiable
 }

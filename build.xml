@@ -13,7 +13,7 @@
   <target name="compile" description="Compile Java source."> 
     <mkdir dir="build/classes"/> 
  
-      <property name="jsilver" value="../workspace/JSilver/build/dist/jsilver-0.1.5/jsilver-0.1.5.jar"/> 
+      <property name="jsilver" value="lib/jsilver.jar"/> 
 
   	<echo message="${javahome}" />
     <javac srcdir="src"

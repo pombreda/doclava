@@ -35,10 +35,6 @@ import java.lang.reflect.Method;
 
 public class DroidDoc
 {
-  static {
-    System.out.println("DROIDDOC INITIALIZING!!!");
-  }
-  
     private static final String SDK_CONSTANT_ANNOTATION = "android.annotation.SdkConstant";
     private static final String SDK_CONSTANT_TYPE_ACTIVITY_ACTION = "android.annotation.SdkConstant.SdkConstantType.ACTIVITY_INTENT_ACTION";
     private static final String SDK_CONSTANT_TYPE_BROADCAST_ACTION = "android.annotation.SdkConstant.SdkConstantType.BROADCAST_INTENT_ACTION";

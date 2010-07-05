@@ -3,9 +3,9 @@
 <!-- To build documentation for TinySDK:
 
 	1. Download Junction's source code:
-		cd samples/junction; svn export http://prpl.stanford.edu/svn/prpl/junction/lib/JAVAJunction .
+		cd samples/junction; svn export http://prpl.stanford.edu/svn/prpl/junction/lib/JAVAJunction junction
 	2. 
-		rm doclava/src-list; find src/main -name '*.java' >> doclava/src-list
+		rm doclava/src-list; find junction/src/main -name '*.java' >> doclava/src-list
 		mvn assembly:assembly # builds a jar with dependencies
 
 	2. run: `ant androiddoc`

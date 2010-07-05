@@ -1,55 +1,69 @@
-<project name="droiddoc" default="jar"> 
-  <property name="release" value="0.1.6"/>
+<project name="droiddoc" default="jar">
+	<property name="release" value="0.1.6"/>
 	<property name="jar.dir" value="build/dist/androiddoc-${release}"/>
 	<property name="jar.file" value="${jar.dir}/androiddoc-${release}.jar"/>
-	
-  <property environment="env"/> 
- 
-  <!-- these properties can be overridden at the command line with
-       -Dname=value, or in IDEA in the ant properties dialog --> 
- 
-  <property name="javahome" value="${env.JAVA_HOME}" />
- 
-  <target name="compile" description="Compile Java source."> 
-    <mkdir dir="build/classes"/> 
- 
-      <property name="jsilver" value="lib/jsilver.jar"/> 
 
-  	<echo message="${javahome}" />
-    <javac srcdir="src"
+	<property environment="env"/>
+	<property name="javahome" value="${env.JAVA_HOME}" />
+
+	<target name="compile" description="Compile Java source.">
+		<mkdir dir="build/classes"/>
+
+		<property name="jsilver" value="lib/jsilver.jar"/>
+
+		<echo message="${javahome}" />
+		<javac srcdir="src"
          debug="on"
          destdir="build/classes"
          source="1.5"
          target="1.5"
-         extdirs=""> 
-      <compilerarg value="-Xlint:all"/> 
-      <classpath>
-      	<pathelement location="${jsilver}"/>
-      </classpath> 
-    </javac> 
-  </target> 
- 
-  <target name="jar" depends="compile" description="Build jar."> 
-    <mkdir dir="${jar.dir}"/> 
-  	
-  	<copy todir="build/classes/assets">
-  		<fileset dir="assets"/>
-  	</copy>
-  	
-    <jar jarfile="${jar.file}"> 
-      <fileset dir="build/classes"/>
-    	<zipfileset src="${jsilver}" />
-    </jar> 
-  </target> 
- 
-  <target name="clean"
-      description="Remove generated files."> 
-    <delete dir="build"/> 
-  </target> 
-	
+         extdirs="">
+			<compilerarg value="-Xlint:all"/>
+			<classpath>
+				<pathelement location="${jsilver}"/>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile" description="Build jar.">
+		<mkdir dir="${jar.dir}"/>
+
+		<copy todir="build/classes/assets">
+			<fileset dir="assets"/>
+		</copy>
+
+		<jar jarfile="${jar.file}">
+			<fileset dir="build/classes"/>
+			<zipfileset src="${jsilver}" />
+		</jar>
+	</target>
+
+	<target name="clean"
+      description="Remove generated files.">
+		<delete dir="build"/>
+	</target>
+
 	<target name="clean-jar" 
 		description="cleans and builds a .jar"
 		depends="clean,jar">
 	</target>
- 
-</project> 
+
+
+	<target name="doclava" description="Generate documentation">
+		<taskdef name="doclava" classname="AndroiddocTask" classpath="${jar.file}"/>
+		<doclava>
+			<arguments>
+	        	-quiet
+	        	-bootclasspath "${javahome}/jre/lib/rt.jar"
+	        	-doclet DroidDoc
+	        	-docletpath ${jar.file}
+	        	-classpath ${jar.file}
+	        	-d build/api
+	 	       	-hdf project.name "Junction"
+	        	-stubs build/stubs
+	        	-apixml build/public_api.xml
+	        	@doclava/src-list
+	      	</arguments>
+		</doclava>
+	</target>
+</project>

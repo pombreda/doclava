@@ -11,7 +11,9 @@
 	2. run: `ant androiddoc`
 		Documentation will be built for the files listed in doclava/src-list.
 -->
-
+  <property environment="env"/>
+  <property name="javahome"
+	value="${env.JAVA_HOME}"/>
   <property name="androiddoc.file" 
     value="../../build/dist/androiddoc-0.1.6/androiddoc-0.1.6.jar"/>
 
@@ -20,13 +22,12 @@
       <androiddoc>
         <arguments>
         	-quiet
+        	-bootclasspath "${javahome}/jre/lib/rt.jar${path.separator}${javahome}/jre/lib/jsse.jar"
         	-doclet DroidDoc
         	-docletpath ${androiddoc.file}
-        	-classpath /usr/lib/jvm/java-6-openjdk/jre/lib/rt.jar:target/JAVAJunction-0.6.7-SNAPSHOT-jar-with-dependencies.jar
+        	-classpath "junction/target/JAVAJunction-0.6.7-SNAPSHOT-jar-with-dependencies.jar"
         	-d build/api
  	       	-hdf project.name "Junction"
-                -hdf page.build MASTER-eng.bjdodson.20100623.095852
-                -hdf page.now "23 Jun 2010  9:58"
         	-stubs build/stubs
         	-apixml build/public_api.xml
         	@doclava/src-list

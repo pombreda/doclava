@@ -1,4 +1,3 @@
-
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
@@ -16,11 +15,7 @@ public final class AndroiddocTask extends Task {
     }
 
     try {
-
-      // TODO: fork a process to run java on DroidDoc.main
       com.sun.tools.javadoc.Main.execute(args.getArgumentsList().toArray(new String[] {}));
-
-
     } catch (Exception e) {
       throw new BuildException("Error generating documentation.", e);
     }
@@ -41,18 +36,16 @@ public final class AndroiddocTask extends Task {
   public class Arguments {
     private String text;
 
-    public Arguments() {
-    }
+    public Arguments() {}
 
     public void addText(String text) {
       this.text = getProject().replaceProperties(text);
     }
 
     /**
-     * Returns a list of arguments. Arguments are whitespace-separated character
-     * sequences. If an argument starts with a double quotation mark, then the
-     * argument consists of all characters (including whitespace) preceding the
-     * closing quotation mark.
+     * Returns a list of arguments. Arguments are whitespace-separated character sequences. If an
+     * argument starts with a double quotation mark, then the argument consists of all characters
+     * (including whitespace) preceding the closing quotation mark.
      */
     public List<String> getArgumentsList() {
       if (text == null) {
@@ -61,7 +54,7 @@ public final class AndroiddocTask extends Task {
 
       List<String> parts = new ArrayList<String>();
       int currentPosition = 0, length = text.length();
-      
+
       while (currentPosition < length) {
         int openQuotePosition = text.indexOf('"', currentPosition);
         int closeQuotePosition;

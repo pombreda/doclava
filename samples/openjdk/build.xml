@@ -20,16 +20,16 @@
 	    Documentation will be built for the files listed in doclava/jdk-src-list.
 	-->
 	
-  <property name="droiddoc.file" 
-    value="../../build/dist/androiddoc-0.1.6/androiddoc-0.1.6.jar"/>
+  <property name="doclava.file" 
+    value="../../build/dist/doclava-0.1.7/doclava-0.1.7.jar"/>
 
   <target name="doclava" description="Generate documentation">
-    <taskdef name="droiddoc" classname="DroiddocTask" classpath="${droiddoc.file}"/>
-      <droiddoc>
+    <taskdef name="doclava" classname="com.google.doclava.DoclavaTask" classpath="${doclava.file}"/>
+      <doclava>
         <arguments>
         	-quiet
-        	-doclet DroidDoc
-        	-docletpath ${droiddoc.file}
+        	-doclet com.google.doclava.Doclava
+        	-docletpath ${doclava.file}
         	-templatedir ../android/doclava/templates-sdk
         	-templatedir ../android/doclava/templates
         	-htmldir ../android/doclava/html
@@ -46,7 +46,7 @@
         	-apixml build/public_api.xml
         	@doclava/jdk-src-list
       	</arguments>
-      </droiddoc>
+      </doclava>
 	</target>
 
 	

@@ -1,4 +1,4 @@
-<project name="TinySDKDocs" default="androiddoc" basedir=".">
+<project name="TinySDKDocs" default="doclava" basedir=".">
 
 <!-- To build documentation for TinySDK:
 
@@ -6,21 +6,21 @@
 		cd /path/to/gwtdoc
 		svn checkout http://google-web-toolkit.googlecode.com/svn/trunk/ gwt-src
 
-	2. run: `ant androiddoc`
+	2. run: `ant doclava`
 		Documentation will be built for the files listed in input/tinysdk-src-list.
 		This file lists a small sampling of classes from java.lang.
 -->
 
-  <property name="anddroiddoc.file" 
-    value="../../build/dist/androiddoc-0.1.6/androiddoc-0.1.6.jar"/>
+  <property name="doclava.file" 
+    value="../../build/dist/doclava-0.1.7/doclava-0.1.7.jar"/>
 
-  <target name="androiddoc" description="Generate documentation">
-    <taskdef name="androiddoc" classname="AndroiddocTask" classpath="${anddroiddoc.file}"/>
-      <androiddoc>
+  <target name="doclava" description="Generate documentation">
+    <taskdef name="doclava" classname="com.google.doclava.DoclavaTask" classpath="${doclava.file}"/>
+      <doclava>
         <arguments>
         	-quiet
-        	-doclet DroidDoc
-        	-docletpath ${anddroiddoc.file}
+        	-doclet com.google.doclava.Doclava
+        	-docletpath ${doclava.file}
         	-classpath /usr/lib/jvm/java-6-sun/jre/lib/rt.jar
         	-templatedir ../android/doclava/templates-sdk
         	-templatedir ../android/doclava/templates
@@ -38,7 +38,7 @@
         	-apixml build/public_api.xml
         	@doclava/tinysdk-src-list
       	</arguments>
-      </androiddoc>
+      </doclava>
   </target>
 
   <target name="clean" description="Remove generated files.">

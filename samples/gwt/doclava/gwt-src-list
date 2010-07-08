@@ -1014,6 +1014,7 @@ gwt-src/user/src/com/google/gwt/uibinder/attributeparsers/VerticalAlignmentConst
 gwt-src/user/src/com/google/gwt/uibinder/attributeparsers/IntAttributeParser.java
 gwt-src/user/src/com/google/gwt/uibinder/attributeparsers/EnumAttributeParser.java
 gwt-src/user/src/com/google/gwt/uibinder/attributeparsers/BundleAttributeParsers.java
+gwt-src/user/src/com/google/gwt/uibinder/attributeparsers/TextAlignConstantParser.java
 gwt-src/user/src/com/google/gwt/uibinder/attributeparsers/BundleAttributeParser.java
 gwt-src/user/src/com/google/gwt/uibinder/attributeparsers/StringAttributeParser.java
 gwt-src/user/src/com/google/gwt/uibinder/attributeparsers/CssNameConverter.java
@@ -1446,7 +1447,6 @@ gwt-src/user/src/com/google/gwt/user/client/History.java
 gwt-src/user/src/com/google/gwt/user/client/IncrementalCommandCanceledException.java
 gwt-src/user/src/com/google/gwt/user/client/Element.java
 gwt-src/user/src/com/google/gwt/user/cellview/client/CellTreeNodeView.java
-gwt-src/user/src/com/google/gwt/user/cellview/client/CellListImpl.java
 gwt-src/user/src/com/google/gwt/user/cellview/client/Column.java
 gwt-src/user/src/com/google/gwt/user/cellview/client/TextHeader.java
 gwt-src/user/src/com/google/gwt/user/cellview/client/Header.java
@@ -1458,6 +1458,7 @@ gwt-src/user/src/com/google/gwt/user/cellview/client/AbstractPager.java
 gwt-src/user/src/com/google/gwt/user/cellview/client/CellList.java
 gwt-src/user/src/com/google/gwt/user/cellview/client/IdentityColumn.java
 gwt-src/user/src/com/google/gwt/user/cellview/client/CellBrowser.java
+gwt-src/user/src/com/google/gwt/user/cellview/client/PagingListViewPresenter.java
 gwt-src/user/src/com/google/gwt/user/cellview/client/TextColumn.java
 gwt-src/user/src/com/google/gwt/user/rebind/Enum.java
 gwt-src/user/src/com/google/gwt/user/rebind/StringSourceWriter.java

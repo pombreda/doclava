@@ -1,4 +1,4 @@
-<project name="JunctionDocs" default="androiddoc" basedir=".">
+<project name="JunctionDocs" default="doclava" basedir=".">
 
 <!-- To build documentation for TinySDK:
 
@@ -14,17 +14,17 @@
   <property environment="env"/>
   <property name="javahome"
 	value="${env.JAVA_HOME}"/>
-  <property name="androiddoc.file" 
-    value="../../build/dist/androiddoc-0.1.6/androiddoc-0.1.6.jar"/>
+  <property name="doclava.file" 
+    value="../../build/dist/doclava-0.1.7/doclava-0.1.7.jar"/>
 
-  <target name="androiddoc" description="Generate documentation">
-    <taskdef name="androiddoc" classname="AndroiddocTask" classpath="${androiddoc.file}"/>
-      <androiddoc>
+  <target name="doclava" description="Generate documentation">
+    <taskdef name="doclava" classname="com.google.doclava.DoclavaTask" classpath="${doclava.file}"/>
+      <doclava>
         <arguments>
         	-quiet
         	-bootclasspath "${javahome}/jre/lib/rt.jar${path.separator}${javahome}/jre/lib/jsse.jar"
-        	-doclet DroidDoc
-        	-docletpath ${androiddoc.file}
+        	-doclet com.google.doclava.Doclava
+        	-docletpath ${doclava.file}
         	-classpath "junction/target/JAVAJunction-0.6.7-SNAPSHOT-jar-with-dependencies.jar"
         	-d build/api
  	       	-hdf project.name "Junction"
@@ -32,13 +32,9 @@
         	-apixml build/public_api.xml
         	@doclava/src-list
       	</arguments>
-      </androiddoc>
+      </doclava>
   </target>
 
-<!--
-        	-docletpath ${anddroiddoc.file}
-
- -->
   <target name="clean" description="Remove generated files.">
     <delete dir="build"/> 
   </target>

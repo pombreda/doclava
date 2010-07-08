@@ -1,7 +1,7 @@
-<project name="droiddoc" default="jar">
-	<property name="release" value="0.1.6"/>
-	<property name="jar.dir" value="build/dist/androiddoc-${release}"/>
-	<property name="jar.file" value="${jar.dir}/androiddoc-${release}.jar"/>
+<project name="doclava" default="jar">
+	<property name="release" value="0.1.7"/>
+	<property name="jar.dir" value="build/dist/doclava-${release}"/>
+	<property name="jar.file" value="${jar.dir}/doclava-${release}.jar"/>
 
 	<property environment="env"/>
 	<property name="javahome" value="${env.JAVA_HOME}" />
@@ -50,12 +50,12 @@
 
 
 	<target name="doclava" description="Generate documentation">
-		<taskdef name="doclava" classname="AndroiddocTask" classpath="${jar.file}"/>
+		<taskdef name="doclava" classname="com.google.doclava.DoclavaTask" classpath="${jar.file}"/>
 		<doclava>
 			<arguments>
 	        	-quiet
 	        	-bootclasspath "${javahome}/jre/lib/rt.jar"
-	        	-doclet DroidDoc
+	        	-doclet com.google.doclava.Doclava
 	        	-docletpath ${jar.file}
 	        	-classpath ${jar.file}
 	        	-d build/api

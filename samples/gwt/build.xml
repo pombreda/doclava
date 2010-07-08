@@ -1,4 +1,4 @@
-<project name="GWTDocs" default="androiddoc" basedir=".">
+<project name="GWTDocs" default="doclava" basedir=".">
 
 <!-- To build documentation for GWT:
 
@@ -6,22 +6,22 @@
 		cd /path/to/gwtdoc
 		svn checkout http://google-web-toolkit.googlecode.com/svn/trunk/ gwt-src
 
-	2. run: `ant androiddoc`
+	2. run: `ant doclava`
 		Documentation will be built for the files listed in input/gwt-src-list.
 		This file was generated with the command:
-		  rm androiddoc/gwt-src-list; for d in gwt-src/user/src gwt-src/dev gwt-src/user/super; do find $d -name '*.java' >> androiddoc/gwt-src-list; done
+		  rm doclava/gwt-src-list; for d in gwt-src/user/src gwt-src/dev gwt-src/user/super; do find $d -name '*.java' >> doclava/gwt-src-list; done
 -->
 
-  <property name="anddroiddoc.file" 
-    value="../../build/dist/androiddoc-0.1.6/androiddoc-0.1.6.jar"/>
+  <property name="doclava.file" 
+    value="../../build/dist/doclava-0.1.7/doclava-0.1.7.jar"/>
 
-  <target name="androiddoc" description="Generate documentation">
-    <taskdef name="androiddoc" classname="AndroiddocTask" classpath="${anddroiddoc.file}"/>
-      <androiddoc>
+  <target name="doclava" description="Generate documentation">
+    <taskdef name="doclava" classname="com.google.doclava.DoclavaTask" classpath="${doclava.file}"/>
+      <doclava>
         <arguments>
         	-quiet
-        	-doclet DroidDoc
-        	-docletpath ${anddroiddoc.file}
+        	-doclet com.google.doclava.Doclava
+        	-docletpath ${doclava.file}
         	-classpath /usr/lib/jvm/java-6-sun/jre/lib/rt.jar
         	-d build/api
         	-hdf project.name "GWT"
@@ -29,7 +29,7 @@
         	-apixml build/public_api.xml
         	@doclava/gwt-src-list
       	</arguments>
-      </androiddoc>
+      </doclava>
   </target>
 
   <target name="clean" description="Remove generated files.">

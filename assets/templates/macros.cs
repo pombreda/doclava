@@ -139,7 +139,17 @@ def:since_tags(obj) ?>
   Since: <a href="<?cs var:toroot ?>guide/appendix/api-levels.html#level<?cs var:obj.since ?>">API Level <?cs var:obj.since ?></a>
 <?cs /if ?>
 <?cs /def ?>
-
+<?cs def:federated_refs(obj) ?>
+  <?cs if:subcount(obj.federated) ?>
+    <div>
+    Also: 
+    <?cs each:federated=obj.federated ?>
+      <a href="<?cs var:federated.url ?>"><?cs var:federated.name ?></a>
+      <?cs if:!last(federated) ?> | <?cs /if ?>
+    <?cs /each ?>
+    </div>
+  <?cs /if ?>
+<?cs /def ?>
 <?cs # Print the long-form description for something.
        Uses the following fields: deprecated descr seeAlso since ?><?cs
 def:description(obj) ?><?cs 

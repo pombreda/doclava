@@ -113,6 +113,7 @@ public class Errors {
   public static Error MISSING_COMMENT = new Error(14, WARNING);
   public static Error IO_ERROR = new Error(15, HIDDEN);
   public static Error NO_SINCE_DATA = new Error(16, HIDDEN);
+  public static Error NO_FEDERATION_DATA = new Error(17, WARNING);
 
   public static Error[] ERRORS =
       {UNRESOLVED_LINK, BAD_INCLUDE_TAG, UNKNOWN_TAG, UNKNOWN_PARAM_TAG_NAME,

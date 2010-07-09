@@ -5,6 +5,7 @@ package com.google.doclava;
 import com.google.clearsilver.jsilver.data.Data;
 import com.google.doclava.apicheck.ApiCheck;
 import com.google.doclava.apicheck.ApiInfo;
+import com.google.doclava.apicheck.ApiParseException;
 
 
 import java.util.ArrayList;
@@ -44,7 +45,14 @@ public class SinceTagger {
     for (Map.Entry<String, String> versionSpec : xmlToName.entrySet()) {
       String xmlFile = versionSpec.getKey();
       String versionName = versionSpec.getValue();
-      ApiInfo specApi = new ApiCheck().parseApi(xmlFile);
+      
+      ApiInfo specApi;
+      try {
+        specApi = new ApiCheck().parseApi(xmlFile);
+      } catch (ApiParseException e) {
+        Errors.error(Errors.NO_SINCE_DATA, null, "Could not add since data for " + versionName);
+        continue;
+      }
 
       applyVersionsFromSpec(versionName, specApi, classDocs);
     }
@@ -86,7 +94,8 @@ public class SinceTagger {
         continue;
       }
 
-      com.google.doclava.apicheck.ClassInfo classSpec = packageSpec.allClasses().get(classDoc.name());
+      com.google.doclava.apicheck.ClassInfo classSpec
+        = packageSpec.allClasses().get(classDoc.name());
 
       if (classSpec == null) {
         continue;

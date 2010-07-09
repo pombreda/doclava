@@ -85,6 +85,7 @@ Summary:
 </div><!-- end sum-details-links -->
 <div class="api-level">
   <?cs call:since_tags(class) ?>
+  <?cs call:federated_refs(class) ?>
 </div>
 </div><!-- end api-info-block -->
 
@@ -483,6 +484,7 @@ From <?cs var:cl.kind ?> <?cs call:cond_link(cl.qualified, toroot, cl.link, cl.i
     </h4>
       <div class="api-level">
         <?cs call:since_tags(field) ?>
+        <?cs call:federated_refs(field) ?>
       </div>
     <div class="jd-details-descr">
       <?cs call:description(field) ?>
@@ -523,7 +525,8 @@ From <?cs var:cl.kind ?> <?cs call:cond_link(cl.qualified, toroot, cl.link, cl.i
       <span class="normal">(<?cs call:parameter_list(method.params) ?>)</span>
     </h4>
       <div class="api-level">
-        <?cs call:since_tags(method) ?>
+        <div><?cs call:since_tags(method) ?></div>
+        <?cs call:federated_refs(method) ?>
       </div>
     <div class="jd-details-descr">
       <?cs call:description(method) ?>

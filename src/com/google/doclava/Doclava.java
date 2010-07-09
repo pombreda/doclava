@@ -31,6 +31,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class Doclava {
   private static final String SDK_CONSTANT_ANNOTATION = "android.annotation.SdkConstant";
@@ -68,6 +70,7 @@ public class Doclava {
   public static Map<Character, String> escapeChars = new HashMap<Character, String>();
   public static String title = "";
   public static SinceTagger sinceTagger = new SinceTagger();
+  public static FederationTagger federationTagger = new FederationTagger();
 
   public static JSilver jSilver = null;
 
@@ -184,6 +187,15 @@ public class Doclava {
         sinceTagger.addVersion(a[1], a[2]);
       } else if (a[0].equals("-offlinemode")) {
         offlineMode = true;
+      } else if (a[0].equals("-federate")) {
+        try {
+          String name = a[1];
+          URL federationURL = new URL(a[2]);
+          federationTagger.addSite(name, federationURL);
+        } catch (MalformedURLException e) {
+          System.err.println("Could not parse URL for federation: " + a[1]);
+          return false;
+        }
       }
     }
 
@@ -217,6 +229,9 @@ public class Doclava {
 
       // Apply @since tags from the XML file
       sinceTagger.tagAll(Converter.rootClasses());
+      
+      // Apply details of federated documentation
+      federationTagger.tagAll(Converter.rootClasses());
 
       // Files for proofreading
       if (proofreadFile != null) {
@@ -276,6 +291,8 @@ public class Doclava {
     }
 
     Errors.printErrors();
+    com.google.doclava.apicheck.Errors.printErrors();
+    
     return !Errors.hadError;
   }
 
@@ -430,6 +447,9 @@ public class Doclava {
     }
     if (option.equals("-offlinemode")) {
       return 1;
+    }
+    if (option.equals("-federate")) {
+      return 3;
     }
     return 0;
   }
@@ -805,6 +825,7 @@ public class Doclava {
     data.setValue("package.name", name);
     data.setValue("package.since", pkg.getSince());
     data.setValue("package.descr", "...description...");
+    pkg.setFederatedReferences(data, "package");
 
     makeClassListHDF(data, "package.interfaces", ClassInfo.sortByName(pkg.interfaces()));
     makeClassListHDF(data, "package.classes", ClassInfo.sortByName(pkg.ordinaryClasses()));

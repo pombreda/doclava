@@ -16,6 +16,7 @@ package com.google.doclava;
 import com.google.clearsilver.jsilver.data.Data;
 
 import java.util.Comparator;
+import java.util.Set;
 
 public class FieldInfo extends MemberInfo {
   public static final Comparator<FieldInfo> comparator = new Comparator<FieldInfo>() {
@@ -241,6 +242,8 @@ public class FieldInfo extends MemberInfo {
         data.setValue(base + ".constantValue.isString", "1");
       }
     }
+    
+    setFederatedReferences(data, base);
   }
 
   @Override

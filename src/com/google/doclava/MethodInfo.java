@@ -540,6 +540,8 @@ public class MethodInfo extends MemberInfo {
     if (mTypeParameters != null) {
       TypeInfo.makeHDF(data, base + ".generic.typeArguments", mTypeParameters, false);
     }
+    
+    setFederatedReferences(data, base);
   }
 
   public HashSet<String> typeVariables() {

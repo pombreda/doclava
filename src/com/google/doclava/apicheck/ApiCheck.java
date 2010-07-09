@@ -17,6 +17,7 @@ package com.google.doclava.apicheck;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -76,8 +77,16 @@ public class ApiCheck {
 
     ApiCheck acheck = new ApiCheck();
 
-    ApiInfo oldApi = acheck.parseApi(args.get(0));
-    ApiInfo newApi = acheck.parseApi(args.get(1));
+    ApiInfo oldApi, newApi;
+    try {
+      oldApi = acheck.parseApi(args.get(0));
+      newApi = acheck.parseApi(args.get(1));
+    } catch (ApiParseException e) {
+      e.printStackTrace();
+      System.err.println("Error parsing API");
+      System.exit(1);
+      return;
+    }
 
     // only run the consistency check if we haven't had XML parse errors
     if (!Errors.hadError) {
@@ -88,33 +97,52 @@ public class ApiCheck {
     System.exit(Errors.hadError ? 1 : 0);
   }
 
-  public ApiInfo parseApi(String xmlFile) {
-    FileReader fileReader = null;
+  public ApiInfo parseApi(String xmlFile) throws ApiParseException {
+    FileInputStream fileStream = null;
+    try {
+      fileStream = new FileInputStream(xmlFile);
+      return parseApi(fileStream);
+    } catch (IOException e) {
+      throw new ApiParseException("Could not open file for parsing: " + xmlFile, e);
+    } finally {
+      if (fileStream != null) {
+        try {
+          fileStream.close();
+        } catch (IOException ignored) {}
+      }
+    }
+  }
+  
+  public ApiInfo parseApi(URL xmlURL) throws ApiParseException {
+    InputStream xmlStream = null;
+    try {
+      xmlStream = xmlURL.openStream();
+      return parseApi(xmlStream);
+    } catch (IOException e) {
+      throw new ApiParseException("Could not open stream for parsing: " + xmlURL,e);
+    } finally {
+      if (xmlStream != null) {
+        try {
+          xmlStream.close();
+        } catch (IOException ignored) {}
+      }
+    }
+  }
+  
+  public ApiInfo parseApi(InputStream xmlStream) throws ApiParseException {
     try {
       XMLReader xmlreader = XMLReaderFactory.createXMLReader();
       MakeHandler handler = new MakeHandler();
       xmlreader.setContentHandler(handler);
       xmlreader.setErrorHandler(handler);
-      fileReader = new FileReader(xmlFile);
-      xmlreader.parse(new InputSource(fileReader));
+      xmlreader.parse(new InputSource(xmlStream));
       ApiInfo apiInfo = handler.getApi();
       apiInfo.resolveSuperclasses();
       apiInfo.resolveInterfaces();
       return apiInfo;
-    } catch (SAXParseException e) {
-      Errors.error(Errors.PARSE_ERROR, new SourcePositionInfo(xmlFile, e.getLineNumber(), 0), e
-          .getMessage());
     } catch (Exception e) {
-      e.printStackTrace();
-      Errors.error(Errors.PARSE_ERROR, new SourcePositionInfo(xmlFile, 0, 0), e.getMessage());
-    } finally {
-      if (fileReader != null) {
-        try {
-          fileReader.close();
-        } catch (IOException ignored) {}
-      }
+      throw new ApiParseException("Error parsing API", e);
     }
-    return null;
   }
 
   private static class MakeHandler extends DefaultHandler {

@@ -10,6 +10,7 @@
 <div id="api-info-block">
 <div class="api-level">
   <?cs call:since_tags(package) ?>
+  <?cs call:federated_refs(package) ?>
 </div>
 </div>
 

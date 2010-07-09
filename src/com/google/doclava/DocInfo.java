@@ -1,4 +1,10 @@
 package com.google.doclava;
+
+import com.google.clearsilver.jsilver.data.Data;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /*
  * Copyright (C) 2008 The Android Open Source Project
  * 
@@ -17,8 +23,11 @@ public abstract class DocInfo {
   public DocInfo(String rawCommentText, SourcePositionInfo sp) {
     mRawCommentText = rawCommentText;
     mPosition = sp;
+    mFederatedReferences = new LinkedHashSet<FederatedSite>();
   }
 
+  public abstract String htmlPage();
+  
   public boolean isHidden() {
     return comment().isHidden();
   }
@@ -51,9 +60,28 @@ public abstract class DocInfo {
   public String getSince() {
     return mSince;
   }
+  
+  public void addFederatedReference(FederatedSite source) {
+    mFederatedReferences.add(source);
+  }
+  
+  public Set<FederatedSite> getFederatedReferences() {
+    return mFederatedReferences;
+  }
+  
+  public void setFederatedReferences(Data data, String base) {
+    Set<FederatedSite>federatedSources = getFederatedReferences();
+    int pos = 0;
+    for (FederatedSite source : federatedSources) {
+      data.setValue(base + ".federated."+pos+".url", source.linkFor(htmlPage()));
+      data.setValue(base + ".federated."+pos+".name", source.name);
+      pos++;
+    }
+  }
 
   private String mRawCommentText;
   Comment mComment;
   SourcePositionInfo mPosition;
   private String mSince;
+  private Set<FederatedSite> mFederatedReferences;
 }

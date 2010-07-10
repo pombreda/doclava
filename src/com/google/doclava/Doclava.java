@@ -71,7 +71,8 @@ public class Doclava {
   public static String title = "";
   public static SinceTagger sinceTagger = new SinceTagger();
   public static FederationTagger federationTagger = new FederationTagger();
-
+  public static boolean noDocs;
+  
   public static JSilver jSilver = null;
 
   public static boolean checkLevel(int level) {
@@ -112,7 +113,6 @@ public class Doclava {
     String stubsDir = null;
     // Create the dependency graph for the stubs directory
     boolean apiXML = false;
-    boolean noDocs = false;
     boolean offlineMode = false;
     String apiFile = null;
     String debugStubsFile = "";

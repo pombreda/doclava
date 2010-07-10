@@ -45,6 +45,15 @@ public class Comment {
   private void parseRegex(String text) {
     Matcher m;
 
+    // Don't bother searching for tags if we aren't generating documentation.
+    if (Doclava.noDocs) {
+      // Forces methods to be recognized by findOverriddenMethods in MethodInfo.
+      mInlineTagsList.add(new TextTagInfo("Text", "Text", text,
+        SourcePositionInfo.add(mPosition, mText, 0)));
+      return;
+    }
+    
+    
     m = LEADING_WHITESPACE.matcher(text);
     m.matches();
     text = m.group(1);
@@ -268,6 +277,16 @@ public class Comment {
       return b;
     }
   }
+  
+  public boolean isDeprecated() {
+    if (mDeprecated >= 0) {
+      return mDeprecated != 0;
+    } else {
+      boolean b = (mText != null) && (mText.indexOf("@deprecated") >= 0);
+      mDeprecated = b ? 1 : 0;
+      return b;
+    }
+  }
 
   private void init() {
     if (!mInitialized) {
@@ -278,6 +297,7 @@ public class Comment {
   private void initImpl() {
     isHidden();
     isDocOnly();
+    isDeprecated();
     parseRegex(mText);
     parseBriefTags();
     mText = null;
@@ -309,6 +329,7 @@ public class Comment {
   boolean mInitialized;
   int mHidden = -1;
   int mDocOnly = -1;
+  int mDeprecated = -1;
   String mText;
   ContainerInfo mBase;
   SourcePositionInfo mPosition;

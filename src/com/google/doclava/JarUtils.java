@@ -17,7 +17,7 @@ public class JarUtils {
    * jar.
    */
   public static JarFile jarForClass(Class<?> clazz, JarFile defaultJar) {
-    String path = clazz.getName().replace('.', '/') + ".class";
+    String path = "/" + clazz.getName().replace('.', '/') + ".class";
     URL jarUrl = clazz.getResource(path);
     if (jarUrl == null) {
       return defaultJar;

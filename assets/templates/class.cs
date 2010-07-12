@@ -446,7 +446,14 @@ Summary:
 <?cs if:subcount(cl.methods) ?>
 <tr class="api apilevel-<?cs var:cl.since ?>" >
 <td colspan="12"><?cs call:expando_trigger("inherited-methods-"+cl.qualified, "closed") ?>
-From <?cs var:cl.kind ?> <?cs call:cond_link(cl.qualified, toroot, cl.link, cl.included) ?>
+From <?cs var:cl.kind ?>
+<?cs if:cl.included ?>
+  <a href="<?cs var:toroot ?><?cs var:cl.link ?>"><?cs var:cl.qualified ?></a>
+<?cs elif:cl.federated ?>
+  <a href="<?cs var:cl.link ?>" target="<?cs var:cl.federated ?>"><?cs var:cl.qualified ?></a>
+<?cs else ?>
+  <?cs var:cl.qualified ?>
+<?cs /if ?>
 <div id="inherited-methods-<?cs var:cl.qualified ?>">
   <div id="inherited-methods-<?cs var:cl.qualified ?>-list"
         class="jd-inheritedlinks">

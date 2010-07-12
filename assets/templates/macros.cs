@@ -14,10 +14,14 @@ def:package_link(pkg) ?>
             .extendsBounds.N.(more links) (... extends ... & ...)
             .typeArguments.N.(more links) (< ... >)
 ?><?cs 
-def:type_link_impl(type, link) ?><?cs
-  if:type.link && link=="true" ?><a href="<?cs var:toroot ?><?cs var:type.link ?>"><?cs /if
-      ?><?cs var:type.label ?><?cs if:type.link && link=="true" ?></a><?cs /if ?><?cs
-  if:subcount(type.extendsBounds) ?><?cs
+def:type_link_impl(type, link) ?><?cs 
+  if:type.link && link=="true" ?><?cs
+    if:type.federated ?><a href="<?cs var:type.link ?>" target="<?cs var:type.federated ?>"><?cs
+      var:type.label ?></a><?cs 
+    else ?><a href="<?cs var:toroot ?><?cs var:type.link ?>"><?cs var:type.label ?></a><?cs
+    /if ?><?cs
+  else ?><?cs var:type.label ?><?cs
+  /if ?><?cs if:subcount(type.extendsBounds) ?><?cs
       each:t=type.extendsBounds ?><?cs
           if:first(t) ?>&nbsp;extends&nbsp;<?cs else ?>&nbsp;&amp;&nbsp;<?cs /if ?><?cs
           call:type_link_impl(t, "true") ?><?cs
@@ -144,7 +148,7 @@ def:since_tags(obj) ?>
     <div>
     Also: 
     <?cs each:federated=obj.federated ?>
-      <a href="<?cs var:federated.url ?>"><?cs var:federated.name ?></a>
+      <a href="<?cs var:federated.url ?>" target="<?cs var:federated.name ?>"><?cs var:federated.name ?></a>
       <?cs if:!last(federated) ?> | <?cs /if ?>
     <?cs /each ?>
     </div>
@@ -167,7 +171,7 @@ def:description(obj) ?><?cs
   /if ?><?cs 
   if:subcount(obj.paramTags) ?>
   <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">Parameters</h5>
+      <h5 class="jd-tagtitle">eters</h5>
       <table class="jd-tagtable"><?cs 
       each:tag=obj.paramTags ?>
         <tr>

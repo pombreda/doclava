@@ -133,9 +133,18 @@ public class TypeInfo {
     if (mIsTypeVariable || mIsWildcard) {
       // could link to an @param tag on the class to describe this
       // but for now, just don't make it a link
-    } else if (!isPrimitive() && cl != null && cl.isIncluded()) {
-      data.setValue(base + ".link", cl.htmlPage());
-      data.setValue(base + ".since", cl.getSince());
+    } else if (!isPrimitive() && cl != null) {
+      if (cl.isIncluded()) {
+        data.setValue(base + ".link", cl.htmlPage());
+        data.setValue(base + ".since", cl.getSince());
+      } else {
+        Doclava.federationTagger.tagAll(new ClassInfo[] {cl});
+        if (cl.getFederatedReferences().size() > 0) {
+          FederatedSite site = cl.getFederatedReferences().iterator().next();
+          data.setValue(base + ".link", site.linkFor(cl.htmlPage()));
+          data.setValue(base + ".federated", site.name);
+        }
+      }
     }
 
     if (mIsTypeVariable) {

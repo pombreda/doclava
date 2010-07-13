@@ -211,7 +211,7 @@ public class Doclava {
     // Set up the data structures
     Converter.makeInfo(r);
 
-    if (!generatingDocs) {
+    if (generatingDocs) {
       ClearPage.addBundledTemplateDir("/assets/customizations");
       ClearPage.addBundledTemplateDir("/assets/templates");
 

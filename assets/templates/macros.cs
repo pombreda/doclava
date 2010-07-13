@@ -16,7 +16,7 @@ def:package_link(pkg) ?>
 ?><?cs 
 def:type_link_impl(type, link) ?><?cs 
   if:type.link && link=="true" ?><?cs
-    if:type.federated ?><a href="<?cs var:type.link ?>" target="<?cs var:type.federated ?>"><?cs
+    if:type.federated ?><a href="<?cs var:type.link ?>"><?cs
       var:type.label ?></a><?cs 
     else ?><a href="<?cs var:toroot ?><?cs var:type.link ?>"><?cs var:type.label ?></a><?cs
     /if ?><?cs
@@ -148,8 +148,8 @@ def:since_tags(obj) ?>
     <div>
     Also: 
     <?cs each:federated=obj.federated ?>
-      <a href="<?cs var:federated.url ?>" target="<?cs var:federated.name ?>"><?cs var:federated.name ?></a>
-      <?cs if:!last(federated) ?> | <?cs /if ?>
+      <a href="<?cs var:federated.url ?>"><?cs var:federated.name ?></a>
+      <?cs if:!last(federated) ?>, <?cs /if ?>
     <?cs /each ?>
     </div>
   <?cs /if ?>
@@ -171,7 +171,7 @@ def:description(obj) ?><?cs
   /if ?><?cs 
   if:subcount(obj.paramTags) ?>
   <div class="jd-tagdata">
-      <h5 class="jd-tagtitle">eters</h5>
+      <h5 class="jd-tagtitle">Parameters</h5>
       <table class="jd-tagtable"><?cs 
       each:tag=obj.paramTags ?>
         <tr>

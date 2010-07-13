@@ -450,7 +450,7 @@ From <?cs var:cl.kind ?>
 <?cs if:cl.included ?>
   <a href="<?cs var:toroot ?><?cs var:cl.link ?>"><?cs var:cl.qualified ?></a>
 <?cs elif:cl.federated ?>
-  <a href="<?cs var:cl.link ?>" target="<?cs var:cl.federated ?>"><?cs var:cl.qualified ?></a>
+  <a href="<?cs var:cl.link ?>"><?cs var:cl.qualified ?></a>
 <?cs else ?>
   <?cs var:cl.qualified ?>
 <?cs /if ?>

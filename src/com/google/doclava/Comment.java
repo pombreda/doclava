@@ -46,10 +46,10 @@ public class Comment {
     Matcher m;
 
     // Don't bother searching for tags if we aren't generating documentation.
-    if (Doclava.noDocs) {
+    if (!Doclava.generatingDocs()) {
       // Forces methods to be recognized by findOverriddenMethods in MethodInfo.
       mInlineTagsList.add(new TextTagInfo("Text", "Text", text,
-        SourcePositionInfo.add(mPosition, mText, 0)));
+          SourcePositionInfo.add(mPosition, mText, 0)));
       return;
     }
     
@@ -255,7 +255,7 @@ public class Comment {
   }
 
   public boolean isHidden() {
-    if (mHidden >= 0) {
+    if (mHidden != -1) {
       return mHidden != 0;
     } else {
       if (Doclava.checkLevel(Doclava.SHOW_HIDDEN)) {
@@ -269,7 +269,7 @@ public class Comment {
   }
 
   public boolean isDocOnly() {
-    if (mDocOnly >= 0) {
+    if (mDocOnly != -1) {
       return mDocOnly != 0;
     } else {
       boolean b = (mText != null) && (mText.indexOf("@doconly") >= 0);
@@ -279,7 +279,7 @@ public class Comment {
   }
   
   public boolean isDeprecated() {
-    if (mDeprecated >= 0) {
+    if (mDeprecated != -1) {
       return mDeprecated != 0;
     } else {
       boolean b = (mText != null) && (mText.indexOf("@deprecated") >= 0);

@@ -5,8 +5,10 @@ import com.google.doclava.apicheck.ApiInfo;
 import java.net.URL;
 
 /**
- * A remote source of documentation that can be linked to when an external
- * library shares packages, classes, and members.
+ * A remote source of documentation that can be linked against. A site may be
+ * linked to when an external library has packages, classes, and members
+ * referenced or shared by the codebase for which documentation is being
+ * generated.
  */
 public final class FederatedSite {
   final String name;

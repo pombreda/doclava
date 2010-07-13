@@ -76,8 +76,9 @@ public class ApiCheck {
     }
 
     ApiCheck acheck = new ApiCheck();
-
-    ApiInfo oldApi, newApi;
+    ApiInfo oldApi;
+    ApiInfo newApi;
+    
     try {
       oldApi = acheck.parseApi(args.get(0));
       newApi = acheck.parseApi(args.get(1));

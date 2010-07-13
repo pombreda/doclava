@@ -9,7 +9,6 @@ import com.google.doclava.apicheck.ApiParseException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -26,18 +25,21 @@ public final class FederationTagger {
    */
   public void addSite(String name, URL site) {
     try {
-      URL xmlURL = new URL(site.toExternalForm() + "/xml/current.xml");
-      ApiInfo apiInfo = new ApiCheck().parseApi(xmlURL);
+      URL xmlUrl = new URL(site + "/xml/current.xml");
+      ApiInfo apiInfo = new ApiCheck().parseApi(xmlUrl);
       federatedSites.add(new FederatedSite(name, site, apiInfo));
     } catch (MalformedURLException m) {
-      Errors.error(Errors.NO_FEDERATION_DATA, null, "Invalid URL for federation: " + site);
+      throw new AssertionError(m);
     } catch (ApiParseException e) {
-      Errors.error(Errors.NO_FEDERATION_DATA, null, "Could not add site for federation: " + site);
+      String error = "Could not add site for federation: " + site;
+      if (e.getMessage() != null) {
+        error += ": " + e.getMessage();
+      }
+      Errors.error(Errors.NO_FEDERATION_DATA, null, error);
     }
   }
   
   public void tagAll(ClassInfo[] classDocs) {
-    Iterator<FederatedSite> federationIter = federatedSites.iterator();
     for (FederatedSite site : federatedSites) {
       applyFederation(site, classDocs);
     }
@@ -52,8 +54,8 @@ public final class FederationTagger {
         continue;
       }
 
-      com.google.doclava.apicheck.ClassInfo classSpec =
-        packageSpec.allClasses().get(classDoc.name());
+      com.google.doclava.apicheck.ClassInfo classSpec 
+          = packageSpec.allClasses().get(classDoc.name());
       
       if (classSpec == null) {
         continue;
@@ -67,32 +69,32 @@ public final class FederationTagger {
     }
   }
 
-  private void federateMethods(FederatedSite source,
-      com.google.doclava.apicheck.ClassInfo spec, ClassInfo doc) {
-    for (MethodInfo method : doc.methods()) {
-      for (com.google.doclava.apicheck.ClassInfo superclass : spec.hierarchy()) {
+  private void federateMethods(FederatedSite site,
+      com.google.doclava.apicheck.ClassInfo federatedClass, ClassInfo localClass) {
+    for (MethodInfo method : localClass.methods()) {
+      for (com.google.doclava.apicheck.ClassInfo superclass : federatedClass.hierarchy()) {
         if (superclass.allMethods().containsKey(method.getHashableName())) {
-          method.addFederatedReference(source);
+          method.addFederatedReference(site);
           break;
         }
       }
     }
   }
   
-  private void federateConstructors(FederatedSite source,
-                               com.google.doclava.apicheck.ClassInfo spec, ClassInfo doc) {
-    for (MethodInfo constructor : doc.constructors()) {
-      if (spec.allConstructors().containsKey(constructor.getHashableName())) {
-        constructor.addFederatedReference(source);
+  private void federateConstructors(FederatedSite site,
+      com.google.doclava.apicheck.ClassInfo federatedClass, ClassInfo localClass) {
+    for (MethodInfo constructor : localClass.constructors()) {
+      if (federatedClass.allConstructors().containsKey(constructor.getHashableName())) {
+        constructor.addFederatedReference(site);
       }
     }
   }
   
-  private void federateFields(FederatedSite source,
-                               com.google.doclava.apicheck.ClassInfo spec, ClassInfo doc) {
-    for (FieldInfo field : doc.fields()) {
-      if (spec.allFields().containsKey(field.name())) {
-        field.addFederatedReference(source);
+  private void federateFields(FederatedSite site,
+      com.google.doclava.apicheck.ClassInfo federatedClass, ClassInfo localClass) {
+    for (FieldInfo field : localClass.fields()) {
+      if (federatedClass.allFields().containsKey(field.name())) {
+        field.addFederatedReference(site);
       }
     }
   }

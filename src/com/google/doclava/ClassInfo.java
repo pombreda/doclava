@@ -1072,7 +1072,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
       data.setValue(base + ".included", "true");
     } else {
       Doclava.federationTagger.tagAll(new ClassInfo[] {cl});
-      if (cl.getFederatedReferences().size() > 0) {
+      if (!cl.getFederatedReferences().isEmpty()) {
         FederatedSite site = cl.getFederatedReferences().iterator().next();
         data.setValue(base + ".link", site.linkFor(cl.htmlPage()));
         data.setValue(base + ".federated", site.name);

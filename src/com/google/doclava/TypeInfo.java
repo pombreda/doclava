@@ -15,9 +15,7 @@ package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
 
-import org.clearsilver.CS;
 import java.util.*;
-import java.io.*;
 
 public class TypeInfo {
   public TypeInfo(boolean isPrimitive, String dimension, String simpleTypeName,
@@ -53,7 +51,7 @@ public class TypeInfo {
     if (mFullName != null) {
       return mFullName;
     } else {
-      return fullName(new HashSet());
+      return fullName(new HashSet<String>());
     }
   }
 
@@ -139,7 +137,7 @@ public class TypeInfo {
         data.setValue(base + ".since", cl.getSince());
       } else {
         Doclava.federationTagger.tagAll(new ClassInfo[] {cl});
-        if (cl.getFederatedReferences().size() > 0) {
+        if (!cl.getFederatedReferences().isEmpty()) {
           FederatedSite site = cl.getFederatedReferences().iterator().next();
           data.setValue(base + ".link", site.linkFor(cl.htmlPage()));
           data.setValue(base + ".federated", site.name);

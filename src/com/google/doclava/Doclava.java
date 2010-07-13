@@ -72,12 +72,19 @@ public class Doclava {
   public static String title = "";
   public static SinceTagger sinceTagger = new SinceTagger();
   public static FederationTagger federationTagger = new FederationTagger();
-  public static boolean noDocs;
+  private static boolean generatingDocs = true;
   
   public static JSilver jSilver = null;
 
   public static boolean checkLevel(int level) {
     return (showLevel & level) == level;
+  }
+  
+  /**
+   * Returns true if we are generating html reference documentation.
+   */
+  public static boolean generatingDocs() {
+    return generatingDocs;
   }
 
   public static boolean checkLevel(boolean pub, boolean prot, boolean pkgp, boolean priv,
@@ -183,7 +190,7 @@ public class Doclava {
         apiXML = true;
         apiFile = a[1];
       } else if (a[0].equals("-nodocs")) {
-        noDocs = true;
+        generatingDocs = false;
       } else if (a[0].equals("-since")) {
         sinceTagger.addVersion(a[1], a[2]);
       } else if (a[0].equals("-offlinemode")) {
@@ -204,7 +211,7 @@ public class Doclava {
     // Set up the data structures
     Converter.makeInfo(r);
 
-    if (!noDocs) {
+    if (!generatingDocs) {
       ClearPage.addBundledTemplateDir("/assets/customizations");
       ClearPage.addBundledTemplateDir("/assets/templates");
 

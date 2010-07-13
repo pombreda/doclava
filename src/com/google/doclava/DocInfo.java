@@ -23,9 +23,11 @@ public abstract class DocInfo {
   public DocInfo(String rawCommentText, SourcePositionInfo sp) {
     mRawCommentText = rawCommentText;
     mPosition = sp;
-    mFederatedReferences = new LinkedHashSet<FederatedSite>();
   }
 
+  /**
+   * The relative path to a web page representing this item.
+   */
   public abstract String htmlPage();
   
   public boolean isHidden() {
@@ -61,20 +63,19 @@ public abstract class DocInfo {
     return mSince;
   }
   
-  public void addFederatedReference(FederatedSite source) {
+  public final void addFederatedReference(FederatedSite source) {
     mFederatedReferences.add(source);
   }
   
-  public Set<FederatedSite> getFederatedReferences() {
+  public final Set<FederatedSite> getFederatedReferences() {
     return mFederatedReferences;
   }
   
-  public void setFederatedReferences(Data data, String base) {
-    Set<FederatedSite>federatedSources = getFederatedReferences();
+  public final void setFederatedReferences(Data data, String base) {
     int pos = 0;
-    for (FederatedSite source : federatedSources) {
-      data.setValue(base + ".federated."+pos+".url", source.linkFor(htmlPage()));
-      data.setValue(base + ".federated."+pos+".name", source.name);
+    for (FederatedSite source : getFederatedReferences()) {
+      data.setValue(base + ".federated." + pos + ".url", source.linkFor(htmlPage()));
+      data.setValue(base + ".federated." + pos + ".name", source.name);
       pos++;
     }
   }
@@ -83,5 +84,5 @@ public abstract class DocInfo {
   Comment mComment;
   SourcePositionInfo mPosition;
   private String mSince;
-  private Set<FederatedSite> mFederatedReferences;
+  private Set<FederatedSite> mFederatedReferences = new LinkedHashSet<FederatedSite>();
 }

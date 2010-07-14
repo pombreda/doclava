@@ -290,4 +290,4 @@ def:expandable_class_list(id, classes, default) ?>
 /def ?>
 
 
-<?cs include:"customization.cs" ?>
+<?cs include:"components.cs" ?>

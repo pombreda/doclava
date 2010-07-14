@@ -4,7 +4,7 @@
 <?cs include:"head_tag.cs" ?>
 <body class="gc-documentation">
 <a name="top"></a>
-<?cs include:"components/masthead.cs" ?>
+<?cs call:custom_masthead() ?>
 
 <div id="body-content">
 <div id="doc-content" style="position:relative;">

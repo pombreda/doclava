@@ -48,15 +48,6 @@ public class Comment {
   private void parseRegex(String text) {
     Matcher m;
 
-    // Don't bother searching for tags if we aren't generating documentation.
-    if (!Doclava.generatingDocs()) {
-      // Forces methods to be recognized by findOverriddenMethods in MethodInfo.
-      mInlineTagsList.add(new TextTagInfo("Text", "Text", text,
-          SourcePositionInfo.add(mPosition, mText, 0)));
-      return;
-    }
-    
-    
     m = LEADING_WHITESPACE.matcher(text);
     m.matches();
     text = m.group(1);
@@ -301,8 +292,17 @@ public class Comment {
     isHidden();
     isDocOnly();
     isDeprecated();
-    parseRegex(mText);
-    parseBriefTags();
+
+    // Don't bother parsing text if we aren't generating documentation.
+    if (Doclava.generatingDocs()) {
+      parseRegex(mText);
+      parseBriefTags();
+    } else {
+      // Forces methods to be recognized by findOverriddenMethods in MethodInfo.
+      mInlineTagsList.add(new TextTagInfo("Text", "Text", mText,
+          SourcePositionInfo.add(mPosition, mText, 0)));
+    }
+
     mText = null;
     mInitialized = true;
 

@@ -213,8 +213,8 @@ public class Doclava {
     Converter.makeInfo(r);
 
     if (generatingDocs) {
-      ClearPage.addBundledTemplateDir("/assets/customizations");
-      ClearPage.addBundledTemplateDir("/assets/templates");
+      ClearPage.addBundledTemplateDir("assets/customizations");
+      ClearPage.addBundledTemplateDir("assets/templates");
 
       List<ResourceLoader> resourceLoaders = new ArrayList<ResourceLoader>();
       List<String> templates = ClearPage.getTemplateDirs();
@@ -224,7 +224,7 @@ public class Doclava {
 
       templates = ClearPage.getBundledTemplateDirs();
       for (String tmpl : templates) {
-        resourceLoaders.add(new ClassResourceLoader(Doclava.class, tmpl));
+        resourceLoaders.add(new ClassResourceLoader(Doclava.class, '/'+tmpl));
       }
 
       ResourceLoader compositeResourceLoader = new CompositeResourceLoader(resourceLoaders);

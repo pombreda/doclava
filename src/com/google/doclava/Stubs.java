@@ -29,7 +29,7 @@ import java.io.PrintStream;
 public class Stubs {
   private static HashSet<ClassInfo> notStrippable;
 
-  public static void writeStubs(String stubsDir, Boolean writeXML, String xmlFile,
+  public static void writeStubsAndXML(String stubsDir, String xmlFile,
       HashSet<String> stubPackages) {
     // figure out which classes we need
     notStrippable = new HashSet<ClassInfo>();
@@ -37,7 +37,7 @@ public class Stubs {
     File xml = new File(xmlFile);
     xml.getParentFile().mkdirs();
     PrintStream xmlWriter = null;
-    if (writeXML) {
+    if (xmlFile != null) {
       try {
         xmlWriter = new PrintStream(xml);
       } catch (FileNotFoundException e) {
@@ -119,32 +119,33 @@ public class Stubs {
       }
     }
 
-    // write out the stubs
     HashMap<PackageInfo, List<ClassInfo>> packages = new HashMap<PackageInfo, List<ClassInfo>>();
     for (ClassInfo cl : notStrippable) {
       if (!cl.isDocOnly()) {
         if (stubPackages == null || stubPackages.contains(cl.containingPackage().name())) {
-          writeClassFile(stubsDir, cl);
-          if (packages.containsKey(cl.containingPackage())) {
-            packages.get(cl.containingPackage()).add(cl);
-          } else {
-            ArrayList<ClassInfo> classes = new ArrayList<ClassInfo>();
-            classes.add(cl);
-            packages.put(cl.containingPackage(), classes);
+          // write out the stubs
+          if (stubsDir != null) {
+            writeClassFile(stubsDir, cl);
+          }
+          // build class list for xml file
+          if (xmlWriter != null) {
+            if (packages.containsKey(cl.containingPackage())) {
+              packages.get(cl.containingPackage()).add(cl);
+            } else {
+              ArrayList<ClassInfo> classes = new ArrayList<ClassInfo>();
+              classes.add(cl);
+              packages.put(cl.containingPackage(), classes);
+            }
           }
         }
       }
     }
 
     // write out the XML
-    if (writeXML && xmlWriter != null) {
-      writeXML(xmlWriter, packages, notStrippable);
-    }
-
     if (xmlWriter != null) {
+      writeXML(xmlWriter, packages, notStrippable);
       xmlWriter.close();
     }
-
   }
 
   public static void cantStripThis(ClassInfo cl, HashSet<ClassInfo> notStrippable, String why) {

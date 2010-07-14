@@ -121,7 +121,6 @@ public class Doclava {
     ArrayList<SampleCode> sampleCodes = new ArrayList<SampleCode>();
     String stubsDir = null;
     // Create the dependency graph for the stubs directory
-    boolean apiXML = false;
     boolean offlineMode = false;
     String apiFile = null;
     String debugStubsFile = "";
@@ -188,7 +187,6 @@ public class Doclava {
       } else if (a[0].equals("-sdkvalues")) {
         sdkValuePath = a[1];
       } else if (a[0].equals("-apixml")) {
-        apiXML = true;
         apiFile = a[1];
       } else if (a[0].equals("-nodocs")) {
         generatingDocs = false;
@@ -295,8 +293,8 @@ public class Doclava {
     }
 
     // Stubs
-    if (stubsDir != null) {
-      Stubs.writeStubs(stubsDir, apiXML, apiFile, stubPackages);
+    if (stubsDir != null || apiFile != null) {
+      Stubs.writeStubsAndXML(stubsDir, apiFile, stubPackages);
     }
 
     Errors.printErrors();

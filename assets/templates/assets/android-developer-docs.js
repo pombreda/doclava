@@ -128,6 +128,18 @@ function writeCookie(cookie, val, section, expiration) {
   document.cookie = cookie_namespace + section + cookie + "=" + val + "; expires=" + expiration+"; path=/";
 }
 
+function getSection() {
+  if (location.href.indexOf("/reference/") != -1) {
+    return "reference";
+  } else if (location.href.indexOf("/guide/") != -1) {
+    return "guide";
+  } else if (location.href.indexOf("/resources/") != -1) {
+    return "resources";
+  }
+  var basePath = getBaseUri(location.pathname);
+  return basePath.substring(1,basePath.indexOf("/",1));
+}
+
 function init() {
   HEADER_HEIGHT = $("#header").height()+3;
   $("#side-nav").css({position:"absolute",left:0});
@@ -137,15 +149,8 @@ function init() {
   sidenav = $("#side-nav");
   devdocNav = $("#devdoc-nav");
 
-  var cookiePath = "";
-  if (location.href.indexOf("/reference/") != -1) {
-    cookiePath = "reference_";
-  } else if (location.href.indexOf("/guide/") != -1) {
-    cookiePath = "guide_";
-  } else if (location.href.indexOf("/resources/") != -1) {
-    cookiePath = "resources_";
-  }
-
+  var cookiePath = getSection() + "_";
+  
   if (!isMobile) {
     $("#resize-packages-nav").resizable({handles: "s", resize: function(e, ui) { resizePackagesHeight(); } });
     $(".side-nav-resizable").resizable({handles: "e", resize: function(e, ui) { resizeWidth(); } });
@@ -306,8 +311,7 @@ function resizePackagesHeight() {
   $("#swapper").css({height:swapperHeight + "px"});
   $("#packages-nav").css({height:parseInt(resizePackagesNav.css("height")) - 6 + "px"}); //move 6px for handle
 
-  var basePath = getBaseUri(location.pathname);
-  var section = basePath.substring(1,basePath.indexOf("/",1));
+  var section = getSection();
   writeCookie("height", resizePackagesNav.css("height"), section, null);
 }
 
@@ -364,8 +368,7 @@ function resizeWidth() {
   $("#packages-nav").css({width:sidenavWidth});
 
   if ($(".side-nav-resizable").length) { // Must check if the nav is resizable because IE6 calls resizeWidth() from resizeAll() for all pages
-    var basePath = getBaseUri(location.pathname);
-    var section = basePath.substring(1,basePath.indexOf("/",1));
+    var section = getSection();
     writeCookie("width", sidenavWidth, section, null);
   }
 }

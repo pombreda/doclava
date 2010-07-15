@@ -29,7 +29,7 @@ import java.io.PrintStream;
 public class Stubs {
   private static HashSet<ClassInfo> notStrippable;
 
-  public static void writeStubsAndXML(String stubsDir, String xmlFile,
+  public static void writeStubsAndXml(String stubsDir, String xmlFile,
       HashSet<String> stubPackages) {
     // figure out which classes we need
     notStrippable = new HashSet<ClassInfo>();

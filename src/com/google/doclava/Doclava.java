@@ -294,7 +294,7 @@ public class Doclava {
 
     // Stubs
     if (stubsDir != null || apiFile != null) {
-      Stubs.writeStubsAndXML(stubsDir, apiFile, stubPackages);
+      Stubs.writeStubsAndXml(stubsDir, apiFile, stubPackages);
     }
 
     Errors.printErrors();

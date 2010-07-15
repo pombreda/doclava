@@ -130,19 +130,18 @@ public class TypeInfo {
     String label = qualified ? qualifiedTypeName() : simpleTypeName();
     label += (isLastVararg) ? "..." : dimension();
     data.setValue(base + ".label", label);
-    ClassInfo cl = asClassInfo();
     if (mIsTypeVariable || mIsWildcard) {
       // could link to an @param tag on the class to describe this
       // but for now, just don't make it a link
-    } else if (!isPrimitive() && cl != null) {
-      if (cl.isIncluded()) {
-        data.setValue(base + ".link", cl.htmlPage());
-        data.setValue(base + ".since", cl.getSince());
+    } else if (!isPrimitive() && mClass != null) {
+      if (mClass.isIncluded()) {
+        data.setValue(base + ".link", mClass.htmlPage());
+        data.setValue(base + ".since", mClass.getSince());
       } else {
-        Doclava.federationTagger.tagAll(new ClassInfo[] {cl});
-        if (!cl.getFederatedReferences().isEmpty()) {
-          FederatedSite site = cl.getFederatedReferences().iterator().next();
-          data.setValue(base + ".link", site.linkFor(cl.htmlPage()));
+        Doclava.federationTagger.tagAll(new ClassInfo[] {mClass});
+        if (!mClass.getFederatedReferences().isEmpty()) {
+          FederatedSite site = mClass.getFederatedReferences().iterator().next();
+          data.setValue(base + ".link", site.linkFor(mClass.htmlPage()));
           data.setValue(base + ".federated", site.name);
         }
       }

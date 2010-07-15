@@ -148,8 +148,8 @@ def:since_tags(obj) ?>
     <div>
     Also: 
     <?cs each:federated=obj.federated ?>
-      <a href="<?cs var:federated.url ?>"><?cs var:federated.name ?></a>
-      <?cs if:!last(federated) ?>, <?cs /if ?>
+      <a href="<?cs var:federated.url ?>"><?cs var:federated.name ?><?cs 
+      if:!last(federated) ?>,<?cs /if ?></a>
     <?cs /each ?>
     </div>
   <?cs /if ?>

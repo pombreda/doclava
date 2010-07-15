@@ -24,10 +24,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * A remote source of documentation that can be linked against. A site may be
- * linked to when an external library has packages, classes, and members
- * referenced or shared by the codebase for which documentation is being
- * generated.
+ * A remote source of documentation that can be linked against. A FederatedSite
+ * represents a library that has packages, classes, and members that may be
+ * referenced or shared across codebases.
  */
 public final class FederatedSite {
   private final String name;

@@ -30,7 +30,11 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
 
   public PackageInfo(PackageDoc pkg, String name, SourcePositionInfo position) {
     super(pkg.getRawCommentText(), position);
-    mName = name;
+    if (name.isEmpty()) {
+      mName = "default package";
+    } else {
+      mName = name;
+    }
 
     if (pkg == null) {
       throw new RuntimeException("pkg is null");

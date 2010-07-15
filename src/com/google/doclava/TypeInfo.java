@@ -142,7 +142,7 @@ public class TypeInfo {
         if (!mClass.getFederatedReferences().isEmpty()) {
           FederatedSite site = mClass.getFederatedReferences().iterator().next();
           data.setValue(base + ".link", site.linkFor(mClass.htmlPage()));
-          data.setValue(base + ".federated", site.name);
+          data.setValue(base + ".federated", site.name());
         }
       }
     }

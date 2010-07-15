@@ -39,11 +39,7 @@ public final class FederationTagger {
    */
   public void addSite(String name, URL site) {
     try {
-      URL xmlUrl = new URL(site + "/xml/current.xml");
-      ApiInfo apiInfo = new ApiCheck().parseApi(xmlUrl);
-      federatedSites.add(new FederatedSite(name, site, apiInfo));
-    } catch (MalformedURLException m) {
-      throw new AssertionError(m);
+      federatedSites.add(new FederatedSite(name, site));
     } catch (ApiParseException e) {
       String error = "Could not add site for federation: " + site;
       if (e.getMessage() != null) {
@@ -62,7 +58,7 @@ public final class FederationTagger {
   private void applyFederation(FederatedSite federationSource, ClassInfo[] classDocs) {
     for (ClassInfo classDoc : classDocs) {
       com.google.doclava.apicheck.PackageInfo packageSpec =
-        federationSource.apiInfo.getPackages().get(classDoc.containingPackage().name());
+        federationSource.apiInfo().getPackages().get(classDoc.containingPackage().name());
 
       if (packageSpec == null) {
         continue;

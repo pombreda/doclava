@@ -77,7 +77,7 @@ public abstract class DocInfo {
     int pos = 0;
     for (FederatedSite source : getFederatedReferences()) {
       data.setValue(base + ".federated." + pos + ".url", source.linkFor(htmlPage()));
-      data.setValue(base + ".federated." + pos + ".name", source.name);
+      data.setValue(base + ".federated." + pos + ".name", source.name());
       pos++;
     }
   }

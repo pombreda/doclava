@@ -1078,7 +1078,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
       if (!cl.getFederatedReferences().isEmpty()) {
         FederatedSite site = cl.getFederatedReferences().iterator().next();
         data.setValue(base + ".link", site.linkFor(cl.htmlPage()));
-        data.setValue(base + ".federated", site.name);
+        data.setValue(base + ".federated", site.name());
       }
     }
 

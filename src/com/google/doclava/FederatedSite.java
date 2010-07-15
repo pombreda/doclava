@@ -16,8 +16,11 @@
 
 package com.google.doclava;
 
+import com.google.doclava.apicheck.ApiCheck;
 import com.google.doclava.apicheck.ApiInfo;
+import com.google.doclava.apicheck.ApiParseException;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -27,17 +30,35 @@ import java.net.URL;
  * generated.
  */
 public final class FederatedSite {
-  final String name;
-  final URL baseUrl;
-  final ApiInfo apiInfo;
+  private final String name;
+  private final URL baseUrl;
+  private final ApiInfo apiInfo;
   
-  FederatedSite(String name, URL baseURL, ApiInfo apiInfo) {
+  public FederatedSite(String name, URL baseUrl) throws ApiParseException {
     this.name = name;
-    this.baseUrl = baseURL;
-    this.apiInfo = apiInfo;
+    this.baseUrl = baseUrl;
+    
+    try {
+      URL xmlUrl = new URL(baseUrl + "/xml/current.xml");
+      this.apiInfo = new ApiCheck().parseApi(xmlUrl);
+    } catch (MalformedURLException e) {
+      throw new AssertionError(e);
+    }
   }
   
   public String linkFor(String htmlPage) {
     return baseUrl + "/" + htmlPage;
+  }
+
+  public String name() {
+    return name;
+  }
+
+  public ApiInfo apiInfo() {
+    return apiInfo;
+  }
+  
+  public URL baseUrl() {
+    return baseUrl;
   }
 }

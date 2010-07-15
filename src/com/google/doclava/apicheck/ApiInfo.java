@@ -32,7 +32,7 @@ public class ApiInfo {
     return mAllClasses.get(name);
   }
 
-  public void resolveInterfaces() {
+  protected void resolveInterfaces() {
     for (ClassInfo c : mAllClasses.values()) {
       c.resolveInterfaces(this);
     }
@@ -63,7 +63,7 @@ public class ApiInfo {
     return mPackages;
   }
 
-  public void addPackage(PackageInfo pInfo) {
+  protected void addPackage(PackageInfo pInfo) {
     // track the set of organized packages in the API
     mPackages.put(pInfo.name(), pInfo);
 
@@ -73,7 +73,7 @@ public class ApiInfo {
     }
   }
 
-  public void resolveSuperclasses() {
+  protected void resolveSuperclasses() {
     for (ClassInfo cl : mAllClasses.values()) {
       // java.lang.Object has no superclass
       if (!cl.qualifiedName().equals("java.lang.Object")) {

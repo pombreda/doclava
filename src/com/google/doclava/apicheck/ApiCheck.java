@@ -16,6 +16,8 @@
 
 package com.google.doclava.apicheck;
 
+import com.google.doclava.SourcePositionInfo;
+
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import java.io.*;

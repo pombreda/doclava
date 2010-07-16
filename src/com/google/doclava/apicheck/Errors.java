@@ -16,6 +16,8 @@
 
 package com.google.doclava.apicheck;
 
+import com.google.doclava.SourcePositionInfo;
+
 import java.lang.Comparable;
 import java.util.TreeSet;
 

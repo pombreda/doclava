@@ -16,6 +16,8 @@
 
 package com.google.doclava.apicheck;
 
+import com.google.doclava.SourcePositionInfo;
+
 public class FieldInfo {
 
   private String mName;

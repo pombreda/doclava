@@ -84,6 +84,22 @@ public class SourcePositionInfo implements Comparable {
     if (r != 0) return r;
     return this.line - that.line;
   }
+  
+  /**
+   * Build a SourcePositionInfo from the XML source= notation
+   */
+  public static SourcePositionInfo fromXml(String source) {
+    if (source != null) {
+      for (int i = 0; i < source.length(); i++) {
+        if (source.charAt(i) == ':') {
+          return new SourcePositionInfo(source.substring(0, i), Integer.parseInt(source
+              .substring(i + 1)), 0);
+        }
+      }
+    }
+
+    return new SourcePositionInfo("(unknown)", 0, 0);
+  }
 
   public String file;
   public int line;

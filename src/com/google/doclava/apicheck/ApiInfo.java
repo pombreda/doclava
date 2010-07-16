@@ -51,7 +51,7 @@ public class ApiInfo {
       }
     }
     for (PackageInfo pInfo : otherApi.mPackages.values()) {
-      if (!pInfo.isInBoth()) {
+      if (!mPackages.containsKey(pInfo.name())) {
         Errors.error(Errors.ADDED_PACKAGE, pInfo.position(), "Added package " + pInfo.name());
         consistent = false;
       }

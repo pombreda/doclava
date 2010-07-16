@@ -29,7 +29,6 @@ public class FieldInfo {
   private boolean mIsFinal;
   private String mDeprecated;
   private String mScope;
-  private boolean mExistsInBoth;
   private SourcePositionInfo mSourcePosition;
   private ClassInfo mClass;
 
@@ -45,13 +44,8 @@ public class FieldInfo {
     mIsFinal = isFinal;
     mDeprecated = deprecated;
     mScope = scope;
-    mExistsInBoth = false;
     mSourcePosition = source;
     mClass = parent;
-  }
-
-  public boolean isInBoth() {
-    return mExistsInBoth;
   }
 
   public SourcePositionInfo position() {
@@ -101,8 +95,6 @@ public class FieldInfo {
   }
 
   public boolean isConsistent(FieldInfo fInfo) {
-    fInfo.mExistsInBoth = true;
-    mExistsInBoth = true;
     boolean consistent = true;
     if (!mType.equals(fInfo.mType)) {
       Errors.error(Errors.CHANGED_TYPE, fInfo.position(), "Field " + fInfo.qualifiedName()

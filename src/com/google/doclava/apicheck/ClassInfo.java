@@ -34,7 +34,6 @@ public class ClassInfo {
   private HashMap<String, MethodInfo> mMethods;
   private HashMap<String, FieldInfo> mFields;
   private HashMap<String, ConstructorInfo> mConstructors;
-  private boolean mExistsInBoth;
   private PackageInfo mPackage;
   private SourcePositionInfo mSourcePosition;
   private ClassInfo mSuperClass;
@@ -57,7 +56,6 @@ public class ClassInfo {
     mMethods = new HashMap<String, MethodInfo>();
     mFields = new HashMap<String, FieldInfo>();
     mConstructors = new HashMap<String, ConstructorInfo>();
-    mExistsInBoth = false;
     mSourcePosition = source;
     mParentClass = parent;
   }
@@ -119,8 +117,6 @@ public class ClassInfo {
   }
 
   public boolean isConsistent(ClassInfo cl) {
-    cl.mExistsInBoth = true;
-    mExistsInBoth = true;
     boolean consistent = true;
 
     if (isInterface() != cl.isInterface()) {
@@ -209,7 +205,7 @@ public class ClassInfo {
       }
     }
     for (FieldInfo mInfo : cl.mFields.values()) {
-      if (!mInfo.isInBoth()) {
+      if (!mFields.containsKey(mInfo.name())) {
         Errors.error(Errors.ADDED_FIELD, mInfo.position(), "Added public field "
             + mInfo.qualifiedName());
         consistent = false;
@@ -306,10 +302,6 @@ public class ClassInfo {
 
   public void setSuperClass(ClassInfo superclass) {
     mSuperClass = superclass;
-  }
-
-  public boolean isInBoth() {
-    return mExistsInBoth;
   }
 
   public Map<String, ConstructorInfo> allConstructors() {

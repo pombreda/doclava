@@ -23,13 +23,11 @@ import java.util.*;
 public class PackageInfo {
   private String mName;
   private HashMap<String, ClassInfo> mClasses;
-  private boolean mExistsInBoth;
   private SourcePositionInfo mPosition;
 
   public PackageInfo(String name, SourcePositionInfo position) {
     mName = name;
     mClasses = new HashMap<String, ClassInfo>();
-    mExistsInBoth = false;
     mPosition = position;
   }
 
@@ -50,8 +48,6 @@ public class PackageInfo {
   }
 
   public boolean isConsistent(PackageInfo pInfo) {
-    mExistsInBoth = true;
-    pInfo.mExistsInBoth = true;
     boolean consistent = true;
     for (ClassInfo cInfo : mClasses.values()) {
       if (pInfo.mClasses.containsKey(cInfo.name())) {
@@ -65,16 +61,12 @@ public class PackageInfo {
       }
     }
     for (ClassInfo cInfo : pInfo.mClasses.values()) {
-      if (!cInfo.isInBoth()) {
+      if (!mClasses.containsKey(cInfo.name())) {
         Errors.error(Errors.ADDED_CLASS, cInfo.position(), "Added class " + cInfo.name()
             + " to package " + pInfo.name());
         consistent = false;
       }
     }
     return consistent;
-  }
-
-  public boolean isInBoth() {
-    return mExistsInBoth;
   }
 }

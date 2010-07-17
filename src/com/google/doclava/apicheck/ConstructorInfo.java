@@ -16,6 +16,7 @@
 
 package com.google.doclava.apicheck;
 
+import com.google.doclava.Errors;
 import com.google.doclava.SourcePositionInfo;
 
 import java.util.*;
@@ -30,7 +31,6 @@ public class ConstructorInfo implements AbstractMethodInfo {
   private String mScope;
   private List<String> mExceptions;
   private List<ParameterInfo> mParameters;
-  private boolean mExistsInBoth;
   private SourcePositionInfo mSourcePosition;
   private ClassInfo mClass;
 
@@ -42,7 +42,6 @@ public class ConstructorInfo implements AbstractMethodInfo {
     mIsFinal = isFinal;
     mDeprecated = deprecated;
     mScope = scope;
-    mExistsInBoth = false;
     mExceptions = new ArrayList<String>();
     mParameters = new ArrayList<ParameterInfo>();
     mSourcePosition = pos;
@@ -64,10 +63,6 @@ public class ConstructorInfo implements AbstractMethodInfo {
       result.append(":").append(pInfo.getType());
     }
     return result.toString();
-  }
-
-  public boolean isInBoth() {
-    return mExistsInBoth;
   }
 
   public SourcePositionInfo position() {
@@ -95,8 +90,6 @@ public class ConstructorInfo implements AbstractMethodInfo {
   }
 
   public boolean isConsistent(ConstructorInfo mInfo) {
-    mInfo.mExistsInBoth = true;
-    mExistsInBoth = true;
     boolean consistent = true;
 
     if (mIsFinal != mInfo.mIsFinal) {

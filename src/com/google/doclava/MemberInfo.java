@@ -87,6 +87,20 @@ public abstract class MemberInfo extends DocInfo implements Comparable, Scoped {
   public boolean isPrivate() {
     return mIsPrivate;
   }
+  
+  public String scope() {
+    if (isPublic()) {
+      return "public";
+    } else if (isProtected()) {
+      return "protected";
+    } else if (isPackagePrivate()) {
+      return "";
+    } else if (isPrivate()) {
+      return "private";
+    } else {
+      throw new RuntimeException("invalid scope for object " + this);
+    }
+  }
 
   public boolean isStatic() {
     return mIsStatic;

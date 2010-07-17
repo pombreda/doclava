@@ -16,6 +16,8 @@
 
 package com.google.doclava.apicheck;
 
+import com.google.doclava.Errors;
+
 import java.util.*;
 
 public class ApiInfo {

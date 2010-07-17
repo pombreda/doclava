@@ -1305,6 +1305,20 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     }
     return null;
   }
+  
+  public String scope() {
+    if (isPublic()) {
+      return "public";
+    } else if (isProtected()) {
+      return "protected";
+    } else if (isPackagePrivate()) {
+      return "";
+    } else if (isPrivate()) {
+      return "private";
+    } else {
+      throw new RuntimeException("invalid scope for object " + this);
+    }
+  }
 
   public void setHiddenMethods(MethodInfo[] mInfo) {
     mHiddenMethods = mInfo;

@@ -16,7 +16,7 @@
 
 package com.google.doclava;
 
-class AnnotationInstanceInfo {
+public class AnnotationInstanceInfo {
   private ClassInfo mType;
   private AnnotationValueInfo[] mElementValues;
 

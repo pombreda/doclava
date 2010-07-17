@@ -16,11 +16,25 @@
 
 package com.google.doclava.apicheck;
 
+import com.google.doclava.AnnotationInstanceInfo;
+import com.google.doclava.ClassInfo;
+import com.google.doclava.Errors;
 import com.google.doclava.SourcePositionInfo;
+import com.google.doclava.TypeInfo;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import java.io.*;
+import com.google.doclava.FieldInfo;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
+
+import sun.awt.motif.MComponentPeer;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -198,13 +212,27 @@ public class ApiCheck {
                 .getValue("visibility"), SourcePositionInfo.fromXml(attributes.getValue("source")),
                 mCurrentClass);
       } else if (qName.equals("field")) {
+        String visibility = attributes.getValue("visibility");
+        boolean isPublic = visibility.equals("public");
+        boolean isProtected = visibility.equals("protected");
+        boolean isPrivate = visibility.equals("private");
+        boolean isPackagePrivate = visibility.equals("");
+        TypeInfo type = null;
+        
+        // TODO
+        // F'ing A. To generate type, we need the ClassInfo, which needs to be built.
+        // Why??
+        // attributes.getValue("type")
+        // See Converter.obtainType(Type t)
+        
         FieldInfo fInfo =
-            new FieldInfo(attributes.getValue("name"), attributes.getValue("type"), Boolean
-                .valueOf(attributes.getValue("transient")), Boolean.valueOf(attributes
-                .getValue("volatile")), attributes.getValue("value"), Boolean.valueOf(attributes
-                .getValue("static")), Boolean.valueOf(attributes.getValue("final")), attributes
-                .getValue("deprecated"), attributes.getValue("visibility"), SourcePositionInfo
-                .fromXml(attributes.getValue("source")), mCurrentClass);
+            new FieldInfo(attributes.getValue("name"), mCurrentClass, mCurrentClass, isPublic,
+            isProtected, isPackagePrivate, isPrivate, Boolean.valueOf(attributes.getValue("final")),
+            Boolean.valueOf(attributes.getValue("static")), Boolean.valueOf(attributes.
+            getValue("transient")), Boolean.valueOf(attributes.getValue("volatile")), false,
+            type, "", attributes.getValue("value"), SourcePositionInfo
+            .fromXml(attributes.getValue("source")), new AnnotationInstanceInfo[] {});
+
         mCurrentClass.addField(fInfo);
       } else if (qName.equals("parameter")) {
         mCurrentMethod.addParameter(new ParameterInfo(attributes.getValue("type"), attributes

@@ -298,7 +298,6 @@ public class Doclava {
     }
 
     Errors.printErrors();
-    com.google.doclava.apicheck.Errors.printErrors();
     
     return !Errors.hadError;
   }
@@ -1122,20 +1121,6 @@ public class Doclava {
     private static Object unwrap(Object proxy) {
       if (proxy instanceof Proxy) return ((HideHandler) Proxy.getInvocationHandler(proxy)).target;
       return proxy;
-    }
-  }
-
-  public static String scope(Scoped scoped) {
-    if (scoped.isPublic()) {
-      return "public";
-    } else if (scoped.isProtected()) {
-      return "protected";
-    } else if (scoped.isPackagePrivate()) {
-      return "";
-    } else if (scoped.isPrivate()) {
-      return "private";
-    } else {
-      throw new RuntimeException("invalid scope for object " + scoped);
     }
   }
 

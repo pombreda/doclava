@@ -16,6 +16,8 @@
 
 package com.google.doclava.apicheck;
 
+import com.google.doclava.Errors;
+import com.google.doclava.FieldInfo;
 import com.google.doclava.SourcePositionInfo;
 
 import java.util.*;
@@ -160,7 +162,7 @@ public class ClassInfo {
       }
     }
     for (MethodInfo mInfo : cl.mMethods.values()) {
-      if (!mInfo.isInBoth()) {
+      if (!mMethods.containsKey(mInfo.getHashableName())) {
         /*
          * Similarly to the above, do not fail if this "new" method is really an override of an
          * existing superclass method.
@@ -186,7 +188,7 @@ public class ClassInfo {
       }
     }
     for (ConstructorInfo mInfo : cl.mConstructors.values()) {
-      if (!mInfo.isInBoth()) {
+      if (!mConstructors.containsKey(mInfo.getHashableName())) {
         Errors.error(Errors.ADDED_METHOD, mInfo.position(), "Added public constructor "
             + mInfo.prettySignature());
         consistent = false;

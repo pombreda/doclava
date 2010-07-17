@@ -117,10 +117,41 @@ public class Errors {
   public static Error NO_SINCE_DATA = new Error(16, HIDDEN);
   public static Error NO_FEDERATION_DATA = new Error(17, WARNING);
 
+  public static Error PARSE_ERROR = new Error(18, ERROR);
+  public static Error ADDED_PACKAGE = new Error(19, WARNING);
+  public static Error ADDED_CLASS = new Error(20, WARNING);
+  public static Error ADDED_METHOD = new Error(21, WARNING);
+  public static Error ADDED_FIELD = new Error(22, WARNING);
+  public static Error ADDED_INTERFACE = new Error(23, WARNING);
+  public static Error REMOVED_PACKAGE = new Error(24, WARNING);
+  public static Error REMOVED_CLASS = new Error(25, WARNING);
+  public static Error REMOVED_METHOD = new Error(26, WARNING);
+  public static Error REMOVED_FIELD = new Error(27, WARNING);
+  public static Error REMOVED_INTERFACE = new Error(28, WARNING);
+  public static Error CHANGED_STATIC = new Error(29, WARNING);
+  public static Error CHANGED_FINAL = new Error(30, WARNING);
+  public static Error CHANGED_TRANSIENT = new Error(31, WARNING);
+  public static Error CHANGED_VOLATILE = new Error(32, WARNING);
+  public static Error CHANGED_TYPE = new Error(33, WARNING);
+  public static Error CHANGED_VALUE = new Error(34, WARNING);
+  public static Error CHANGED_SUPERCLASS = new Error(35, WARNING);
+  public static Error CHANGED_SCOPE = new Error(36, WARNING);
+  public static Error CHANGED_ABSTRACT = new Error(37, WARNING);
+  public static Error CHANGED_THROWS = new Error(38, WARNING);
+  public static Error CHANGED_NATIVE = new Error(39, HIDDEN);
+  public static Error CHANGED_CLASS = new Error(40, WARNING);
+  public static Error CHANGED_DEPRECATED = new Error(41, WARNING);
+  public static Error CHANGED_SYNCHRONIZED = new Error(42, ERROR);
+  
   public static Error[] ERRORS =
       {UNRESOLVED_LINK, BAD_INCLUDE_TAG, UNKNOWN_TAG, UNKNOWN_PARAM_TAG_NAME,
           UNDOCUMENTED_PARAMETER, BAD_ATTR_TAG, BAD_INHERITDOC, HIDDEN_LINK, HIDDEN_CONSTRUCTOR,
-          UNAVAILABLE_SYMBOL, HIDDEN_SUPERCLASS, DEPRECATED, IO_ERROR, NO_SINCE_DATA,};
+          UNAVAILABLE_SYMBOL, HIDDEN_SUPERCLASS, DEPRECATED, IO_ERROR, NO_SINCE_DATA,
+          NO_FEDERATION_DATA, PARSE_ERROR, ADDED_PACKAGE, ADDED_CLASS, ADDED_METHOD, ADDED_FIELD,
+          ADDED_INTERFACE, REMOVED_PACKAGE, REMOVED_CLASS, REMOVED_METHOD, REMOVED_FIELD,
+          REMOVED_INTERFACE, CHANGED_STATIC, CHANGED_FINAL, CHANGED_TRANSIENT, CHANGED_VOLATILE,
+          CHANGED_TYPE, CHANGED_VALUE, CHANGED_SUPERCLASS, CHANGED_SCOPE, CHANGED_ABSTRACT,
+          CHANGED_THROWS, CHANGED_NATIVE, CHANGED_CLASS, CHANGED_DEPRECATED, CHANGED_SYNCHRONIZED};
 
   public static boolean setErrorLevel(int code, int level) {
     for (Error e : ERRORS) {

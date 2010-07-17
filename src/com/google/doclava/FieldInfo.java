@@ -54,6 +54,12 @@ public class FieldInfo extends MemberInfo {
       return "field";
     }
   }
+  
+  public String qualifiedName() {
+    String parentQName
+        = (containingClass() != null) ? (containingClass().qualifiedName() + ".") : "";
+    return parentQName + name();
+  }
 
   public TypeInfo type() {
     return mType;
@@ -79,6 +85,11 @@ public class FieldInfo extends MemberInfo {
     return constantLiteralValue(mConstantValue);
   }
 
+  public void isDeprecated(boolean deprecated) {
+    mDeprecatedKnown = true;
+    mIsDeprecated = deprecated;
+  }
+  
   public boolean isDeprecated() {
     boolean deprecated = false;
     if (!mDeprecatedKnown) {
@@ -258,6 +269,100 @@ public class FieldInfo extends MemberInfo {
 
   public boolean isVolatile() {
     return mIsVolatile;
+  }
+  
+  // Check the declared value with a typed comparison, not a string comparison,
+  // to accommodate toolchains with different fp -> string conversions.
+  private boolean valueEquals(FieldInfo other) {
+    // TODO: This method is called through from an XML comparison only right now,
+    // and mConstantValue is always a String. Get rid of this assertion.
+    if (!(mConstantValue instanceof String && other.mConstantValue instanceof String)) {
+      throw new AssertionError("Bad type for field value");
+    }
+    
+    String mValue = (String)mConstantValue;
+    String oValue = (String)other.mConstantValue;
+    // Type mismatch means nonequal, as does a null/non-null mismatch
+    if (!mType.equals(other.mType) || ((mValue == null) != (oValue == null))) {
+      return false;
+    }
+
+    // Null values are considered equal
+    if (mValue == null) {
+      return true;
+    }
+
+    // Floating point gets an implementation-type comparison; all others just use the string
+    // If float/double parse fails, fall back to string comparison -- it means that it's a
+    // canonical droiddoc-generated constant expression that represents a NaN.
+    try {
+      if (mType.equals("float")) {
+        float val = Float.parseFloat(mValue);
+        float otherVal = Float.parseFloat(oValue);
+        return (val == otherVal);
+      } else if (mType.equals("double")) {
+        double val = Double.parseDouble(mValue);
+        double otherVal = Double.parseDouble(oValue);
+        return (val == otherVal);
+      }
+    } catch (NumberFormatException e) {
+      // fall through
+    }
+
+    return mValue.equals(oValue);
+  }
+  
+  public boolean isConsistent(FieldInfo fInfo) {
+    boolean consistent = true;
+    if (!mType.equals(fInfo.mType)) {
+      Errors.error(Errors.CHANGED_TYPE, fInfo.position(), "Field " + fInfo.qualifiedName()
+          + " has changed type");
+      consistent = false;
+    }
+
+    if (!this.valueEquals(fInfo)) {
+      Errors.error(Errors.CHANGED_VALUE, fInfo.position(), "Field " + fInfo.qualifiedName()
+          + " has changed value from " + mConstantValue + " to " + fInfo.mConstantValue);
+      consistent = false;
+    }
+
+    if (!scope().equals(fInfo.scope())) {
+      Errors.error(Errors.CHANGED_SCOPE, fInfo.position(), "Method " + fInfo.qualifiedName()
+          + " changed scope from " + this.scope() + " to " + fInfo.scope());
+      consistent = false;
+    }
+
+    if (mIsStatic != fInfo.mIsStatic) {
+      Errors.error(Errors.CHANGED_STATIC, fInfo.position(), "Field " + fInfo.qualifiedName()
+          + " has changed 'static' qualifier");
+      consistent = false;
+    }
+
+    if (mIsFinal != fInfo.mIsFinal) {
+      Errors.error(Errors.CHANGED_FINAL, fInfo.position(), "Field " + fInfo.qualifiedName()
+          + " has changed 'final' qualifier");
+      consistent = false;
+    }
+
+    if (mIsTransient != fInfo.mIsTransient) {
+      Errors.error(Errors.CHANGED_TRANSIENT, fInfo.position(), "Field " + fInfo.qualifiedName()
+          + " has changed 'transient' qualifier");
+      consistent = false;
+    }
+
+    if (mIsVolatile != fInfo.mIsVolatile) {
+      Errors.error(Errors.CHANGED_VOLATILE, fInfo.position(), "Field " + fInfo.qualifiedName()
+          + " has changed 'volatile' qualifier");
+      consistent = false;
+    }
+
+    if (isDeprecated() != fInfo.isDeprecated()) {
+      Errors.error(Errors.CHANGED_DEPRECATED, fInfo.position(), "Field " + fInfo.qualifiedName()
+          + " has changed deprecation state");
+      consistent = false;
+    }
+
+    return consistent;
   }
 
   boolean mIsTransient;

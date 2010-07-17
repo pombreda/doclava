@@ -327,7 +327,7 @@ public class Stubs {
   static void writeClass(PrintStream stream, ClassInfo cl) {
     writeAnnotations(stream, cl.annotations());
 
-    stream.print(Doclava.scope(cl) + " ");
+    stream.print(cl.scope() + " ");
     if (cl.isAbstract() && !cl.isAnnotation() && !cl.isInterface()) {
       stream.print("abstract ");
     }
@@ -499,7 +499,7 @@ public class Stubs {
   static void writeMethod(PrintStream stream, MethodInfo method, boolean isConstructor) {
     String comma;
 
-    stream.print(Doclava.scope(method) + " ");
+    stream.print(method.scope() + " ");
     if (method.isStatic()) {
       stream.print("static ");
     }
@@ -561,7 +561,7 @@ public class Stubs {
   }
 
   static void writeField(PrintStream stream, FieldInfo field) {
-    stream.print(Doclava.scope(field) + " ");
+    stream.print(field.scope() + " ");
     if (field.isStatic()) {
       stream.print("static ");
     }
@@ -770,7 +770,7 @@ public class Stubs {
   }
 
   static void writeClassXML(PrintStream xmlWriter, ClassInfo cl, HashSet notStrippable) {
-    String scope = Doclava.scope(cl);
+    String scope = cl.scope();
     String deprecatedString = "";
     String declString = (cl.isInterface()) ? "interface" : "class";
     if (cl.isDeprecated()) {
@@ -823,7 +823,7 @@ public class Stubs {
   }
 
   static void writeMethodXML(PrintStream xmlWriter, MethodInfo mi) {
-    String scope = Doclava.scope(mi);
+    String scope = mi.scope();
 
     String deprecatedString = "";
     if (mi.isDeprecated()) {
@@ -863,7 +863,7 @@ public class Stubs {
   }
 
   static void writeConstructorXML(PrintStream xmlWriter, MethodInfo mi) {
-    String scope = Doclava.scope(mi);
+    String scope = mi.scope();
     String deprecatedString = "";
     if (mi.isDeprecated()) {
       deprecatedString = "deprecated";
@@ -902,7 +902,7 @@ public class Stubs {
   }
 
   static void writeFieldXML(PrintStream xmlWriter, FieldInfo fi) {
-    String scope = Doclava.scope(fi);
+    String scope = fi.scope();
     String deprecatedString = "";
     if (fi.isDeprecated()) {
       deprecatedString = "deprecated";

@@ -16,6 +16,7 @@
 
 package com.google.doclava.apicheck;
 
+import com.google.doclava.Errors;
 import com.google.doclava.SourcePositionInfo;
 
 import java.util.*;
@@ -31,7 +32,6 @@ public class MethodInfo implements AbstractMethodInfo {
   private boolean mIsFinal;
   private String mDeprecated;
   private String mScope;
-  private boolean mExistsInBoth;
   private List<ParameterInfo> mParameters;
   private List<String> mExceptions;
   private SourcePositionInfo mSourcePosition;
@@ -52,7 +52,6 @@ public class MethodInfo implements AbstractMethodInfo {
     mScope = scope;
     mParameters = new ArrayList<ParameterInfo>();
     mExceptions = new ArrayList<String>();
-    mExistsInBoth = false;
     mSourcePosition = source;
     mClass = parent;
   }
@@ -91,8 +90,6 @@ public class MethodInfo implements AbstractMethodInfo {
   }
 
   public boolean isConsistent(MethodInfo mInfo) {
-    mInfo.mExistsInBoth = true;
-    mExistsInBoth = true;
     boolean consistent = true;
     if (!mReturn.equals(mInfo.mReturn)) {
       consistent = false;
@@ -199,9 +196,4 @@ public class MethodInfo implements AbstractMethodInfo {
   public String getSignature() {
     return name() + getParameterHash();
   }
-
-  public boolean isInBoth() {
-    return mExistsInBoth;
-  }
-
 }

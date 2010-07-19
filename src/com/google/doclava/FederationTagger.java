@@ -64,8 +64,7 @@ public final class FederationTagger {
         continue;
       }
 
-      com.google.doclava.apicheck.ClassInfo classSpec 
-          = packageSpec.allClasses().get(classDoc.name());
+      ClassInfo classSpec = packageSpec.allClasses().get(classDoc.name());
       
       if (classSpec == null) {
         continue;
@@ -79,10 +78,9 @@ public final class FederationTagger {
     }
   }
 
-  private void federateMethods(FederatedSite site,
-      com.google.doclava.apicheck.ClassInfo federatedClass, ClassInfo localClass) {
+  private void federateMethods(FederatedSite site, ClassInfo federatedClass, ClassInfo localClass) {
     for (MethodInfo method : localClass.methods()) {
-      for (com.google.doclava.apicheck.ClassInfo superclass : federatedClass.hierarchy()) {
+      for (ClassInfo superclass : federatedClass.hierarchy()) {
         if (superclass.allMethods().containsKey(method.getHashableName())) {
           method.addFederatedReference(site);
           break;
@@ -91,17 +89,16 @@ public final class FederationTagger {
     }
   }
   
-  private void federateConstructors(FederatedSite site,
-      com.google.doclava.apicheck.ClassInfo federatedClass, ClassInfo localClass) {
+  private void federateConstructors(FederatedSite site, ClassInfo federatedClass,
+      ClassInfo localClass) {
     for (MethodInfo constructor : localClass.constructors()) {
-      if (federatedClass.allConstructors().containsKey(constructor.getHashableName())) {
+      if (federatedClass.hasConstructor(constructor)) {
         constructor.addFederatedReference(site);
       }
     }
   }
   
-  private void federateFields(FederatedSite site,
-      com.google.doclava.apicheck.ClassInfo federatedClass, ClassInfo localClass) {
+  private void federateFields(FederatedSite site, ClassInfo federatedClass, ClassInfo localClass) {
     for (FieldInfo field : localClass.fields()) {
       if (federatedClass.allFields().containsKey(field.name())) {
         field.addFederatedReference(site);

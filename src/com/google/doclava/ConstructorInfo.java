@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.doclava.apicheck;
+package com.google.doclava;
 
-import com.google.doclava.Errors;
-import com.google.doclava.SourcePositionInfo;
+import com.google.doclava.apicheck.AbstractMethodInfo;
 
 import java.util.*;
 
@@ -60,7 +59,7 @@ public class ConstructorInfo implements AbstractMethodInfo {
     StringBuilder result = new StringBuilder();
     result.append(name());
     for (ParameterInfo pInfo : mParameters) {
-      result.append(":").append(pInfo.getType());
+      result.append(":").append(pInfo.typeName());
     }
     return result.toString();
   }
@@ -84,7 +83,7 @@ public class ConstructorInfo implements AbstractMethodInfo {
       if (params.length() > 0) {
         params += ", ";
       }
-      params += pInfo.getType();
+      params += pInfo.typeName();
     }
     return qualifiedName() + '(' + params + ')';
   }

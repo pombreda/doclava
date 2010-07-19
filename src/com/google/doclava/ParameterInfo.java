@@ -21,7 +21,7 @@ import com.google.clearsilver.jsilver.data.Data;
 import java.util.HashSet;
 
 public class ParameterInfo {
-  ParameterInfo(String name, String typeName, TypeInfo type, SourcePositionInfo position) {
+  public ParameterInfo(String name, String typeName, TypeInfo type, SourcePositionInfo position) {
     mName = name;
     mTypeName = typeName;
     mType = type;

@@ -17,6 +17,7 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
+import com.google.doclava.apicheck.ApiInfo;
 
 import com.sun.javadoc.*;
 import java.util.*;
@@ -1399,4 +1400,273 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   private String mReasonIncluded;
   private MethodInfo[] mNonWrittenConstructors;
   private boolean mIsDeprecated;
+  
+  // Temporary members from apicheck migration
+  private List<String> mApiCheckInterfaceNames = new ArrayList<String>();
+  private List<ClassInfo> mApiCheckInterfaces = new ArrayList<ClassInfo>();
+  private HashMap<String, MethodInfo> mApiCheckMethods = new HashMap<String, MethodInfo>();
+  private HashMap<String, FieldInfo> mApiCheckFields = new HashMap<String, FieldInfo>();
+  private HashMap<String, ConstructorInfo> mApiCheckConstructors
+      = new HashMap<String, ConstructorInfo>();
+  private ClassInfo mApiCheckSuperClass;
+  
+  /**
+   * Returns true if {@code cl} implements the interface {@code iface} either by either being that
+   * interface, implementing that interface or extending a type that implements the interface.
+   */
+  private boolean implementsInterface(ClassInfo cl, String iface) {
+    if (cl.qualifiedName().equals(iface)) {
+      return true;
+    }
+    for (ClassInfo clImplements : cl.mInterfaces) {
+      if (implementsInterface(clImplements, iface)) {
+        return true;
+      }
+    }
+    if (cl.mApiCheckSuperClass != null && implementsInterface(cl.mApiCheckSuperClass, iface)) {
+      return true;
+    }
+    return false;
+  }
+
+  public void resolveInterfaces(ApiInfo apiInfo) {
+    for (String interfaceName : mApiCheckInterfaceNames) {
+      mApiCheckInterfaces.add(apiInfo.findClass(interfaceName));
+    }
+  }
+
+  public void addInterface(String name) {
+    mApiCheckInterfaceNames.add(name);
+  }
+
+  public void addConstructor(ConstructorInfo cInfo) {
+    mApiCheckConstructors.put(cInfo.getHashableName(), cInfo);
+
+  }
+
+  public void addField(FieldInfo fInfo) {
+    mApiCheckFields.put(fInfo.name(), fInfo);
+
+  }
+
+  public void setSuperClass(ClassInfo superclass) {
+    mApiCheckSuperClass = superclass;
+  }
+
+  public Map<String, ConstructorInfo> allConstructorsMap() {
+    return mApiCheckConstructors;
+  }
+
+  public Map<String, FieldInfo> allFields() {
+    return mApiCheckFields;
+  }
+
+  public Map<String, MethodInfo> allMethods() {
+    return mApiCheckMethods;
+  }
+
+  /**
+   * Returns the class hierarchy for this class, starting with this class.
+   */
+  public Iterable<ClassInfo> hierarchy() {
+    List<ClassInfo> result = new ArrayList<ClassInfo>(4);
+    for (ClassInfo c = this; c != null; c = c.mApiCheckSuperClass) {
+      result.add(c);
+    }
+    return result;
+  }
+  
+  public String superclassName() {
+    if (mSuperclassInit == false) {
+      throw new AssertionError("Superclass name requested but not initialized");
+    }
+    
+    if (mSuperclass == null) {
+      return "java.lang.Object";
+    }
+    
+    return mSuperclass.mQualifiedName;
+  }
+  
+  public boolean isConsistent(ClassInfo cl) {
+    boolean consistent = true;
+
+    if (isInterface() != cl.isInterface()) {
+      Errors.error(Errors.CHANGED_CLASS, cl.position(), "Class " + cl.qualifiedName()
+          + " changed class/interface declaration");
+      consistent = false;
+    }
+    for (String iface : mApiCheckInterfaceNames) {
+      if (!implementsInterface(cl, iface)) {
+        Errors.error(Errors.REMOVED_INTERFACE, cl.position(), "Class " + qualifiedName()
+            + " no longer implements " + iface);
+      }
+    }
+    for (String iface : cl.mApiCheckInterfaceNames) {
+      if (!mApiCheckInterfaceNames.contains(iface)) {
+        Errors.error(Errors.ADDED_INTERFACE, cl.position(), "Added interface " + iface
+            + " to class " + qualifiedName());
+        consistent = false;
+      }
+    }
+
+    for (MethodInfo mInfo : mApiCheckMethods.values()) {
+      if (cl.mApiCheckMethods.containsKey(mInfo.getHashableName())) {
+        if (!mInfo.isConsistent(cl.mApiCheckMethods.get(mInfo.getHashableName()))) {
+          consistent = false;
+        }
+      } else {
+        /*
+         * This class formerly provided this method directly, and now does not. Check our ancestry
+         * to see if there's an inherited version that still fulfills the API requirement.
+         */
+        MethodInfo mi = ClassInfo.overriddenMethod(mInfo, cl);
+        if (mi == null) {
+          mi = ClassInfo.interfaceMethod(mInfo, cl);
+        }
+        if (mi == null) {
+          Errors.error(Errors.REMOVED_METHOD, mInfo.position(), "Removed public method "
+              + mInfo.qualifiedName());
+          consistent = false;
+        }
+      }
+    }
+    for (MethodInfo mInfo : cl.mApiCheckMethods.values()) {
+      if (!mApiCheckMethods.containsKey(mInfo.getHashableName())) {
+        /*
+         * Similarly to the above, do not fail if this "new" method is really an override of an
+         * existing superclass method.
+         */
+        MethodInfo mi = ClassInfo.overriddenMethod(mInfo, cl);
+        if (mi == null) {
+          Errors.error(Errors.ADDED_METHOD, mInfo.position(), "Added public method "
+              + mInfo.qualifiedName());
+          consistent = false;
+        }
+      }
+    }
+
+    for (ConstructorInfo mInfo : mApiCheckConstructors.values()) {
+      if (cl.mApiCheckConstructors.containsKey(mInfo.getHashableName())) {
+        if (!mInfo.isConsistent(cl.mApiCheckConstructors.get(mInfo.getHashableName()))) {
+          consistent = false;
+        }
+      } else {
+        Errors.error(Errors.REMOVED_METHOD, mInfo.position(), "Removed public constructor "
+            + mInfo.prettySignature());
+        consistent = false;
+      }
+    }
+    for (ConstructorInfo mInfo : cl.mApiCheckConstructors.values()) {
+      if (!mApiCheckConstructors.containsKey(mInfo.getHashableName())) {
+        Errors.error(Errors.ADDED_METHOD, mInfo.position(), "Added public constructor "
+            + mInfo.prettySignature());
+        consistent = false;
+      }
+    }
+
+    for (FieldInfo mInfo : mApiCheckFields.values()) {
+      if (cl.mApiCheckFields.containsKey(mInfo.name())) {
+        if (!mInfo.isConsistent(cl.mApiCheckFields.get(mInfo.name()))) {
+          consistent = false;
+        }
+      } else {
+        Errors.error(Errors.REMOVED_FIELD, mInfo.position(), "Removed field "
+            + mInfo.qualifiedName());
+        consistent = false;
+      }
+    }
+    for (FieldInfo mInfo : cl.mApiCheckFields.values()) {
+      if (!mApiCheckFields.containsKey(mInfo.name())) {
+        Errors.error(Errors.ADDED_FIELD, mInfo.position(), "Added public field "
+            + mInfo.qualifiedName());
+        consistent = false;
+      }
+    }
+
+    if (mIsAbstract != cl.mIsAbstract) {
+      consistent = false;
+      Errors.error(Errors.CHANGED_ABSTRACT, cl.position(), "Class " + cl.qualifiedName()
+          + " changed abstract qualifier");
+    }
+
+    if (mIsFinal != cl.mIsFinal) {
+      consistent = false;
+      Errors.error(Errors.CHANGED_FINAL, cl.position(), "Class " + cl.qualifiedName()
+          + " changed final qualifier");
+    }
+
+    if (mIsStatic != cl.mIsStatic) {
+      consistent = false;
+      Errors.error(Errors.CHANGED_STATIC, cl.position(), "Class " + cl.qualifiedName()
+          + " changed static qualifier");
+    }
+
+    if (!scope().equals(cl.scope())) {
+      consistent = false;
+      Errors.error(Errors.CHANGED_SCOPE, cl.position(), "Class " + cl.qualifiedName()
+          + " scope changed from " + scope() + " to " + cl.scope());
+    }
+
+    if (!isDeprecated() == cl.isDeprecated()) {
+      consistent = false;
+      Errors.error(Errors.CHANGED_DEPRECATED, cl.position(), "Class " + cl.qualifiedName()
+          + " has changed deprecation state");
+    }
+
+    if (superclassName() != null) {
+      if (cl.superclassName() == null || !superclassName().equals(cl.superclassName())) {
+        consistent = false;
+        Errors.error(Errors.CHANGED_SUPERCLASS, cl.position(), "Class " + qualifiedName()
+            + " superclass changed from " + superclassName() + " to " + cl.superclassName());
+      }
+    } else if (cl.superclassName() != null) {
+      consistent = false;
+      Errors.error(Errors.CHANGED_SUPERCLASS, cl.position(), "Class " + qualifiedName()
+          + " superclass changed from " + "null to " + cl.superclassName());
+    }
+
+    return consistent;
+  }
+  
+  // Find a superclass implementation of the given method.
+  public static MethodInfo overriddenMethod(MethodInfo candidate, ClassInfo newClassObj) {
+    if (newClassObj == null) {
+      return null;
+    }
+    for (MethodInfo mi : newClassObj.mApiCheckMethods.values()) {
+      if (mi.matches(candidate)) {
+        // found it
+        return mi;
+      }
+    }
+
+    // not found here. recursively search ancestors
+    return ClassInfo.overriddenMethod(candidate, newClassObj.mApiCheckSuperClass);
+  }
+
+  // Find a superinterface declaration of the given method.
+  public static MethodInfo interfaceMethod(MethodInfo candidate, ClassInfo newClassObj) {
+    if (newClassObj == null) {
+      return null;
+    }
+    for (ClassInfo interfaceInfo : newClassObj.mInterfaces) {
+      for (MethodInfo mi : interfaceInfo.mApiCheckMethods.values()) {
+        if (mi.matches(candidate)) {
+          return mi;
+        }
+      }
+    }
+    return ClassInfo.interfaceMethod(candidate, newClassObj.mApiCheckSuperClass);
+  }
+  
+  public boolean hasConstructor(MethodInfo constructor) {
+    String name = constructor.getHashableName();
+    for (int i = 0; i < mConstructors.length; i++) {
+      if (name.equals(mConstructors[i].getHashableName())) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

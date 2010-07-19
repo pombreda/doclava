@@ -20,6 +20,6 @@ public interface AbstractMethodInfo {
 
   public void addException(String exec);
 
-  public void addParameter(ParameterInfo p);
+  public void addParameter(com.google.doclava.ParameterInfo p);
 
 }

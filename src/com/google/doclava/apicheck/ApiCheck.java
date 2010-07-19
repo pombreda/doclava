@@ -18,11 +18,16 @@ package com.google.doclava.apicheck;
 
 import com.google.doclava.AnnotationInstanceInfo;
 import com.google.doclava.ClassInfo;
+import com.google.doclava.ConstructorInfo;
 import com.google.doclava.Errors;
+import com.google.doclava.MethodInfo;
+import com.google.doclava.ParameterInfo;
 import com.google.doclava.SourcePositionInfo;
 import com.google.doclava.TypeInfo;
 
 import com.google.doclava.FieldInfo;
+
+import com.sun.javadoc.ClassDoc;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -188,22 +193,70 @@ public class ApiCheck {
         // push the old outer scope for later recovery, then set
         // up the new current class object
         mClassScope.push(mCurrentClass);
+        
+        ClassDoc classDoc = null;
+        String rawCommentText = "";
+        SourcePositionInfo position = SourcePositionInfo.fromXml(attributes.getValue("source"));
+        String visibility = attributes.getValue("visibility");
+        boolean isPublic = "public".equals(visibility);
+        boolean isProtected = "protected".equals(visibility);
+        boolean isPrivate = "private".equals(visibility); 
+        boolean isPackagePrivate = !isPublic && !isPrivate && !isProtected;
+        boolean isStatic = Boolean.valueOf(attributes.getValue("static"));
+        boolean isInterface = qName.equals("interface");
+        boolean isAbstract = Boolean.valueOf(attributes.getValue("abstract"));
+        boolean isOrdinaryClass = qName.equals("class");
+        boolean isException = false; // TODO: check hierarchy for java.lang.Exception
+        boolean isError = false; // TODO: not sure.
+        boolean isEnum = false; // TODO: not sure.
+        boolean isAnnotation = false; // TODO: not sure;
+        boolean isFinal = Boolean.valueOf(attributes.getValue("final"));
+        boolean isIncluded = false;
+        String name = attributes.getValue("name");
+        String qualifiedName = null; // TODO: package + outer class + self.
+        String qualifiedTypeName = null; // TODO: not sure
+        boolean isPrimitive = false;
+        
         mCurrentClass =
-            new ClassInfo(attributes.getValue("name"), mCurrentPackage, attributes
-                .getValue("extends"), qName.equals("interface"), Boolean.valueOf(attributes
-                .getValue("abstract")), Boolean.valueOf(attributes.getValue("static")), Boolean
-                .valueOf(attributes.getValue("final")), attributes.getValue("deprecated"),
-                attributes.getValue("visibility"), SourcePositionInfo.fromXml(attributes
-                    .getValue("source")), mCurrentClass);
+            new ClassInfo(classDoc, rawCommentText, position, isPublic, isProtected, 
+            isPackagePrivate, isPrivate, isStatic, isInterface, isAbstract, isOrdinaryClass, 
+            isException, isError, isEnum, isAnnotation, isFinal, isIncluded, name, qualifiedName,
+            qualifiedTypeName, isPrimitive);
       } else if (qName.equals("method")) {
-        mCurrentMethod =
-            new MethodInfo(attributes.getValue("name"), attributes.getValue("return"), Boolean
-                .valueOf(attributes.getValue("abstract")), Boolean.valueOf(attributes
-                .getValue("native")), Boolean.valueOf(attributes.getValue("synchronized")), Boolean
-                .valueOf(attributes.getValue("static")), Boolean.valueOf(attributes
-                .getValue("final")), attributes.getValue("deprecated"), attributes
-                .getValue("visibility"), SourcePositionInfo.fromXml(attributes.getValue("source")),
-                mCurrentClass);
+        String rawCommentText = "";
+        TypeInfo[] typeParameters = null; // TODO
+        String name = attributes.getValue("name");
+        String signature = null; // TODO
+        ClassInfo containingClass = mCurrentClass;
+        ClassInfo realContainingClass = mCurrentClass;
+        String visibility = attributes.getValue("visibility");
+        boolean isPublic = "public".equals(visibility);
+        boolean isProtected = "protected".equals(visibility);
+        boolean isPrivate = "private".equals(visibility); 
+        boolean isPackagePrivate = !isPublic && !isPrivate && !isProtected;
+        boolean isFinal = Boolean.valueOf(attributes.getValue("final"));
+        boolean isStatic = Boolean.valueOf(attributes.getValue("static"));
+        boolean isSynthetic = false; // TODO
+        boolean isAbstract = Boolean.valueOf(attributes.getValue("abstract"));
+        boolean isSynchronized = Boolean.valueOf(attributes.getValue("synchronized"));
+        boolean isNative = Boolean.valueOf(attributes.getValue("native"));
+        boolean isAnnotationElement = false; // TODO
+        String kind = qName;
+        String flatSignature = null; // TODO
+        MethodInfo overriddenMethod = null; // TODO
+        TypeInfo returnType = null; // TODO: obtainType from attributes.getValue("return")
+        ParameterInfo[] parameters = null; // TODO
+        ClassInfo[] thrownExceptions = null; // TODO
+        SourcePositionInfo position = SourcePositionInfo.fromXml(attributes.getValue("source"));
+        AnnotationInstanceInfo[] annotations = null; // TODO
+        
+        mCurrentMethod = 
+            new MethodInfo(rawCommentText, typeParameters, name, signature, containingClass,
+            realContainingClass, isPublic, isProtected, isPackagePrivate, isPrivate, isFinal,
+            isStatic, isSynthetic, isAbstract, isSynchronized, isNative, isAnnotationElement, kind,
+            flatSignature, overriddenMethod, returnType, parameters, thrownExceptions, position,
+            annotations);
+        
       } else if (qName.equals("constructor")) {
         mCurrentMethod =
             new ConstructorInfo(attributes.getValue("name"), attributes.getValue("type"), Boolean
@@ -220,8 +273,7 @@ public class ApiCheck {
         TypeInfo type = null;
         
         // TODO
-        // F'ing A. To generate type, we need the ClassInfo, which needs to be built.
-        // Why??
+        // To generate type, we need the ClassInfo, which needs to be built.
         // attributes.getValue("type")
         // See Converter.obtainType(Type t)
         
@@ -235,8 +287,12 @@ public class ApiCheck {
 
         mCurrentClass.addField(fInfo);
       } else if (qName.equals("parameter")) {
-        mCurrentMethod.addParameter(new ParameterInfo(attributes.getValue("type"), attributes
-            .getValue("name")));
+        String name = attributes.getValue("name");
+        String typeName = attributes.getValue("type");
+        TypeInfo type = null; // TODO
+        SourcePositionInfo position = null; // TODO
+        
+        mCurrentMethod.addParameter(new ParameterInfo(name, typeName, type, position));
       } else if (qName.equals("exception")) {
         mCurrentMethod.addException(attributes.getValue("type"));
       } else if (qName.equals("implements")) {

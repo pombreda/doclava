@@ -108,8 +108,7 @@ public class SinceTagger {
         continue;
       }
 
-      com.google.doclava.apicheck.ClassInfo classSpec
-        = packageSpec.allClasses().get(classDoc.name());
+      ClassInfo classSpec = packageSpec.allClasses().get(classDoc.name());
 
       if (classSpec == null) {
         continue;
@@ -144,11 +143,10 @@ public class SinceTagger {
   /**
    * Applies version information from {@code spec} to {@code doc} where not already present.
    */
-  private void versionConstructors(String versionName, com.google.doclava.apicheck.ClassInfo spec,
-      ClassInfo doc) {
+  private void versionConstructors(String versionName, ClassInfo spec, ClassInfo doc) {
     for (MethodInfo constructor : doc.constructors()) {
       if (constructor.getSince() == null
-          && spec.allConstructors().containsKey(constructor.getHashableName())) {
+          && spec.hasConstructor(constructor)) {
         constructor.setSince(versionName);
       }
     }
@@ -157,7 +155,7 @@ public class SinceTagger {
   /**
    * Applies version information from {@code spec} to {@code doc} where not already present.
    */
-  private void versionFields(String versionName, com.google.doclava.apicheck.ClassInfo spec, ClassInfo doc) {
+  private void versionFields(String versionName, ClassInfo spec, ClassInfo doc) {
     for (FieldInfo field : doc.fields()) {
       if (field.getSince() == null && spec.allFields().containsKey(field.name())) {
         field.setSince(versionName);
@@ -168,13 +166,13 @@ public class SinceTagger {
   /**
    * Applies version information from {@code spec} to {@code doc} where not already present.
    */
-  private void versionMethods(String versionName, com.google.doclava.apicheck.ClassInfo spec, ClassInfo doc) {
+  private void versionMethods(String versionName, ClassInfo spec, ClassInfo doc) {
     for (MethodInfo method : doc.methods()) {
       if (method.getSince() != null) {
         continue;
       }
 
-      for (com.google.doclava.apicheck.ClassInfo superclass : spec.hierarchy()) {
+      for (ClassInfo superclass : spec.hierarchy()) {
         if (superclass.allMethods().containsKey(method.getHashableName())) {
           method.setSince(versionName);
           break;

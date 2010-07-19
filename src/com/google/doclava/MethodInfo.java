@@ -17,10 +17,11 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
+import com.google.doclava.apicheck.AbstractMethodInfo;
 
 import java.util.*;
 
-public class MethodInfo extends MemberInfo {
+public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
   public static final Comparator<MethodInfo> comparator = new Comparator<MethodInfo>() {
     public int compare(MethodInfo a, MethodInfo b) {
       return a.name().compareTo(b.name());
@@ -605,6 +606,14 @@ public class MethodInfo extends MemberInfo {
   public String getReason() {
     return mReasonOpened;
   }
+  
+  public void addException(String exec) {
+    throw new AssertionError("Not yet supported.");
+  }
+
+  public void addParameter(ParameterInfo p) {
+    throw new AssertionError("Not yet supported.");
+  }
 
   private String mFlatSignature;
   private MethodInfo mOverriddenMethod;
@@ -624,4 +633,109 @@ public class MethodInfo extends MemberInfo {
   private TypeInfo[] mTypeParameters;
   private AnnotationValueInfo mDefaultAnnotationElementValue;
   private String mReasonOpened;
+  
+  
+  
+  public String qualifiedName() {
+    String parentQName = (containingClass() != null)
+        ? (containingClass().qualifiedName() + ".") : "";
+    return parentQName + name();
+  }
+
+  public boolean matches(MethodInfo other) {
+    return signature().equals(other.signature());
+  }
+
+  public boolean throwsException(ClassInfo exception) {
+    for (ClassInfo e : mThrownExceptions) {
+      if (e.qualifiedName().equals(exception.qualifiedName())) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  public boolean isConsistent(MethodInfo mInfo) {
+    boolean consistent = true;
+    if (!this.mReturnType.equals(mInfo.mReturnType)) {
+      consistent = false;
+      Errors.error(Errors.CHANGED_TYPE, mInfo.position(), "Method " + mInfo.qualifiedName()
+          + " has changed return type from " + mReturnType + " to " + mInfo.mReturnType);
+    }
+
+    if (mIsAbstract != mInfo.mIsAbstract) {
+      consistent = false;
+      Errors.error(Errors.CHANGED_ABSTRACT, mInfo.position(), "Method " + mInfo.qualifiedName()
+          + " has changed 'abstract' qualifier");
+    }
+
+    if (mIsNative != mInfo.mIsNative) {
+      consistent = false;
+      Errors.error(Errors.CHANGED_NATIVE, mInfo.position(), "Method " + mInfo.qualifiedName()
+          + " has changed 'native' qualifier");
+    }
+
+    if (mIsFinal != mInfo.mIsFinal) {
+      // Compiler-generated methods vary in their 'final' qual between versions of
+      // the compiler, so this check needs to be quite narrow. A change in 'final'
+      // status of a method is only relevant if (a) the method is not declared 'static'
+      // and (b) the method's class is not itself 'final'.
+      if (!mIsStatic) {
+        if ((containingClass() == null) || (!containingClass().isFinal())) {
+          consistent = false;
+          Errors.error(Errors.CHANGED_FINAL, mInfo.position(), "Method " + mInfo.qualifiedName()
+              + " has changed 'final' qualifier");
+        }
+      }
+    }
+
+    if (mIsStatic != mInfo.mIsStatic) {
+      consistent = false;
+      Errors.error(Errors.CHANGED_STATIC, mInfo.position(), "Method " + mInfo.qualifiedName()
+          + " has changed 'static' qualifier");
+    }
+
+    if (!scope().equals(mInfo.scope())) {
+      consistent = false;
+      Errors.error(Errors.CHANGED_SCOPE, mInfo.position(), "Method " + mInfo.qualifiedName()
+          + " changed scope from " + scope() + " to " + mInfo.scope());
+    }
+
+    if (!isDeprecated() == mInfo.isDeprecated()) {
+      Errors.error(Errors.CHANGED_DEPRECATED, mInfo.position(), "Method " + mInfo.qualifiedName()
+          + " has changed deprecation state");
+      consistent = false;
+    }
+
+    if (mIsSynchronized != mInfo.mIsSynchronized) {
+      Errors.error(Errors.CHANGED_SYNCHRONIZED, mInfo.position(), "Method " + mInfo.qualifiedName()
+          + " has changed 'synchronized' qualifier from " + mIsSynchronized + " to "
+          + mInfo.mIsSynchronized);
+      consistent = false;
+    }
+
+    for (ClassInfo exception : thrownExceptions()) {
+      if (!mInfo.throwsException(exception)) {
+        // exclude 'throws' changes to finalize() overrides with no arguments
+        if (!name().equals("finalize") || (mParameters.length > 0)) {
+          Errors.error(Errors.CHANGED_THROWS, mInfo.position(), "Method " + mInfo.qualifiedName()
+              + " no longer throws exception " + exception.qualifiedName());
+          consistent = false;
+        }
+      }
+    }
+
+    for (ClassInfo exec : mInfo.thrownExceptions()) {
+      // exclude 'throws' changes to finalize() overrides with no arguments
+      if (!throwsException(exec)) {
+        if (!name().equals("finalize") || (mParameters.length > 0)) {
+          Errors.error(Errors.CHANGED_THROWS, mInfo.position(), "Method " + mInfo.qualifiedName()
+              + " added thrown exception " + exec.qualifiedName());
+          consistent = false;
+        }
+      }
+    }
+
+    return consistent;
+  }
 }

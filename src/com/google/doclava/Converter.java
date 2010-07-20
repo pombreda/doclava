@@ -488,13 +488,13 @@ public class Converter {
         keyString += "NoWildCardType//";
       }
 
-
-
       return keyString;
     }
   };
-
-
+  
+  public static TypeInfo obtainTypeFromString(String type) {
+    return new TypeInfo(type);
+  }
 
   private static MemberInfo obtainMember(MemberDoc o) {
     return (MemberInfo) mMembers.obtain(o);

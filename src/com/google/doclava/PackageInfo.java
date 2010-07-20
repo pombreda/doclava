@@ -22,6 +22,8 @@ import com.sun.javadoc.*;
 import java.util.*;
 
 public class PackageInfo extends DocInfo implements ContainerInfo {
+  public static final String DEFAULT_PACKAGE = "default package";
+  
   public static final Comparator<PackageInfo> comparator = new Comparator<PackageInfo>() {
     public int compare(PackageInfo a, PackageInfo b) {
       return a.name().compareTo(b.name());
@@ -31,7 +33,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
   public PackageInfo(PackageDoc pkg, String name, SourcePositionInfo position) {
     super(pkg.getRawCommentText(), position);
     if (name.isEmpty()) {
-      mName = "default package";
+      mName = DEFAULT_PACKAGE;
     } else {
       mName = name;
     }
@@ -171,4 +173,49 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
   private ClassInfo[] mEnums;
   private ClassInfo[] mExceptions;
   private ClassInfo[] mErrors;
+  
+  
+  // From ApiCheck
+  public PackageInfo(String name, SourcePositionInfo position) {
+    super(null, position);
+    
+    if (name.isEmpty()) {
+      mName = "default package";
+    } else {
+      mName = name;
+    }
+  }
+  
+  private HashMap<String, ClassInfo> mClasses = new HashMap<String, ClassInfo>();
+  
+  public void addClass(ClassInfo cl) {
+    mClasses.put(cl.name(), cl);
+  }
+
+  public HashMap<String, ClassInfo> allClasses() {
+    return mClasses;
+  }
+  
+  public boolean isConsistent(PackageInfo pInfo) {
+    boolean consistent = true;
+    for (ClassInfo cInfo : mClasses.values()) {
+      if (pInfo.mClasses.containsKey(cInfo.name())) {
+        if (!cInfo.isConsistent(pInfo.mClasses.get(cInfo.name()))) {
+          consistent = false;
+        }
+      } else {
+        Errors.error(Errors.REMOVED_CLASS, cInfo.position(), "Removed public class "
+            + cInfo.qualifiedName());
+        consistent = false;
+      }
+    }
+    for (ClassInfo cInfo : pInfo.mClasses.values()) {
+      if (!mClasses.containsKey(cInfo.name())) {
+        Errors.error(Errors.ADDED_CLASS, cInfo.position(), "Added class " + cInfo.name()
+            + " to package " + pInfo.name());
+        consistent = false;
+      }
+    }
+    return consistent;
+  }
 }

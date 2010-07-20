@@ -295,7 +295,8 @@ public class Stubs {
 
     // Work around the bogus "Array" class we invent for
     // Arrays.copyOf's Class<? extends T[]> newType parameter. (http://b/2715505)
-    if (cl.containingPackage() != null && cl.containingPackage().name().equals("")) {
+    if (cl.containingPackage() != null
+        && cl.containingPackage().name().equals(PackageInfo.DEFAULT_PACKAGE)) {
       return;
     }
 
@@ -755,7 +756,7 @@ public class Stubs {
     Arrays.sort(classes, ClassInfo.comparator);
     // Work around the bogus "Array" class we invent for
     // Arrays.copyOf's Class<? extends T[]> newType parameter. (http://b/2715505)
-    if (pack.name().equals("")) {
+    if (pack.name().equals(PackageInfo.DEFAULT_PACKAGE)) {
       return;
     }
     xmlWriter.println("<package name=\"" + pack.name() + "\"\n"

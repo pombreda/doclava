@@ -507,11 +507,17 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   }
 
   public void addMethod(MethodInfo method) {
+    mApiCheckMethods.put(method.getHashableName(), method);
+    
+    if (mAllSelfMethods == null) {
+      mAllSelfMethods = new MethodInfo[] { method };
+      return;
+    }
+    
     MethodInfo[] methods = new MethodInfo[mAllSelfMethods.length + 1];
     int i = 0;
     for (MethodInfo m : mAllSelfMethods) {
-      methods[i] = m;
-      i++;
+      methods[i++] = m;
     }
     methods[i] = method;
     mAllSelfMethods = methods;
@@ -1402,6 +1408,8 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   private boolean mIsDeprecated;
   
   // Temporary members from apicheck migration
+  private String mSuperClassName;
+  private boolean mSuperClassNameSet = false;
   private List<String> mApiCheckInterfaceNames = new ArrayList<String>();
   private List<ClassInfo> mApiCheckInterfaces = new ArrayList<ClassInfo>();
   private HashMap<String, MethodInfo> mApiCheckMethods = new HashMap<String, MethodInfo>();
@@ -1477,15 +1485,15 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   }
   
   public String superclassName() {
-    if (mSuperclassInit == false) {
-      throw new AssertionError("Superclass name requested but not initialized");
+    if (!mSuperClassNameSet) {
+      throw new AssertionError("mSuperClassName not set");
     }
-    
-    if (mSuperclass == null) {
-      return "java.lang.Object";
-    }
-    
-    return mSuperclass.mQualifiedName;
+    return mSuperClassName;
+  }
+  
+  public void setSuperClassName(String name) {
+    mSuperClassNameSet = true;
+    mSuperClassName = name;
   }
   
   public boolean isConsistent(ClassInfo cl) {
@@ -1662,11 +1670,15 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   
   public boolean hasConstructor(MethodInfo constructor) {
     String name = constructor.getHashableName();
-    for (int i = 0; i < mConstructors.length; i++) {
-      if (name.equals(mConstructors[i].getHashableName())) {
+    for (ConstructorInfo ctor : mApiCheckConstructors.values()) {
+      if (name.equals(ctor.getHashableName())) {
         return true;
       }
     }
     return false;
+  }
+  
+  public void setTypeInfo(TypeInfo typeInfo) {
+    mTypeInfo = typeInfo;
   }
 }

@@ -101,8 +101,8 @@ public class SinceTagger {
    */
   private void applyVersionsFromSpec(String versionName, ApiInfo specApi, ClassInfo[] classDocs) {
     for (ClassInfo classDoc : classDocs) {
-      com.google.doclava.apicheck.PackageInfo packageSpec =
-          specApi.getPackages().get(classDoc.containingPackage().name());
+      PackageInfo packageSpec
+          = specApi.getPackages().get(classDoc.containingPackage().name());
 
       if (packageSpec == null) {
         continue;

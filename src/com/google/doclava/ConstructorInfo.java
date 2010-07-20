@@ -22,6 +22,7 @@ import java.util.*;
 
 public class ConstructorInfo implements AbstractMethodInfo {
 
+  private boolean mIsVarargs;
   private String mName;
   private String mType;
   private boolean mIsStatic;
@@ -134,5 +135,16 @@ public class ConstructorInfo implements AbstractMethodInfo {
     return consistent;
   }
 
+  /* (non-Javadoc)
+   * @see com.google.doclava.apicheck.AbstractMethodInfo#setVarargs(boolean)
+   */
+  @Override
+  public void setVarargs(boolean varargs) {
+    mIsVarargs = varargs;
+  }
+
+  public boolean isVarArgs() {
+    return mIsVarargs;
+  }
 
 }

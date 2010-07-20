@@ -333,7 +333,7 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
   }
 
   /**
-   * Returns a name consistent with the {@link com.google.doclava.apicheck.MethodInfo#getHashableName()}.
+   * Returns a name consistent with the {@link com.google.doclava.MethodInfo#getHashableName()}.
    */
   public String getHashableName() {
     StringBuilder result = new StringBuilder();
@@ -608,11 +608,43 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
   }
   
   public void addException(String exec) {
-    throw new AssertionError("Not yet supported.");
+    mApiCheckExceptions.add(exec);
+  }
+  
+  public List<String> getExceptionStrings() {
+    return mApiCheckExceptions;
   }
 
   public void addParameter(ParameterInfo p) {
-    throw new AssertionError("Not yet supported.");
+    // Name information
+    ParameterInfo[] newParams;
+    int i = 0;
+    
+    if (mParameters == null) {
+      newParams = new ParameterInfo[1];
+    } else {
+      newParams = new ParameterInfo[mParameters.length+1];
+      for (ParameterInfo info : mParameters) {
+        newParams[i++] = info;
+      }
+    }
+    newParams[i] = p;
+    mParameters = newParams;
+    
+    // Type information
+    TypeInfo[] newTypes;
+    i = 0;
+    
+    if (mTypeParameters == null) {
+      newTypes = new TypeInfo[1];
+    } else {
+      newTypes = new TypeInfo[mTypeParameters.length+1];
+      for (TypeInfo info : mTypeParameters) {
+        newTypes[i++] = info;
+      }
+    }
+    newTypes[i] = p.mType;
+    mTypeParameters = newTypes;
   }
 
   private String mFlatSignature;
@@ -634,7 +666,8 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
   private AnnotationValueInfo mDefaultAnnotationElementValue;
   private String mReasonOpened;
   
-  
+  // TODO: merge with droiddoc version (above)
+  List<String> mApiCheckExceptions = new ArrayList<String>();
   
   public String qualifiedName() {
     String parentQName = (containingClass() != null)

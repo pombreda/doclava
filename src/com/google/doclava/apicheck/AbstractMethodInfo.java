@@ -22,4 +22,6 @@ public interface AbstractMethodInfo {
 
   public void addParameter(com.google.doclava.ParameterInfo p);
 
+  public void setVarargs(boolean varargs);
+  public boolean isVarArgs();
 }

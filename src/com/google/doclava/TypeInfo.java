@@ -30,6 +30,73 @@ public class TypeInfo {
     mClass = cl;
   }
 
+  public TypeInfo(String typeString) {
+    // VarArgs
+    if (typeString.endsWith("...")) {
+      typeString = typeString.substring(0, typeString.length() - 3);
+    }
+    
+    // Generic parameters
+    int paramStartPos = typeString.indexOf('<');
+    if (paramStartPos > -1) {
+      ArrayList<TypeInfo> generics = new ArrayList<TypeInfo>();
+      int paramEndPos = typeString.lastIndexOf('>');
+      
+      int entryStartPos = paramStartPos + 1;
+      int bracketNesting = 0;
+      for (int i = entryStartPos; i < paramEndPos; i++) {
+        char c = typeString.charAt(i);
+        if (c == ',' && bracketNesting == 0) {
+          String entry = typeString.substring(entryStartPos, i).trim();
+          TypeInfo info = new TypeInfo(entry);
+          generics.add(info);
+          entryStartPos = i + 1;
+        } else if (c == '<') {
+          bracketNesting++;
+        } else if (c == '>') {
+          bracketNesting--;
+        }
+      }
+     
+      TypeInfo info = new TypeInfo(typeString.substring(entryStartPos, paramEndPos).trim());
+      generics.add(info);
+      
+      mTypeArguments = new TypeInfo[generics.size()];
+      generics.toArray(mTypeArguments);
+      
+      if (paramEndPos < typeString.length() - 1) {
+        typeString = typeString.substring(0,paramStartPos) + typeString.substring(paramEndPos + 1);
+      } else {
+        typeString = typeString.substring(0,paramStartPos);
+      }
+    }
+    
+    // Dimensions
+    int pos = typeString.indexOf('['); 
+    if (pos > -1) {
+      mDimension = typeString.substring(pos);
+      typeString = typeString.substring(0, pos);
+    } else {
+      mDimension = "";
+    }
+   
+    if (typeString.equals("boolean") || typeString.equals("byte") || typeString.equals("char") || typeString.equals("double")
+        || typeString.equals("float") || typeString.equals("int") || typeString.equals("long") || typeString.equals("short")
+        || typeString.equals("void")) {
+      mIsPrimitive = true;
+      mSimpleTypeName = typeString;
+      mQualifiedTypeName = typeString;
+    } else {
+      mQualifiedTypeName = typeString;
+      pos = typeString.indexOf('.');
+      if (pos > -1) {
+        mSimpleTypeName = typeString.substring(0,pos);
+      } else {
+        mSimpleTypeName = typeString;
+      }
+    }
+  }
+
   public ClassInfo asClassInfo() {
     return mClass;
   }

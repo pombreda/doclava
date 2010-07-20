@@ -19,8 +19,10 @@ package com.google.doclava.apicheck;
 import com.google.doclava.AnnotationInstanceInfo;
 import com.google.doclava.ClassInfo;
 import com.google.doclava.ConstructorInfo;
+import com.google.doclava.Converter;
 import com.google.doclava.Errors;
 import com.google.doclava.MethodInfo;
+import com.google.doclava.PackageInfo;
 import com.google.doclava.ParameterInfo;
 import com.google.doclava.SourcePositionInfo;
 import com.google.doclava.TypeInfo;
@@ -34,8 +36,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
-
-import sun.awt.motif.MComponentPeer;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -209,11 +209,11 @@ public class ApiCheck {
         boolean isException = false; // TODO: check hierarchy for java.lang.Exception
         boolean isError = false; // TODO: not sure.
         boolean isEnum = false; // TODO: not sure.
-        boolean isAnnotation = false; // TODO: not sure;
+        boolean isAnnotation = false; // TODO: not sure.
         boolean isFinal = Boolean.valueOf(attributes.getValue("final"));
         boolean isIncluded = false;
         String name = attributes.getValue("name");
-        String qualifiedName = null; // TODO: package + outer class + self.
+        String qualifiedName = qualifiedName(mCurrentPackage.name(), name, mCurrentClass);
         String qualifiedTypeName = null; // TODO: not sure
         boolean isPrimitive = false;
         
@@ -222,9 +222,18 @@ public class ApiCheck {
             isPackagePrivate, isPrivate, isStatic, isInterface, isAbstract, isOrdinaryClass, 
             isException, isError, isEnum, isAnnotation, isFinal, isIncluded, name, qualifiedName,
             qualifiedTypeName, isPrimitive);
+        
+        String superclass = attributes.getValue("extends");
+        if (superclass == null && !isInterface && !"java.lang.Object".equals(qualifiedName)) {
+          throw new AssertionError("no superclass known for class " + name);
+        }
+        mCurrentClass.setSuperClassName(superclass);
+        
+        TypeInfo typeInfo = Converter.obtainTypeFromString(qualifiedName) ;
+        mCurrentClass.setTypeInfo(typeInfo);
       } else if (qName.equals("method")) {
         String rawCommentText = "";
-        TypeInfo[] typeParameters = null; // TODO
+        TypeInfo[] typeParameters = new TypeInfo[0];
         String name = attributes.getValue("name");
         String signature = null; // TODO
         ClassInfo containingClass = mCurrentClass;
@@ -244,9 +253,9 @@ public class ApiCheck {
         String kind = qName;
         String flatSignature = null; // TODO
         MethodInfo overriddenMethod = null; // TODO
-        TypeInfo returnType = null; // TODO: obtainType from attributes.getValue("return")
-        ParameterInfo[] parameters = null; // TODO
-        ClassInfo[] thrownExceptions = null; // TODO
+        TypeInfo returnType = Converter.obtainTypeFromString(attributes.getValue("return"));
+        ParameterInfo[] parameters = new ParameterInfo[0];
+        ClassInfo[] thrownExceptions = new ClassInfo[0];
         SourcePositionInfo position = SourcePositionInfo.fromXml(attributes.getValue("source"));
         AnnotationInstanceInfo[] annotations = null; // TODO
         
@@ -270,12 +279,8 @@ public class ApiCheck {
         boolean isProtected = visibility.equals("protected");
         boolean isPrivate = visibility.equals("private");
         boolean isPackagePrivate = visibility.equals("");
-        TypeInfo type = null;
-        
-        // TODO
-        // To generate type, we need the ClassInfo, which needs to be built.
-        // attributes.getValue("type")
-        // See Converter.obtainType(Type t)
+        String typeName = attributes.getValue("type");
+        TypeInfo type = Converter.obtainTypeFromString(typeName);
         
         FieldInfo fInfo =
             new FieldInfo(attributes.getValue("name"), mCurrentClass, mCurrentClass, isPublic,
@@ -289,10 +294,14 @@ public class ApiCheck {
       } else if (qName.equals("parameter")) {
         String name = attributes.getValue("name");
         String typeName = attributes.getValue("type");
-        TypeInfo type = null; // TODO
-        SourcePositionInfo position = null; // TODO
+        TypeInfo type = Converter.obtainTypeFromString(typeName);
+        SourcePositionInfo position = null;
         
         mCurrentMethod.addParameter(new ParameterInfo(name, typeName, type, position));
+        
+        if (typeName.endsWith("...")) {
+          mCurrentMethod.setVarargs(true);
+        }
       } else if (qName.equals("exception")) {
         mCurrentMethod.addException(attributes.getValue("type"));
       } else if (qName.equals("implements")) {
@@ -316,6 +325,11 @@ public class ApiCheck {
 
     public ApiInfo getApi() {
       return mApi;
+    }
+    
+    private String qualifiedName(String pkg, String className, ClassInfo parent) {
+      String parentQName = (parent != null) ? (parent.qualifiedName() + ".") : "";
+        return pkg + "." + parentQName + className;
     }
   }
 }

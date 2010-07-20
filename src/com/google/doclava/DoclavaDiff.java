@@ -21,7 +21,6 @@ import com.google.clearsilver.jsilver.data.Data;
 import com.google.clearsilver.jsilver.resourceloader.CompositeResourceLoader;
 import com.google.clearsilver.jsilver.resourceloader.FileSystemResourceLoader;
 import com.google.clearsilver.jsilver.resourceloader.ResourceLoader;
-import com.google.doclava.apicheck.PackageInfo;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

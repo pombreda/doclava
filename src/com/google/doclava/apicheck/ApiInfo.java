@@ -18,6 +18,7 @@ package com.google.doclava.apicheck;
 
 import com.google.doclava.ClassInfo;
 import com.google.doclava.Errors;
+import com.google.doclava.PackageInfo;
 
 import java.util.*;
 

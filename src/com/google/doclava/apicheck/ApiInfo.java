@@ -26,10 +26,12 @@ public class ApiInfo {
 
   private HashMap<String, PackageInfo> mPackages;
   private HashMap<String, ClassInfo> mAllClasses;
+  private Map<ClassInfo,String> mClassToSuper;
 
   public ApiInfo() {
     mPackages = new HashMap<String, PackageInfo>();
     mAllClasses = new HashMap<String, ClassInfo>();
+    mClassToSuper = new HashMap<ClassInfo, String>();
   }
 
   public ClassInfo findClass(String name) {
@@ -66,6 +68,10 @@ public class ApiInfo {
   public HashMap<String, PackageInfo> getPackages() {
     return mPackages;
   }
+  
+  protected void mapClassToSuper(ClassInfo classInfo, String superclass) {
+    mClassToSuper.put(classInfo, superclass);
+  }
 
   protected void addPackage(PackageInfo pInfo) {
     // track the set of organized packages in the API
@@ -81,7 +87,7 @@ public class ApiInfo {
     for (ClassInfo cl : mAllClasses.values()) {
       // java.lang.Object has no superclass
       if (!cl.qualifiedName().equals("java.lang.Object")) {
-        String scName = cl.superclassName();
+        String scName = mClassToSuper.get(cl);
         if (scName == null) {
           scName = "java.lang.Object";
         }

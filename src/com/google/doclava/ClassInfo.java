@@ -1408,8 +1408,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   private boolean mIsDeprecated;
   
   // Temporary members from apicheck migration
-  private String mSuperClassName;
-  private boolean mSuperClassNameSet = false;
   private List<String> mApiCheckInterfaceNames = new ArrayList<String>();
   private List<ClassInfo> mApiCheckInterfaces = new ArrayList<ClassInfo>();
   private HashMap<String, MethodInfo> mApiCheckMethods = new HashMap<String, MethodInfo>();
@@ -1485,15 +1483,10 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   }
   
   public String superclassName() {
-    if (!mSuperClassNameSet) {
+    if (mSuperclass == null) {
       throw new AssertionError("mSuperClassName not set");
     }
-    return mSuperClassName;
-  }
-  
-  public void setSuperClassName(String name) {
-    mSuperClassNameSet = true;
-    mSuperClassName = name;
+    return mSuperclass.mQualifiedName;
   }
   
   public boolean isConsistent(ClassInfo cl) {

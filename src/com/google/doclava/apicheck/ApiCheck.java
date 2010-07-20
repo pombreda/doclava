@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 public class ApiCheck {
@@ -168,15 +170,15 @@ public class ApiCheck {
       throw new ApiParseException("Error parsing API", e);
     }
   }
-
-  private static class MakeHandler extends DefaultHandler {
+  
+  private class MakeHandler extends DefaultHandler {
 
     private ApiInfo mApi;
     private PackageInfo mCurrentPackage;
     private ClassInfo mCurrentClass;
     private AbstractMethodInfo mCurrentMethod;
     private Stack<ClassInfo> mClassScope = new Stack<ClassInfo>();
-
+    
 
     public MakeHandler() {
       super();
@@ -227,7 +229,9 @@ public class ApiCheck {
         if (superclass == null && !isInterface && !"java.lang.Object".equals(qualifiedName)) {
           throw new AssertionError("no superclass known for class " + name);
         }
-        mCurrentClass.setSuperClassName(superclass);
+        
+        // Resolve superclass after .xml completely parsed.
+        mApi.mapClassToSuper(mCurrentClass, superclass);
         
         TypeInfo typeInfo = Converter.obtainTypeFromString(qualifiedName) ;
         mCurrentClass.setTypeInfo(typeInfo);

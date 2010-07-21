@@ -225,6 +225,7 @@ public class ApiCheck {
             isException, isError, isEnum, isAnnotation, isFinal, isIncluded, name, qualifiedName,
             qualifiedTypeName, isPrimitive);
         
+        mCurrentClass.setContainingPackage(mCurrentPackage);
         String superclass = attributes.getValue("extends");
         if (superclass == null && !isInterface && !"java.lang.Object".equals(qualifiedName)) {
           throw new AssertionError("no superclass known for class " + name);

@@ -88,9 +88,9 @@ public class TypeInfo {
       mQualifiedTypeName = typeString;
     } else {
       mQualifiedTypeName = typeString;
-      pos = typeString.indexOf('.');
+      pos = typeString.lastIndexOf('.');
       if (pos > -1) {
-        mSimpleTypeName = typeString.substring(0,pos);
+        mSimpleTypeName = typeString.substring(pos + 1);
       } else {
         mSimpleTypeName = typeString;
       }

@@ -522,6 +522,10 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     methods[i] = method;
     mAllSelfMethods = methods;
   }
+  
+  public void setContainingPackage(PackageInfo pkg) {
+    mContainingPackage = pkg;
+  }
 
   public AttributeInfo[] selfAttributes() {
     if (mSelfAttributes == null) {
@@ -701,7 +705,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     // public constructors
     for (MethodInfo m : ctors) {
       if (m.isPublic() && m.checkLevel()) {
-        keywords.add(new KeywordEntry(m.name() + m.prettySignature(), htmlPage + "#" + m.anchor(),
+        keywords.add(new KeywordEntry(m.prettySignature(), htmlPage + "#" + m.anchor(),
             "constructor in " + qualifiedName));
       }
     }
@@ -710,7 +714,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     if (Doclava.checkLevel(Doclava.SHOW_PROTECTED)) {
       for (MethodInfo m : ctors) {
         if (m.isProtected() && m.checkLevel()) {
-          keywords.add(new KeywordEntry(m.name() + m.prettySignature(),
+          keywords.add(new KeywordEntry(m.prettySignature(),
               htmlPage + "#" + m.anchor(), "constructor in " + qualifiedName));
         }
       }
@@ -720,7 +724,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     if (Doclava.checkLevel(Doclava.SHOW_PACKAGE)) {
       for (MethodInfo m : ctors) {
         if (m.isPackagePrivate() && m.checkLevel()) {
-          keywords.add(new KeywordEntry(m.name() + m.prettySignature(),
+          keywords.add(new KeywordEntry(m.prettySignature(),
               htmlPage + "#" + m.anchor(), "constructor in " + qualifiedName));
         }
       }

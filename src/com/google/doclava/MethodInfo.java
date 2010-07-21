@@ -312,24 +312,25 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
   public TypeInfo returnType() {
     return mReturnType;
   }
-
+  
   public String prettySignature() {
-    String s = "(";
-    int N = mParameters.length;
-    for (int i = 0; i < N; i++) {
-      ParameterInfo p = mParameters[i];
-      TypeInfo t = p.type();
-      if (t.isPrimitive()) {
-        s += t.simpleTypeName();
-      } else {
-        s += t.asClassInfo().name();
+    return name() + prettyParameters();
+  }
+  
+  /**
+   * Returns a printable version of the parameters of this method's signature.
+   */
+  public String prettyParameters() {
+    StringBuilder params = new StringBuilder("(");
+    for (ParameterInfo pInfo : mParameters) {
+      if (params.length() > 1) {
+        params.append(",");
       }
-      if (i != N - 1) {
-        s += ',';
-      }
+      params.append(pInfo.type().simpleTypeName());
     }
-    s += ')';
-    return s;
+    
+    params.append(")");
+    return params.toString();
   }
 
   /**

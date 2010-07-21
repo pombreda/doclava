@@ -91,7 +91,7 @@ public class AttributeInfo {
     for (MethodInfo m : methods) {
       String s = base + ".methods." + i;
       data.setValue(s + ".href", m.htmlPage());
-      data.setValue(s + ".name", m.name() + m.prettySignature());
+      data.setValue(s + ".name", m.prettySignature());
     }
   }
 

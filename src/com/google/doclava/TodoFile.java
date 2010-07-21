@@ -95,7 +95,7 @@ public class TodoFile {
         total++;
         if (m.checkLevel()) {
           if (!areTagsUseful(m.inlineTags())) {
-            setHDF(data, base + errors, m.position(), m.name() + m.prettySignature(), MISSING);
+            setHDF(data, base + errors, m.position(), m.prettySignature(), MISSING);
             good = false;
           }
         }

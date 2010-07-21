@@ -167,6 +167,9 @@ public final class DoclavaDiff {
     return data;
   }
   
+  /**
+   * Returns a list of all known packages from all sites.
+   */
   private List<String> knownPackages(List<FederatedSite> sites) {
     Set<String> allPackages = new LinkedHashSet<String>();
     for (FederatedSite site : sites) {
@@ -186,6 +189,9 @@ public final class DoclavaDiff {
     return packages;
   }
   
+  /**
+   * Returns all known classes from all sites for a given package.
+   */
   private List<String> knownClassesForPackage(String pkg, List<FederatedSite> sites) {
     Set<String> allClasses = new LinkedHashSet<String>();
     for (FederatedSite site : sites) {
@@ -204,6 +210,9 @@ public final class DoclavaDiff {
     return classes;
   }
   
+  /**
+   * Returns all known methods from all sites for a given class.
+   */
   private List<MethodInfo> knownMethodsForClass(String qualifiedClassName,
       List<FederatedSite> sites) {
     
@@ -224,6 +233,11 @@ public final class DoclavaDiff {
     return methods;
   }
   
+  /**
+   * Returns true if the list of sites all completely agree on the given
+   * package. All sites must possess the package, all classes it contains, and
+   * all methods of each class.
+   */
   private boolean agreeOnPackage(String pkg, List<FederatedSite> sites) {
     List<String> classes = knownClassesForPackage(pkg, sites);
     for (String clazz : classes) {
@@ -234,6 +248,10 @@ public final class DoclavaDiff {
     return true;
   }
   
+  /**
+   * Returns true if the list of sites all agree on the given class. Each site
+   * must have the class and agree on its methods.
+   */
   private boolean agreeOnClass(String qualifiedClassName, List<FederatedSite> sites) {
     List<MethodInfo> methods = knownMethodsForClass(qualifiedClassName, sites);
     for (MethodInfo method : methods) {
@@ -244,6 +262,9 @@ public final class DoclavaDiff {
     return true;
   }
   
+  /**
+   * Returns true if the list of sites all contain the given method.
+   */
   private boolean agreeOnMethod(String qualifiedClassName, MethodInfo method,
       List<FederatedSite> sites) {
     
@@ -260,6 +281,9 @@ public final class DoclavaDiff {
     return true;
   }
   
+  /**
+   * Returns true if the given package is known to exactly one of the given sites.
+   */
   private boolean packageUniqueToSite(String pkg, List<FederatedSite> sites) {
     int numSites = 0;
     for (FederatedSite site : sites) {
@@ -270,6 +294,9 @@ public final class DoclavaDiff {
     return numSites == 1;
   }
   
+  /**
+   * Returns true if the given class is known to exactly one of the given sites.
+   */
   private boolean classUniqueToSite(String qualifiedClassName, List<FederatedSite> sites) {
     int numSites = 0;
     for (FederatedSite site : sites) {

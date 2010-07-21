@@ -38,10 +38,22 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
       mName = name;
     }
 
-    if (pkg == null) {
-      throw new RuntimeException("pkg is null");
-    }
     mPackage = pkg;
+  }
+  
+  public PackageInfo(String name) {
+    super("", null);
+    mName = name;
+  }
+  
+  public PackageInfo(String name, SourcePositionInfo position) {
+    super(null, position);
+    
+    if (name.isEmpty()) {
+      mName = "default package";
+    } else {
+      mName = name;
+    }
   }
 
   public String htmlPage() {
@@ -176,16 +188,6 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
   
   
   // From ApiCheck
-  public PackageInfo(String name, SourcePositionInfo position) {
-    super(null, position);
-    
-    if (name.isEmpty()) {
-      mName = "default package";
-    } else {
-      mName = name;
-    }
-  }
-  
   private HashMap<String, ClassInfo> mClasses = new HashMap<String, ClassInfo>();
   
   public void addClass(ClassInfo cl) {

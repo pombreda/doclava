@@ -11,7 +11,7 @@
   <?cs each:site = package.sites ?>
     <td>
     <?cs if:site.hasPackage ?>
-    <div style="background:green">&nbsp;</div>
+    <a href="<?cs var:site.link ?>"><div style="background:green">&nbsp;</div></a>
     <?cs else ?>
     <div style="background:red">&nbsp;</div>
     <?cs /if ?>
@@ -25,7 +25,7 @@
       <?cs each:site = class.sites ?>
         <td>
         <?cs if:site.hasClass ?>
-        <div style="background:green">&nbsp;</div>
+        <a href="<?cs var:site.link ?>"><div style="background:green">&nbsp;</div></a>
         <?cs else ?>
         <div style="background:red">&nbsp;</div>
         <?cs /if ?>
@@ -39,7 +39,7 @@
       <?cs each:site = method.sites ?>
         <td>
         <?cs if:site.hasMethod ?>
-        <div style="background:green">&nbsp;</div>
+        <a href="<?cs var:site.link ?>"><div style="background:green">&nbsp;</div></a>
         <?cs else ?>
         <div style="background:red">&nbsp;</div>
         <?cs /if ?>

@@ -86,6 +86,7 @@ public final class DoclavaDiff {
     
     int p = 0;
     for (String pkg : allPackages) {
+      PackageInfo packageInfo = new PackageInfo(pkg);
       String packageBase = "packages." + (p++);
       data.setValue(packageBase + ".name", pkg);
       
@@ -94,6 +95,7 @@ public final class DoclavaDiff {
         String siteBase = packageBase + ".sites." + (s++);
         if (site.apiInfo().getPackages().containsKey(pkg)) {
           data.setValue(siteBase + ".hasPackage", "1");
+          data.setValue(siteBase + ".link", site.linkFor(packageInfo.htmlPage()));
         } else {
           data.setValue(siteBase + ".hasPackage", "0");
         }
@@ -153,6 +155,7 @@ public final class DoclavaDiff {
                 = site.apiInfo().findClass(qualifiedClassName).allMethods();
             if (siteMethods.containsKey(method.getHashableName())) {
               data.setValue(siteBase + ".hasMethod", "1");
+              data.setValue(siteBase + ".link", site.linkFor(method.htmlPage()));
             } else {
               data.setValue(siteBase + ".hasMethod", "0");
             }

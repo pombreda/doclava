@@ -676,6 +676,23 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     return parentQName + name();
   }
 
+  @Override
+  public String signature() {
+    if (mSignature == null) {
+      StringBuilder params = new StringBuilder("(");
+      for (ParameterInfo pInfo : mParameters) {
+        if (params.length() > 1) {
+          params.append(", ");
+        }
+        params.append(pInfo.type().fullName());
+      }
+      
+      params.append(")");
+      mSignature = params.toString();
+    }
+    return mSignature;
+  }
+
   public boolean matches(MethodInfo other) {
     return signature().equals(other.signature());
   }

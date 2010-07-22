@@ -471,11 +471,11 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     return mAllSelfFields;
   }
 
-  public void gatherMethods(ClassInfo owner, ClassInfo cl, HashMap<String, MethodInfo> methods) {
+  private void gatherMethods(ClassInfo owner, ClassInfo cl, HashMap<String, MethodInfo> methods) {
     MethodInfo[] meth = cl.selfMethods();
     for (MethodInfo m : meth) {
       if (m.checkLevel()) {
-        methods.put(m.name() + m.signature(), m.cloneForClass(owner));
+        methods.put(m.getHashableName(), m.cloneForClass(owner));
       }
     }
   }

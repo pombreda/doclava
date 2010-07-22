@@ -310,7 +310,8 @@ public class ApiCheck {
       } else if (qName.equals("exception")) {
         mCurrentMethod.addException(attributes.getValue("type"));
       } else if (qName.equals("implements")) {
-        mCurrentClass.addInterface(attributes.getValue("name"));
+        // Resolve interfaces after .xml completely parsed.
+        mApi.mapClassToInterface(mCurrentClass, attributes.getValue("name"));
       }
     }
 

@@ -24,23 +24,29 @@ import java.util.*;
 
 public class ApiInfo {
 
-  private HashMap<String, PackageInfo> mPackages;
-  private HashMap<String, ClassInfo> mAllClasses;
-  private Map<ClassInfo,String> mClassToSuper;
+  private HashMap<String, PackageInfo> mPackages
+      = new HashMap<String, PackageInfo>();
+  private HashMap<String, ClassInfo> mAllClasses
+      = new HashMap<String, ClassInfo>();
+  private Map<ClassInfo,String> mClassToSuper
+      = new HashMap<ClassInfo, String>();
+  private Map<ClassInfo, ArrayList<String>> mClassToInterface
+      = new HashMap<ClassInfo, ArrayList<String>>();
 
-  public ApiInfo() {
-    mPackages = new HashMap<String, PackageInfo>();
-    mAllClasses = new HashMap<String, ClassInfo>();
-    mClassToSuper = new HashMap<ClassInfo, String>();
-  }
 
   public ClassInfo findClass(String name) {
     return mAllClasses.get(name);
   }
 
   protected void resolveInterfaces() {
-    for (ClassInfo c : mAllClasses.values()) {
-      c.resolveInterfaces(this);
+    for (ClassInfo cl : mAllClasses.values()) {
+      ArrayList<String> ifaces = mClassToInterface.get(cl);
+      if (ifaces == null) {
+        continue;
+      }
+      for (String iface : ifaces) {
+        cl.addInterface(mAllClasses.get(iface));
+      }
     }
   }
 
@@ -71,6 +77,13 @@ public class ApiInfo {
   
   protected void mapClassToSuper(ClassInfo classInfo, String superclass) {
     mClassToSuper.put(classInfo, superclass);
+  }
+  
+  protected void mapClassToInterface(ClassInfo classInfo, String iface) {
+    if (!mClassToInterface.containsKey(classInfo)) {
+      mClassToInterface.put(classInfo, new ArrayList<String>());
+    }
+    mClassToInterface.get(classInfo).add(iface);
   }
 
   protected void addPackage(PackageInfo pInfo) {

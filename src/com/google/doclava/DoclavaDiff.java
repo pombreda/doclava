@@ -75,6 +75,9 @@ public final class DoclavaDiff {
   private Data generateHdf() {
     Data data = jSilver.createData();
     
+    data.setValue("triangle.opened", "../assets/templates/assets/images/triangle-opened.png");
+    data.setValue("triangle.closed", "../assets/templates/assets/images/triangle-closed.png");
+    
     int i = 0;
     for (FederatedSite site : sites) {
       String base = "sites." + (i++);
@@ -101,14 +104,10 @@ public final class DoclavaDiff {
         }
       }
       
-      if (agreeOnPackage(pkg, sites)) {
-        continue;
-      }
-      
       if (packageUniqueToSite(pkg, sites)) {
         continue;
       }
-      
+            
       List<String> packageClasses = knownClassesForPackage(pkg, sites);
       int c = 0;
       for (String qualifiedClassName : packageClasses) {
@@ -239,6 +238,12 @@ public final class DoclavaDiff {
    * all methods of each class.
    */
   private boolean agreeOnPackage(String pkg, List<FederatedSite> sites) {
+    for (FederatedSite site : sites) {
+      if (site.apiInfo().getPackages().get(pkg) == null) {
+        return false;
+      }
+    }
+    
     List<String> classes = knownClassesForPackage(pkg, sites);
     for (String clazz : classes) {
       if (!agreeOnClass(clazz, sites)) {
@@ -273,11 +278,11 @@ public final class DoclavaDiff {
       if (siteClass == null) {
         return false;
       }
-      if (!siteClass.allMethods().containsKey(method.getHashableName())) {
+      
+      if (!siteClass.supportsMethod(method)) {
         return false;
       }
     }
-    // TODO: consistency report
     return true;
   }
   

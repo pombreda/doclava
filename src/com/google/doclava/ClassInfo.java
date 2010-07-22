@@ -71,7 +71,10 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
       PackageInfo containingPackage, ClassInfo containingClass, ClassInfo superclass,
       TypeInfo superclassType, AnnotationInstanceInfo[] annotations) {
     mTypeInfo = typeInfo;
-    mRealInterfaces = interfaces;
+    mRealInterfaces = new ArrayList<ClassInfo>();
+    for (ClassInfo cl : interfaces) {
+      mRealInterfaces.add(cl);
+    }
     mRealInterfaceTypes = interfaceTypes;
     mInnerClasses = innerClasses;
     mAllConstructors = constructors;
@@ -244,7 +247,8 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
         mInterfaces = interfaces.toArray(new ClassInfo[interfaces.size()]);
       } else {
         // put something here in case someone uses it
-        mInterfaces = mRealInterfaces;
+        mInterfaces = new ClassInfo[mRealInterfaces.size()];
+        mRealInterfaces.toArray(mInterfaces);
       }
       Arrays.sort(mInterfaces, ClassInfo.qualifiedComparator);
     }
@@ -252,7 +256,8 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   }
 
   public ClassInfo[] realInterfaces() {
-    return mRealInterfaces;
+    ClassInfo[] classInfos = new ClassInfo[mRealInterfaces.size()];
+    return mRealInterfaces.toArray(classInfos);
   }
 
   TypeInfo[] realInterfaceTypes() {
@@ -352,7 +357,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
         if (iface != null) {
           MethodInfo[] inhereted = iface.methods();
           for (MethodInfo method : inhereted) {
-            String key = method.name() + method.signature();
+            String key = method.getHashableName();
             all.put(key, method);
           }
         }
@@ -362,15 +367,15 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
       if (superclass != null) {
         MethodInfo[] inhereted = superclass.methods();
         for (MethodInfo method : inhereted) {
-          String key = method.name() + method.signature();
+          String key = method.getHashableName();
           all.put(key, method);
         }
       }
 
       MethodInfo[] methods = selfMethods();
       for (MethodInfo method : methods) {
-        String key = method.name() + method.signature();
-        MethodInfo old = all.put(key, method);
+        String key = method.getHashableName();
+        all.put(key, method);
       }
 
       mMethods = all.values().toArray(new MethodInfo[all.size()]);
@@ -488,13 +493,15 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
         }
       }
       // mine
-      MethodInfo[] selfMethods = mAllSelfMethods;
-      for (int i = 0; i < selfMethods.length; i++) {
-        MethodInfo m = selfMethods[i];
-        if (m.checkLevel()) {
-          methods.put(m.name() + m.signature(), m);
+      if (mAllSelfMethods != null) {
+        for (int i = 0; i < mAllSelfMethods.length; i++) {
+          MethodInfo m = mAllSelfMethods[i];
+          if (m.checkLevel()) {
+            methods.put(m.getHashableName(), m);
+          }
         }
       }
+      
       // combine and return it
       mSelfMethods = methods.values().toArray(new MethodInfo[methods.size()]);
       Arrays.sort(mSelfMethods, MethodInfo.comparator);
@@ -1196,6 +1203,15 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
 
     return null;
   }
+  
+  public boolean supportsMethod(MethodInfo method) {
+    for (MethodInfo m : methods()) {
+      if (m.getHashableName().equals(method.getHashableName())) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   private ClassInfo searchInnerClasses(String[] nameParts, int index) {
     String part = nameParts[index];
@@ -1377,7 +1393,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   private String[] mNameParts;
 
   // init
-  private ClassInfo[] mRealInterfaces;
+  private List<ClassInfo> mRealInterfaces = new ArrayList<ClassInfo>();
   private ClassInfo[] mInterfaces;
   private TypeInfo[] mRealInterfaceTypes;
   private ClassInfo[] mInnerClasses;
@@ -1412,8 +1428,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   private boolean mIsDeprecated;
   
   // Temporary members from apicheck migration
-  private List<String> mApiCheckInterfaceNames = new ArrayList<String>();
-  private List<ClassInfo> mApiCheckInterfaces = new ArrayList<ClassInfo>();
   private HashMap<String, MethodInfo> mApiCheckMethods = new HashMap<String, MethodInfo>();
   private HashMap<String, FieldInfo> mApiCheckFields = new HashMap<String, FieldInfo>();
   private HashMap<String, ConstructorInfo> mApiCheckConstructors
@@ -1439,14 +1453,9 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     return false;
   }
 
-  public void resolveInterfaces(ApiInfo apiInfo) {
-    for (String interfaceName : mApiCheckInterfaceNames) {
-      mApiCheckInterfaces.add(apiInfo.findClass(interfaceName));
-    }
-  }
 
-  public void addInterface(String name) {
-    mApiCheckInterfaceNames.add(name);
+  public void addInterface(ClassInfo iface) {
+    mRealInterfaces.add(iface);
   }
 
   public void addConstructor(ConstructorInfo cInfo) {
@@ -1471,6 +1480,11 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     return mApiCheckFields;
   }
 
+  /**
+   * Returns all methods defined directly in this class. For a list of all
+   * methods supported by this class, see {@link #methods()}.
+   */
+  
   public Map<String, MethodInfo> allMethods() {
     return mApiCheckMethods;
   }
@@ -1501,14 +1515,14 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
           + " changed class/interface declaration");
       consistent = false;
     }
-    for (String iface : mApiCheckInterfaceNames) {
-      if (!implementsInterface(cl, iface)) {
+    for (ClassInfo iface : mRealInterfaces) {
+      if (!implementsInterface(cl, iface.mQualifiedName)) {
         Errors.error(Errors.REMOVED_INTERFACE, cl.position(), "Class " + qualifiedName()
             + " no longer implements " + iface);
       }
     }
-    for (String iface : cl.mApiCheckInterfaceNames) {
-      if (!mApiCheckInterfaceNames.contains(iface)) {
+    for (ClassInfo iface : cl.mRealInterfaces) {
+      if (!mRealInterfaces.contains(iface)) {
         Errors.error(Errors.ADDED_INTERFACE, cl.position(), "Added interface " + iface
             + " to class " + qualifiedName());
         consistent = false;

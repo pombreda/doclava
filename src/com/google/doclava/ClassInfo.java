@@ -379,6 +379,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
       }
 
       mMethods = all.values().toArray(new MethodInfo[all.size()]);
+      Arrays.sort(mMethods, MethodInfo.comparator);
     }
     return mMethods;
   }
@@ -475,7 +476,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     MethodInfo[] meth = cl.selfMethods();
     for (MethodInfo m : meth) {
       if (m.checkLevel()) {
-        methods.put(m.getHashableName(), m.cloneForClass(owner));
+        methods.put(m.name() + m.signature(), m.cloneForClass(owner));
       }
     }
   }
@@ -497,7 +498,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
         for (int i = 0; i < mAllSelfMethods.length; i++) {
           MethodInfo m = mAllSelfMethods[i];
           if (m.checkLevel()) {
-            methods.put(m.getHashableName(), m);
+            methods.put(m.name() + m.signature(), m);
           }
         }
       }

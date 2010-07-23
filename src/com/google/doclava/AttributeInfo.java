@@ -64,7 +64,7 @@ public class AttributeInfo {
       }
     }
     if (mComment == null) {
-      return new Comment("", mClass, new SourcePositionInfo());
+      return new Comment("", mClass, SourcePositionInfo.UNKNOWN);
     }
     return mComment;
   }

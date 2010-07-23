@@ -17,11 +17,7 @@
 package com.google.doclava;
 
 public class SourcePositionInfo implements Comparable {
-  public SourcePositionInfo() {
-    this.file = "<unknown>";
-    this.line = 0;
-    this.column = 0;
-  }
+  public static final SourcePositionInfo UNKNOWN = new SourcePositionInfo("(unknown)", 0, 0);
 
   public SourcePositionInfo(String file, int line, int column) {
     this.file = file;
@@ -98,7 +94,7 @@ public class SourcePositionInfo implements Comparable {
       }
     }
 
-    return new SourcePositionInfo("(unknown)", 0, 0);
+    return UNKNOWN;
   }
 
   public String file;

@@ -69,7 +69,7 @@ public final class DoclavaDiff {
   
   public void generateSite() {    
     Data data = generateHdf();
-    generateHtml("diff.cs", data, outputDir + "/diff.html");
+    generateHtml("diff.cs", data, new File(outputDir + "/diff.html"));
   }
   
   /**
@@ -328,8 +328,7 @@ public final class DoclavaDiff {
     return numSites == 1;
   }
   
-  private void generateHtml(String template, Data data, String filename) {
-    File file = new File(filename);
+  private void generateHtml(String template, Data data, File file) {
     ClearPage.ensureDirectory(file);
     
     OutputStreamWriter stream = null;
@@ -338,7 +337,7 @@ public final class DoclavaDiff {
       String rendered = jSilver.render(template, data);
       stream.write(rendered, 0, rendered.length());
     } catch (IOException e) {
-      System.out.println("error: " + e.getMessage() + "; when writing file: " + filename);
+      System.out.println("error: " + e.getMessage() + "; when writing file: " + file.getAbsolutePath());
     } finally {
       if (stream != null) {
         try {

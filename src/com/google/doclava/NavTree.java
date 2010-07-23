@@ -19,11 +19,12 @@ package com.google.doclava;
 import com.google.clearsilver.jsilver.data.Data;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NavTree {
 
   public static void writeNavTree(String dir) {
-    ArrayList<Node> children = new ArrayList();
+    List<Node> children = new ArrayList<Node>();
     for (PackageInfo pkg : Doclava.choosePackages()) {
       children.add(makePackageNode(pkg));
     }
@@ -46,7 +47,7 @@ public class NavTree {
   }
 
   private static Node makePackageNode(PackageInfo pkg) {
-    ArrayList<Node> children = new ArrayList();
+    List<Node> children = new ArrayList<Node>();
 
     children.add(new Node("Description", pkg.fullDescriptionHtmlPage(), null, null));
 
@@ -59,8 +60,8 @@ public class NavTree {
     return new Node(pkg.name(), pkg.htmlPage(), children, pkg.getSince());
   }
 
-  private static void addClassNodes(ArrayList<Node> parent, String label, ClassInfo[] classes) {
-    ArrayList<Node> children = new ArrayList();
+  private static void addClassNodes(List<Node> parent, String label, ClassInfo[] classes) {
+    List<Node> children = new ArrayList<Node>();
 
     for (ClassInfo cl : classes) {
       if (cl.checkLevel()) {
@@ -76,10 +77,10 @@ public class NavTree {
   private static class Node {
     private String mLabel;
     private String mLink;
-    ArrayList<Node> mChildren;
+    List<Node> mChildren;
     private String mSince;
 
-    Node(String label, String link, ArrayList<Node> children, String since) {
+    Node(String label, String link, List<Node> children, String since) {
       mLabel = label;
       mLink = link;
       mChildren = children;
@@ -115,7 +116,7 @@ public class NavTree {
     }
 
     void renderChildren(StringBuilder buf) {
-      ArrayList<Node> list = mChildren;
+      List<Node> list = mChildren;
       if (list == null || list.size() == 0) {
         // We output null for no children. That way empty lists here can just
         // be a byproduct of how we generate the lists.

@@ -220,7 +220,7 @@ public final class DoclavaDiff {
       }
     }
     
-    ArrayList<String> classes = new ArrayList<String>(allClasses);
+    List<String> classes = new ArrayList<String>(allClasses);
     Collections.sort(classes);
     return classes;
   }
@@ -243,7 +243,7 @@ public final class DoclavaDiff {
       }
     }
     
-    ArrayList<MethodInfo> methods = new ArrayList<MethodInfo>();
+    List<MethodInfo> methods = new ArrayList<MethodInfo>();
     methods.addAll(allMethods.values());
     return methods;
   }

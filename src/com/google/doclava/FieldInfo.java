@@ -85,7 +85,7 @@ public class FieldInfo extends MemberInfo {
     return constantLiteralValue(mConstantValue);
   }
 
-  public void isDeprecated(boolean deprecated) {
+  public void setDeprecated(boolean deprecated) {
     mDeprecatedKnown = true;
     mIsDeprecated = deprecated;
   }

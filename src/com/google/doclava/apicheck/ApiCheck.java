@@ -74,6 +74,17 @@ public class ApiCheck {
   }
 
   public static void main(String[] originalArgs) {
+    ApiCheck acheck = new ApiCheck();
+    int code = acheck.checkApi(originalArgs);
+    
+    Errors.printErrors();
+    System.exit(code);
+  }
+  
+  /**
+   * Compares two api xml files for consistency.
+   */
+  public int checkApi(String[] originalArgs) {
     // translate to an ArrayList<String> for munging
     ArrayList<String> args = new ArrayList<String>(originalArgs.length);
     for (String a : originalArgs) {
@@ -95,23 +106,21 @@ public class ApiCheck {
           Errors.setErrorLevel(Integer.parseInt(a[1]), level);
         } catch (NumberFormatException e) {
           System.err.println("Bad argument: " + a[0] + " " + a[1]);
-          System.exit(2);
+          return 2;
         }
       }
     }
 
-    ApiCheck acheck = new ApiCheck();
     ApiInfo oldApi;
     ApiInfo newApi;
     
     try {
-      oldApi = acheck.parseApi(args.get(0));
-      newApi = acheck.parseApi(args.get(1));
+      oldApi = parseApi(args.get(0));
+      newApi = parseApi(args.get(1));
     } catch (ApiParseException e) {
       e.printStackTrace();
       System.err.println("Error parsing API");
-      System.exit(1);
-      return;
+      return 1;
     }
 
     // only run the consistency check if we haven't had XML parse errors
@@ -119,8 +128,7 @@ public class ApiCheck {
       oldApi.isConsistent(newApi);
     }
 
-    Errors.printErrors();
-    System.exit(Errors.hadError ? 1 : 0);
+    return (Errors.hadError ? 1 : 0);
   }
 
   public ApiInfo parseApi(String xmlFile) throws ApiParseException {
@@ -236,6 +244,7 @@ public class ApiCheck {
         
         TypeInfo typeInfo = Converter.obtainTypeFromString(qualifiedName) ;
         mCurrentClass.setTypeInfo(typeInfo);
+        mCurrentClass.setAnnotations(new AnnotationInstanceInfo[] {});
       } else if (qName.equals("method")) {
         String rawCommentText = "";
         TypeInfo[] typeParameters = new TypeInfo[0];
@@ -262,7 +271,7 @@ public class ApiCheck {
         ParameterInfo[] parameters = new ParameterInfo[0];
         ClassInfo[] thrownExceptions = new ClassInfo[0];
         SourcePositionInfo position = SourcePositionInfo.fromXml(attributes.getValue("source"));
-        AnnotationInstanceInfo[] annotations = null; // TODO
+        AnnotationInstanceInfo[] annotations = new AnnotationInstanceInfo[] {}; // TODO
         
         mCurrentMethod = 
             new MethodInfo(rawCommentText, typeParameters, name, signature, containingClass,

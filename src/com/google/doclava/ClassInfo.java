@@ -34,6 +34,20 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
       return a.qualifiedName().compareTo(b.qualifiedName());
     }
   };
+  
+  /**
+   * Constructs a stub representation of a class.
+   */
+  public ClassInfo(String qualifiedName) {
+    super("", SourcePositionInfo.UNKNOWN);
+    
+    mQualifiedName = qualifiedName;
+    if (qualifiedName.lastIndexOf('.') != -1) {
+      mName = qualifiedName.substring(qualifiedName.lastIndexOf('.') + 1);
+    } else {
+      mName = qualifiedName;
+    }
+  }
 
   public ClassInfo(ClassDoc cl, String rawCommentText, SourcePositionInfo position,
       boolean isPublic, boolean isProtected, boolean isPackagePrivate, boolean isPrivate,
@@ -1433,7 +1447,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   private HashMap<String, FieldInfo> mApiCheckFields = new HashMap<String, FieldInfo>();
   private HashMap<String, ConstructorInfo> mApiCheckConstructors
       = new HashMap<String, ConstructorInfo>();
-  private ClassInfo mApiCheckSuperClass;
   
   /**
    * Returns true if {@code cl} implements the interface {@code iface} either by either being that
@@ -1448,7 +1461,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
         return true;
       }
     }
-    if (cl.mApiCheckSuperClass != null && implementsInterface(cl.mApiCheckSuperClass, iface)) {
+    if (cl.mSuperclass != null && implementsInterface(cl.mSuperclass, iface)) {
       return true;
     }
     return false;
@@ -1470,7 +1483,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   }
 
   public void setSuperClass(ClassInfo superclass) {
-    mApiCheckSuperClass = superclass;
+    mSuperclass = superclass;
   }
 
   public Map<String, ConstructorInfo> allConstructorsMap() {
@@ -1495,7 +1508,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
    */
   public Iterable<ClassInfo> hierarchy() {
     List<ClassInfo> result = new ArrayList<ClassInfo>(4);
-    for (ClassInfo c = this; c != null; c = c.mApiCheckSuperClass) {
+    for (ClassInfo c = this; c != null; c = c.mSuperclass) {
       result.add(c);
     }
     return result;
@@ -1503,9 +1516,13 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   
   public String superclassName() {
     if (mSuperclass == null) {
-      throw new AssertionError("mSuperClassName not set");
+      throw new UnsupportedOperationException("Superclass not set for " + qualifiedName());
     }
     return mSuperclass.mQualifiedName;
+  }
+  
+  public void setAnnotations(AnnotationInstanceInfo[] annotations) {
+    mAnnotations = annotations;
   }
   
   public boolean isConsistent(ClassInfo cl) {
@@ -1662,7 +1679,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     }
 
     // not found here. recursively search ancestors
-    return ClassInfo.overriddenMethod(candidate, newClassObj.mApiCheckSuperClass);
+    return ClassInfo.overriddenMethod(candidate, newClassObj.mSuperclass);
   }
 
   // Find a superinterface declaration of the given method.
@@ -1677,7 +1694,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
         }
       }
     }
-    return ClassInfo.interfaceMethod(candidate, newClassObj.mApiCheckSuperClass);
+    return ClassInfo.interfaceMethod(candidate, newClassObj.mSuperclass);
   }
   
   public boolean hasConstructor(MethodInfo constructor) {

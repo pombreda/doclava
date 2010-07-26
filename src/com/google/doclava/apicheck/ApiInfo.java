@@ -19,6 +19,9 @@ package com.google.doclava.apicheck;
 import com.google.doclava.ClassInfo;
 import com.google.doclava.Errors;
 import com.google.doclava.PackageInfo;
+import com.google.doclava.SourcePositionInfo;
+
+import com.sun.javadoc.ClassDoc;
 
 import java.util.*;
 
@@ -106,6 +109,11 @@ public class ApiInfo {
         }
 
         ClassInfo superclass = mAllClasses.get(scName);
+        if (superclass == null) {
+          // Superclass not provided by this codebase. Inject a stub.
+          superclass = new ClassInfo(scName);
+          
+        }
         cl.setSuperClass(superclass);
       }
     }

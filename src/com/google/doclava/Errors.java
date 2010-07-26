@@ -16,26 +16,27 @@
 
 package com.google.doclava;
 
+import java.util.Set;
 import java.util.TreeSet;
 
 public class Errors {
   public static boolean hadError = false;
   private static boolean warningsAreErrors = false;
-  private static TreeSet<Message> allErrors = new TreeSet<Message>();
+  private static TreeSet<ErrorMessage> allErrors = new TreeSet<ErrorMessage>();
 
-  private static class Message implements Comparable {
+  public static class ErrorMessage implements Comparable {
+    Error error;
     SourcePositionInfo pos;
-    int level;
     String msg;
 
-    Message(SourcePositionInfo p, int l, String m) {
+    ErrorMessage(Error e, SourcePositionInfo p, String m) {
+      error = e;
       pos = p;
-      level = l;
       msg = m;
     }
 
     public int compareTo(Object o) {
-      Message that = (Message) o;
+      ErrorMessage that = (ErrorMessage) o;
       int r = this.pos.compareTo(that.pos);
       if (r != 0) return r;
       return this.msg.compareTo(that.msg);
@@ -45,6 +46,10 @@ public class Errors {
     public String toString() {
       String whereText = this.pos == null ? "unknown: " : this.pos.toString() + ':';
       return whereText + this.msg;
+    }
+    
+    public Error error() {
+      return error;
     }
   }
 
@@ -61,7 +66,7 @@ public class Errors {
       where = new SourcePositionInfo("unknown", 0, 0);
     }
 
-    allErrors.add(new Message(where, level, message));
+    allErrors.add(new ErrorMessage(error, where, message));
 
     if (error.level == ERROR || (warningsAreErrors && error.level == WARNING)) {
       hadError = true;
@@ -69,16 +74,24 @@ public class Errors {
   }
 
   public static void printErrors() {
-    for (Message m : allErrors) {
-      if (m.level == WARNING) {
+    printErrors(allErrors);
+  }
+  
+  public static void printErrors(Set<ErrorMessage> errors) {
+    for (ErrorMessage m : errors) {
+      if (m.error.level == WARNING) {
         System.err.println(m.toString());
       }
     }
-    for (Message m : allErrors) {
-      if (m.level == ERROR) {
+    for (ErrorMessage m : errors) {
+      if (m.error.level == ERROR) {
         System.err.println(m.toString());
       }
     }
+  }
+  
+  public static Set<ErrorMessage> getErrors() {
+    return allErrors;
   }
 
   public static int HIDDEN = 0;
@@ -99,51 +112,51 @@ public class Errors {
     }
   }
 
-  public static Error UNRESOLVED_LINK = new Error(1, WARNING);
-  public static Error BAD_INCLUDE_TAG = new Error(2, WARNING);
-  public static Error UNKNOWN_TAG = new Error(3, WARNING);
-  public static Error UNKNOWN_PARAM_TAG_NAME = new Error(4, WARNING);
-  public static Error UNDOCUMENTED_PARAMETER = new Error(5, HIDDEN);
-  public static Error BAD_ATTR_TAG = new Error(6, ERROR);
-  public static Error BAD_INHERITDOC = new Error(7, HIDDEN);
-  public static Error HIDDEN_LINK = new Error(8, WARNING);
-  public static Error HIDDEN_CONSTRUCTOR = new Error(9, WARNING);
-  public static Error UNAVAILABLE_SYMBOL = new Error(10, ERROR);
-  public static Error HIDDEN_SUPERCLASS = new Error(11, WARNING);
-  public static Error DEPRECATED = new Error(12, HIDDEN);
-  public static Error DEPRECATION_MISMATCH = new Error(13, WARNING);
-  public static Error MISSING_COMMENT = new Error(14, WARNING);
-  public static Error IO_ERROR = new Error(15, HIDDEN);
-  public static Error NO_SINCE_DATA = new Error(16, HIDDEN);
-  public static Error NO_FEDERATION_DATA = new Error(17, WARNING);
+  public static final Error UNRESOLVED_LINK = new Error(1, WARNING);
+  public static final Error BAD_INCLUDE_TAG = new Error(2, WARNING);
+  public static final Error UNKNOWN_TAG = new Error(3, WARNING);
+  public static final Error UNKNOWN_PARAM_TAG_NAME = new Error(4, WARNING);
+  public static final Error UNDOCUMENTED_PARAMETER = new Error(5, HIDDEN);
+  public static final Error BAD_ATTR_TAG = new Error(6, ERROR);
+  public static final Error BAD_INHERITDOC = new Error(7, HIDDEN);
+  public static final Error HIDDEN_LINK = new Error(8, WARNING);
+  public static final Error HIDDEN_CONSTRUCTOR = new Error(9, WARNING);
+  public static final Error UNAVAILABLE_SYMBOL = new Error(10, ERROR);
+  public static final Error HIDDEN_SUPERCLASS = new Error(11, WARNING);
+  public static final Error DEPRECATED = new Error(12, HIDDEN);
+  public static final Error DEPRECATION_MISMATCH = new Error(13, WARNING);
+  public static final Error MISSING_COMMENT = new Error(14, WARNING);
+  public static final Error IO_ERROR = new Error(15, HIDDEN);
+  public static final Error NO_SINCE_DATA = new Error(16, HIDDEN);
+  public static final Error NO_FEDERATION_DATA = new Error(17, WARNING);
 
-  public static Error PARSE_ERROR = new Error(18, ERROR); // Apicheck error code 1
-  public static Error ADDED_PACKAGE = new Error(19, WARNING); // Apicheck error code 2
-  public static Error ADDED_CLASS = new Error(20, WARNING); // Apicheck error code 3
-  public static Error ADDED_METHOD = new Error(21, WARNING); // Apicheck error code 4
-  public static Error ADDED_FIELD = new Error(22, WARNING); // Apicheck error code 5
-  public static Error ADDED_INTERFACE = new Error(23, WARNING); // Apicheck error code 6
-  public static Error REMOVED_PACKAGE = new Error(24, WARNING); // Apicheck error code 7
-  public static Error REMOVED_CLASS = new Error(25, WARNING); // Apicheck error code 8
-  public static Error REMOVED_METHOD = new Error(26, WARNING); // Apicheck error code 9
-  public static Error REMOVED_FIELD = new Error(27, WARNING); // Apicheck error code 10
-  public static Error REMOVED_INTERFACE = new Error(28, WARNING); // Apicheck error code 11
-  public static Error CHANGED_STATIC = new Error(29, WARNING); // Apicheck error code 12
-  public static Error CHANGED_FINAL = new Error(30, WARNING); // Apicheck error code 13
-  public static Error CHANGED_TRANSIENT = new Error(31, WARNING); // Apicheck error code 14
-  public static Error CHANGED_VOLATILE = new Error(32, WARNING); // Apicheck error code 15
-  public static Error CHANGED_TYPE = new Error(33, WARNING); // Apicheck error code 16
-  public static Error CHANGED_VALUE = new Error(34, WARNING); // Apicheck error code 17
-  public static Error CHANGED_SUPERCLASS = new Error(35, WARNING); // Apicheck error code 18
-  public static Error CHANGED_SCOPE = new Error(36, WARNING); // Apicheck error code 19
-  public static Error CHANGED_ABSTRACT = new Error(37, WARNING); // Apicheck error code 20
-  public static Error CHANGED_THROWS = new Error(38, WARNING); // Apicheck error code 21
-  public static Error CHANGED_NATIVE = new Error(39, HIDDEN); // Apicheck error code 22
-  public static Error CHANGED_CLASS = new Error(40, WARNING); // Apicheck error code 23
-  public static Error CHANGED_DEPRECATED = new Error(41, WARNING); // Apicheck error code 24
-  public static Error CHANGED_SYNCHRONIZED = new Error(42, ERROR); // Apicheck error code 25
+  public static final Error PARSE_ERROR = new Error(18, ERROR); // Apicheck error code 1
+  public static final Error ADDED_PACKAGE = new Error(19, WARNING); // Apicheck error code 2
+  public static final Error ADDED_CLASS = new Error(20, WARNING); // Apicheck error code 3
+  public static final Error ADDED_METHOD = new Error(21, WARNING); // Apicheck error code 4
+  public static final Error ADDED_FIELD = new Error(22, WARNING); // Apicheck error code 5
+  public static final Error ADDED_INTERFACE = new Error(23, WARNING); // Apicheck error code 6
+  public static final Error REMOVED_PACKAGE = new Error(24, WARNING); // Apicheck error code 7
+  public static final Error REMOVED_CLASS = new Error(25, WARNING); // Apicheck error code 8
+  public static final Error REMOVED_METHOD = new Error(26, WARNING); // Apicheck error code 9
+  public static final Error REMOVED_FIELD = new Error(27, WARNING); // Apicheck error code 10
+  public static final Error REMOVED_INTERFACE = new Error(28, WARNING); // Apicheck error code 11
+  public static final Error CHANGED_STATIC = new Error(29, WARNING); // Apicheck error code 12
+  public static final Error CHANGED_FINAL = new Error(30, WARNING); // Apicheck error code 13
+  public static final Error CHANGED_TRANSIENT = new Error(31, WARNING); // Apicheck error code 14
+  public static final Error CHANGED_VOLATILE = new Error(32, WARNING); // Apicheck error code 15
+  public static final Error CHANGED_TYPE = new Error(33, WARNING); // Apicheck error code 16
+  public static final Error CHANGED_VALUE = new Error(34, WARNING); // Apicheck error code 17
+  public static final Error CHANGED_SUPERCLASS = new Error(35, WARNING); // Apicheck error code 18
+  public static final Error CHANGED_SCOPE = new Error(36, WARNING); // Apicheck error code 19
+  public static final Error CHANGED_ABSTRACT = new Error(37, WARNING); // Apicheck error code 20
+  public static final Error CHANGED_THROWS = new Error(38, WARNING); // Apicheck error code 21
+  public static final Error CHANGED_NATIVE = new Error(39, HIDDEN); // Apicheck error code 22
+  public static final Error CHANGED_CLASS = new Error(40, WARNING); // Apicheck error code 23
+  public static final Error CHANGED_DEPRECATED = new Error(41, WARNING); // Apicheck error code 24
+  public static final Error CHANGED_SYNCHRONIZED = new Error(42, ERROR); // Apicheck error code 25
   
-  public static Error[] ERRORS =
+  public static final Error[] ERRORS =
       {UNRESOLVED_LINK, BAD_INCLUDE_TAG, UNKNOWN_TAG, UNKNOWN_PARAM_TAG_NAME,
           UNDOCUMENTED_PARAMETER, BAD_ATTR_TAG, BAD_INHERITDOC, HIDDEN_LINK, HIDDEN_CONSTRUCTOR,
           UNAVAILABLE_SYMBOL, HIDDEN_SUPERCLASS, DEPRECATED, IO_ERROR, NO_SINCE_DATA,

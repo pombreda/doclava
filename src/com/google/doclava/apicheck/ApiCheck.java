@@ -28,6 +28,7 @@ import com.google.doclava.SourcePositionInfo;
 import com.google.doclava.TypeInfo;
 
 import com.google.doclava.FieldInfo;
+import com.google.doclava.Errors.ErrorMessage;
 
 import com.sun.javadoc.ClassDoc;
 
@@ -42,8 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 public class ApiCheck {
@@ -75,16 +75,16 @@ public class ApiCheck {
 
   public static void main(String[] originalArgs) {
     ApiCheck acheck = new ApiCheck();
-    int code = acheck.checkApi(originalArgs);
-    
-    Errors.printErrors();
-    System.exit(code);
+    Report report = acheck.checkApi(originalArgs);
+   
+    Errors.printErrors(report.errors());
+    System.exit(report.code);
   }
   
   /**
    * Compares two api xml files for consistency.
    */
-  public int checkApi(String[] originalArgs) {
+  public Report checkApi(String[] originalArgs) {
     // translate to an ArrayList<String> for munging
     ArrayList<String> args = new ArrayList<String>(originalArgs.length);
     for (String a : originalArgs) {
@@ -106,7 +106,7 @@ public class ApiCheck {
           Errors.setErrorLevel(Integer.parseInt(a[1]), level);
         } catch (NumberFormatException e) {
           System.err.println("Bad argument: " + a[0] + " " + a[1]);
-          return 2;
+          return new Report(2, Errors.getErrors());
         }
       }
     }
@@ -120,7 +120,7 @@ public class ApiCheck {
     } catch (ApiParseException e) {
       e.printStackTrace();
       System.err.println("Error parsing API");
-      return 1;
+      return new Report(1, Errors.getErrors());
     }
 
     // only run the consistency check if we haven't had XML parse errors
@@ -128,7 +128,7 @@ public class ApiCheck {
       oldApi.isConsistent(newApi);
     }
 
-    return (Errors.hadError ? 1 : 0);
+    return new Report(Errors.hadError ? 1 : 0, Errors.getErrors());
   }
 
   public ApiInfo parseApi(String xmlFile) throws ApiParseException {
@@ -345,6 +345,24 @@ public class ApiCheck {
     private String qualifiedName(String pkg, String className, ClassInfo parent) {
       String parentQName = (parent != null) ? (parent.qualifiedName() + ".") : "";
         return pkg + "." + parentQName + className;
+    }
+  }
+  
+  public class Report {
+    private int code;
+    private Set<ErrorMessage> errors;
+    
+    private Report(int code, Set<ErrorMessage> errors) {
+      this.code = code;
+      this.errors = errors;
+    }
+    
+    public int code() {
+      return code;
+    }
+    
+    public Set<ErrorMessage> errors() {
+      return errors;
     }
   }
 }

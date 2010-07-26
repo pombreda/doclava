@@ -135,9 +135,6 @@ public class ConstructorInfo implements AbstractMethodInfo {
     return consistent;
   }
 
-  /* (non-Javadoc)
-   * @see com.google.doclava.apicheck.AbstractMethodInfo#setVarargs(boolean)
-   */
   @Override
   public void setVarargs(boolean varargs) {
     mIsVarargs = varargs;

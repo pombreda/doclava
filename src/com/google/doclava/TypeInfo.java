@@ -21,6 +21,10 @@ import com.google.clearsilver.jsilver.data.Data;
 import java.util.*;
 
 public class TypeInfo {
+  public static final Set<String> PRIMITIVE_TYPES = Collections.unmodifiableSet(
+      new HashSet<String>(Arrays.asList("boolean", "byte", "char", "double", "float", "int",
+      "long", "short", "void")));
+  
   public TypeInfo(boolean isPrimitive, String dimension, String simpleTypeName,
       String qualifiedTypeName, ClassInfo cl) {
     mIsPrimitive = isPrimitive;
@@ -80,9 +84,7 @@ public class TypeInfo {
       mDimension = "";
     }
    
-    if (typeString.equals("boolean") || typeString.equals("byte") || typeString.equals("char") || typeString.equals("double")
-        || typeString.equals("float") || typeString.equals("int") || typeString.equals("long") || typeString.equals("short")
-        || typeString.equals("void")) {
+    if (PRIMITIVE_TYPES.contains(typeString)) {
       mIsPrimitive = true;
       mSimpleTypeName = typeString;
       mQualifiedTypeName = typeString;

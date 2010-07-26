@@ -1428,7 +1428,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   private MethodInfo[] mNonWrittenConstructors;
   private boolean mIsDeprecated;
   
-  // Temporary members from apicheck migration
+  // TODO: Temporary members from apicheck migration.
   private HashMap<String, MethodInfo> mApiCheckMethods = new HashMap<String, MethodInfo>();
   private HashMap<String, FieldInfo> mApiCheckFields = new HashMap<String, FieldInfo>();
   private HashMap<String, ConstructorInfo> mApiCheckConstructors

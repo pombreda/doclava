@@ -41,7 +41,6 @@ public final class FederationTagger {
     try {
       federatedSites.add(new FederatedSite(name, site));
     } catch (ApiParseException e) {
-      e.printStackTrace();
       String error = "Could not add site for federation: " + site;
       if (e.getMessage() != null) {
         error += ": " + e.getMessage();

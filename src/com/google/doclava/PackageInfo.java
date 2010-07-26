@@ -186,8 +186,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
   private ClassInfo[] mExceptions;
   private ClassInfo[] mErrors;
   
-  
-  // From ApiCheck
+  // TODO: Leftovers from ApiCheck that should be better merged.
   private HashMap<String, ClassInfo> mClasses = new HashMap<String, ClassInfo>();
   
   public void addClass(ClassInfo cl) {

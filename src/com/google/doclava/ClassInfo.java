@@ -1456,7 +1456,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     if (cl.qualifiedName().equals(iface)) {
       return true;
     }
-    for (ClassInfo clImplements : cl.mInterfaces) {
+    for (ClassInfo clImplements : cl.interfaces()) {
       if (implementsInterface(clImplements, iface)) {
         return true;
       }
@@ -1687,7 +1687,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     if (newClassObj == null) {
       return null;
     }
-    for (ClassInfo interfaceInfo : newClassObj.mInterfaces) {
+    for (ClassInfo interfaceInfo : newClassObj.interfaces()) {
       for (MethodInfo mi : interfaceInfo.mApiCheckMethods.values()) {
         if (mi.matches(candidate)) {
           return mi;

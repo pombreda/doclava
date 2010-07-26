@@ -493,8 +493,26 @@ public class Converter {
   };
   
   public static TypeInfo obtainTypeFromString(String type) {
-    return new TypeInfo(type);
+    return (TypeInfo) mTypesFromString.obtain(type);
   }
+  
+  private static final Cache mTypesFromString = new Cache() {
+    @Override
+    protected Object make(Object o) {
+      String name = (String) o;
+      return new TypeInfo(name);
+    }
+
+    @Override
+    protected void made(Object o, Object r) {
+      
+    }
+
+    @Override
+    protected Object keyFor(Object o) {
+      return o;
+    }
+  };
 
   private static MemberInfo obtainMember(MemberDoc o) {
     return (MemberInfo) mMembers.obtain(o);

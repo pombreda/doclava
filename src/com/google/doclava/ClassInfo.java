@@ -1516,6 +1516,9 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   
   public String superclassName() {
     if (mSuperclass == null) {
+      if (mQualifiedName.equals("java.lang.Object")) {
+        return null;
+      }
       throw new UnsupportedOperationException("Superclass not set for " + qualifiedName());
     }
     return mSuperclass.mQualifiedName;
@@ -1540,7 +1543,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
       }
     }
     for (ClassInfo iface : cl.mRealInterfaces) {
-      if (!mRealInterfaces.contains(iface)) {
+      if (!implementsInterface(this, iface.mQualifiedName)) {
         Errors.error(Errors.ADDED_INTERFACE, cl.position(), "Added interface " + iface
             + " to class " + qualifiedName());
         consistent = false;

@@ -274,6 +274,15 @@ public class FieldInfo extends MemberInfo {
   // Check the declared value with a typed comparison, not a string comparison,
   // to accommodate toolchains with different fp -> string conversions.
   private boolean valueEquals(FieldInfo other) {
+    if ((mConstantValue == null) != (other.mConstantValue == null)) {
+      return false;
+    }
+    
+    // Null values are considered equal
+    if (mConstantValue == null) {
+      return true;
+    }
+    
     // TODO: This method is called through from an XML comparison only right now,
     // and mConstantValue is always a String. Get rid of this assertion.
     if (!(mConstantValue instanceof String && other.mConstantValue instanceof String)) {
@@ -282,14 +291,9 @@ public class FieldInfo extends MemberInfo {
     
     String mValue = (String)mConstantValue;
     String oValue = (String)other.mConstantValue;
-    // Type mismatch means nonequal, as does a null/non-null mismatch
-    if (!mType.equals(other.mType) || ((mValue == null) != (oValue == null))) {
+    // Type mismatch means nonequal
+    if (!mType.equals(other.mType)) {
       return false;
-    }
-
-    // Null values are considered equal
-    if (mValue == null) {
-      return true;
     }
 
     // Floating point gets an implementation-type comparison; all others just use the string

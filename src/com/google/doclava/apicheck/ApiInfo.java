@@ -107,12 +107,10 @@ public class ApiInfo {
         if (scName == null) {
           scName = "java.lang.Object";
         }
-
         ClassInfo superclass = mAllClasses.get(scName);
         if (superclass == null) {
           // Superclass not provided by this codebase. Inject a stub.
           superclass = new ClassInfo(scName);
-          
         }
         cl.setSuperClass(superclass);
       }

@@ -35,7 +35,7 @@ public class Comment {
 
   private static final String[] KNOWN_TAGS =
       new String[] {"@author", "@since", "@version", "@deprecated", "@undeprecate", "@docRoot",
-          "@sdkCurrent", "@inheritDoc", "@more", "@code", "@samplecode", "@sample", "@include",
+          "@sdkCurrent", "@inheritDoc", "@more", "@samplecode", "@sample", "@include",
           "@serial", "@com.intel.drl.spec_ref", "@ar.org.fitc.spec_ref",};
 
   public Comment(String text, ContainerInfo base, SourcePositionInfo sp) {
@@ -121,7 +121,9 @@ public class Comment {
       }
       mDeprecatedTagsList.add(new ParsedTagInfo("@deprecated", "@deprecated", text, mBase, pos));
     } else if (name.equals("@literal")) {
-      mInlineTagsList.add(new LiteralTagInfo(name, name, text, pos));
+      mInlineTagsList.add(new LiteralTagInfo(text, pos));
+    } else if (name.equals("@code")) {
+      mInlineTagsList.add(new CodeTagInfo(text, pos));
     } else if (name.equals("@hide") || name.equals("@pending") || name.equals("@doconly")) {
       // nothing
     } else if (name.equals("@attr")) {

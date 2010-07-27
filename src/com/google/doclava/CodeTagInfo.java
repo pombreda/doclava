@@ -16,7 +16,7 @@
 
 package com.google.doclava;
 
-public class LiteralTagInfo extends TagInfo {
+public class CodeTagInfo extends TagInfo {
   private static String encode(String t) {
     t = t.replace("&", "&amp;");
     t = t.replace("<", "&lt;");
@@ -24,7 +24,10 @@ public class LiteralTagInfo extends TagInfo {
     return t;
   }
 
-  public LiteralTagInfo(String text, SourcePositionInfo sp) {
-    super("Text", "Text", encode(text), sp);
+  public CodeTagInfo(String text, SourcePositionInfo sp) {
+    // TODO: the correct behavior is to escape the text,
+    // but we'll have to update the Android sources before making the switch.
+    //super("@code", "@code", encode(text), sp);
+    super("@code", "@code", text, sp);
   }
 }

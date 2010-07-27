@@ -72,6 +72,10 @@ public class Errors {
       hadError = true;
     }
   }
+  
+  public static void clearErrors() {
+    allErrors.clear();
+  }
 
   public static void printErrors() {
     printErrors(allErrors);

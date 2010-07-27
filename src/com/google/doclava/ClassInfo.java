@@ -1577,7 +1577,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
          * Similarly to the above, do not fail if this "new" method is really an override of an
          * existing superclass method.
          */
-        MethodInfo mi = ClassInfo.overriddenMethod(mInfo, cl);
+        MethodInfo mi = ClassInfo.overriddenMethod(mInfo, this);
         if (mi == null) {
           Errors.error(Errors.ADDED_METHOD, mInfo.position(), "Added public method "
               + mInfo.qualifiedName());

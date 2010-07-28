@@ -609,13 +609,14 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
   }
   
   public void addException(String exec) {
-    mApiCheckExceptions.add(exec);
+    ClassInfo exceptionClass = new ClassInfo(exec);
+    List<ClassInfo> exceptions = new ArrayList<ClassInfo>(mThrownExceptions.length + 1);
+    exceptions.addAll(Arrays.asList(mThrownExceptions));
+    exceptions.add(exceptionClass);
+    mThrownExceptions = new ClassInfo[exceptions.size()];
+    exceptions.toArray(mThrownExceptions);
   }
   
-  public List<String> getExceptionStrings() {
-    return mApiCheckExceptions;
-  }
-
   public void addParameter(ParameterInfo p) {
     // Name information
     ParameterInfo[] newParams;

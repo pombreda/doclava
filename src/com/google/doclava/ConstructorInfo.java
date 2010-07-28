@@ -28,6 +28,7 @@ public class ConstructorInfo implements AbstractMethodInfo {
   private boolean mIsStatic;
   private boolean mIsFinal;
   private String mDeprecated;
+  private boolean mIsDeprecated;
   private String mScope;
   private List<String> mExceptions;
   private List<ParameterInfo> mParameters;
@@ -41,11 +42,16 @@ public class ConstructorInfo implements AbstractMethodInfo {
     mIsStatic = isStatic;
     mIsFinal = isFinal;
     mDeprecated = deprecated;
+    mIsDeprecated = "deprecated".equals(deprecated);
     mScope = scope;
     mExceptions = new ArrayList<String>();
     mParameters = new ArrayList<ParameterInfo>();
     mSourcePosition = pos;
     mClass = clazz;
+  }
+  
+  public void setDeprecated(boolean deprecated) {
+    mIsDeprecated = deprecated;
   }
 
   public void addParameter(ParameterInfo pInfo) {
@@ -110,7 +116,7 @@ public class ConstructorInfo implements AbstractMethodInfo {
           + " changed scope from " + mScope + " to " + mInfo.mScope);
     }
 
-    if (!mDeprecated.equals(mInfo.mDeprecated)) {
+    if (!mIsDeprecated == mInfo.mIsDeprecated) {
       consistent = false;
       Errors.error(Errors.CHANGED_DEPRECATED, mInfo.position(), "Constructor "
           + mInfo.qualifiedName() + " has changed deprecation state");

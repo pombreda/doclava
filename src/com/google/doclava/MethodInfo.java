@@ -226,6 +226,11 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     }
     return mIsDeprecated;
   }
+  
+  public void setDeprecated(boolean deprecated) {
+    mDeprecatedKnown = true;
+    mIsDeprecated = deprecated;
+  }
 
   public TypeInfo[] getTypeParameters() {
     return mTypeParameters;

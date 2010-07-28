@@ -280,6 +280,7 @@ public class ApiCheck {
             flatSignature, overriddenMethod, returnType, parameters, thrownExceptions, position,
             annotations);
         
+        mCurrentMethod.setDeprecated("deprecated".equals(attributes.getValue("deprecated")));
       } else if (qName.equals("constructor")) {
         mCurrentMethod =
             new ConstructorInfo(attributes.getValue("name"), attributes.getValue("type"), Boolean

@@ -22,6 +22,8 @@ public interface AbstractMethodInfo {
 
   public void addParameter(com.google.doclava.ParameterInfo p);
 
+  public void setDeprecated(boolean deprecated);
+  
   public void setVarargs(boolean varargs);
   public boolean isVarArgs();
 }

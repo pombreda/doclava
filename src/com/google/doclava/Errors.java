@@ -114,6 +114,10 @@ public class Errors {
       this.code = code;
       this.level = level;
     }
+    
+    public String toString() {
+      return "Error #" + this.code;
+    }
   }
 
   public static final Error UNRESOLVED_LINK = new Error(1, WARNING);

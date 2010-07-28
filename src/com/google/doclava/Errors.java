@@ -74,6 +74,7 @@ public class Errors {
   }
   
   public static void clearErrors() {
+    hadError = false;
     allErrors.clear();
   }
 

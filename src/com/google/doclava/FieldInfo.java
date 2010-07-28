@@ -322,9 +322,7 @@ public class FieldInfo extends MemberInfo {
       Errors.error(Errors.CHANGED_TYPE, fInfo.position(), "Field " + fInfo.qualifiedName()
           + " has changed type");
       consistent = false;
-    }
-
-    if (!this.valueEquals(fInfo)) {
+    } else if (!this.valueEquals(fInfo)) {
       Errors.error(Errors.CHANGED_VALUE, fInfo.position(), "Field " + fInfo.qualifiedName()
           + " has changed value from " + mConstantValue + " to " + fInfo.mConstantValue);
       consistent = false;

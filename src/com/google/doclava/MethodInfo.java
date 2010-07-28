@@ -668,9 +668,7 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
   private AnnotationValueInfo mDefaultAnnotationElementValue;
   private String mReasonOpened;
   
-  // TODO: merge with droiddoc version (above)
-  List<String> mApiCheckExceptions = new ArrayList<String>();
-  
+  // TODO: merge with droiddoc version (above)  
   public String qualifiedName() {
     String parentQName = (containingClass() != null)
         ? (containingClass().qualifiedName() + ".") : "";

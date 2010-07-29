@@ -19,11 +19,9 @@ package com.google.doclava.apicheck;
 import com.google.doclava.ClassInfo;
 import com.google.doclava.Errors;
 import com.google.doclava.PackageInfo;
-import com.google.doclava.SourcePositionInfo;
-
-import com.sun.javadoc.ClassDoc;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ApiInfo {
 
@@ -53,6 +51,9 @@ public class ApiInfo {
     }
   }
 
+  /**
+   * Checks to see if this api is consistent with a newer version.
+   */
   public boolean isConsistent(ApiInfo otherApi) {
     boolean consistent = true;
     for (PackageInfo pInfo : mPackages.values()) {

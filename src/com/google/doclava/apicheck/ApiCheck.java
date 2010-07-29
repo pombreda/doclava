@@ -304,7 +304,8 @@ public class ApiCheck {
             getValue("transient")), Boolean.valueOf(attributes.getValue("volatile")), false,
             type, "", attributes.getValue("value"), SourcePositionInfo
             .fromXml(attributes.getValue("source")), new AnnotationInstanceInfo[] {});
-
+        
+        fInfo.setDeprecated("deprecated".equals(attributes.getValue("deprecated")));
         mCurrentClass.addField(fInfo);
       } else if (qName.equals("parameter")) {
         String name = attributes.getValue("name");

@@ -91,7 +91,6 @@ public class FieldInfo extends MemberInfo {
   }
   
   public boolean isDeprecated() {
-    boolean deprecated = false;
     if (!mDeprecatedKnown) {
       boolean commentDeprecated = comment().isDeprecated();
       boolean annotationDeprecated = false;

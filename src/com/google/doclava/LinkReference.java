@@ -147,6 +147,7 @@ public class LinkReference {
     // parse parameters, if any
     String[] params = null;
     String[] paramDimensions = null;
+    boolean varargs = false;
     if (mem != null) {
       index = mem.indexOf('(');
       if (index > 0) {
@@ -172,7 +173,14 @@ public class LinkReference {
               }
               break;
             case TYPE:
-              if (c == '[') {
+              if (c == '.') {
+                if (mem.length() > i+2 && mem.charAt(i+1) == '.' && mem.charAt(i+2) == '.') {
+                  if (typeend < 0) {
+                    typeend = i;
+                  }
+                  varargs = true;
+                }
+              } else if (c == '[') {
                 if (typeend < 0) {
                   typeend = i;
                 }
@@ -263,7 +271,7 @@ public class LinkReference {
         }
       }
       if (result.memberInfo == null) {
-        MethodInfo method = result.classInfo.findMethod(mem, params, paramDimensions);
+        MethodInfo method = result.classInfo.findMethod(mem, params, paramDimensions, varargs);
         if (method != null) {
           result.classInfo = method.containingClass();
           result.memberInfo = method;

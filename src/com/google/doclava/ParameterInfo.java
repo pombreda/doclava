@@ -21,10 +21,12 @@ import com.google.clearsilver.jsilver.data.Data;
 import java.util.HashSet;
 
 public class ParameterInfo {
-  public ParameterInfo(String name, String typeName, TypeInfo type, SourcePositionInfo position) {
+  public ParameterInfo(String name, String typeName, TypeInfo type, boolean isVarArg,
+      SourcePositionInfo position) {
     mName = name;
     mTypeName = typeName;
     mType = type;
+    mIsVarArg = isVarArg;
     mPosition = position;
   }
 
@@ -43,6 +45,10 @@ public class ParameterInfo {
   SourcePositionInfo position() {
     return mPosition;
   }
+  
+  boolean isVarArg() {
+    return mIsVarArg;
+  }
 
   public void makeHDF(Data data, String base, boolean isLastVararg, HashSet<String> typeVariables) {
     data.setValue(base + ".name", this.name());
@@ -55,9 +61,21 @@ public class ParameterInfo {
       params[i].makeHDF(data, base + "." + i, isVararg && (i == params.length - 1), typeVariables);
     }
   }
+  
+  /**
+   * Returns true if this parameter's dimension information agrees
+   * with the represented callee's dimension information.
+   */
+  public boolean matchesDimension(String dimension, boolean varargs) {
+    if (varargs) {
+      dimension += "[]";
+    }
+    return mType.dimension().equals(dimension);
+  }
 
   String mName;
   String mTypeName;
   TypeInfo mType;
+  boolean mIsVarArg;
   SourcePositionInfo mPosition;
 }

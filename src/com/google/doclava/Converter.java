@@ -155,20 +155,21 @@ public class Converter {
     return result;
   }
 
-  private static ParameterInfo convertParameter(Parameter p, SourcePosition pos) {
+  private static ParameterInfo convertParameter(Parameter p, SourcePosition pos, boolean isVarArg) {
     if (p == null) return null;
     ParameterInfo pi =
-        new ParameterInfo(p.name(), p.typeName(), Converter.obtainType(p.type()), Converter
-            .convertSourcePosition(pos));
+        new ParameterInfo(p.name(), p.typeName(), Converter.obtainType(p.type()), isVarArg,
+          Converter.convertSourcePosition(pos));
     return pi;
   }
 
-  private static ParameterInfo[] convertParameters(Parameter[] p, MemberDoc m) {
+  private static ParameterInfo[] convertParameters(Parameter[] p, ExecutableMemberDoc m) {
     SourcePosition pos = m.position();
     int len = p.length;
     ParameterInfo[] q = new ParameterInfo[len];
     for (int i = 0; i < len; i++) {
-      q[i] = Converter.convertParameter(p[i], pos);
+      boolean isVarArg = (m.isVarArgs() && i == len - 1);
+      q[i] = Converter.convertParameter(p[i], pos, isVarArg);
     }
     return q;
   }

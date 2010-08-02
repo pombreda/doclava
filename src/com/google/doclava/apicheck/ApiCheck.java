@@ -311,13 +311,11 @@ public class ApiCheck {
         String name = attributes.getValue("name");
         String typeName = attributes.getValue("type");
         TypeInfo type = Converter.obtainTypeFromString(typeName);
+        boolean isVarArg = typeName.endsWith("...");
         SourcePositionInfo position = null;
         
-        mCurrentMethod.addParameter(new ParameterInfo(name, typeName, type, position));
-        
-        if (typeName.endsWith("...")) {
-          mCurrentMethod.setVarargs(true);
-        }
+        mCurrentMethod.addParameter(new ParameterInfo(name, typeName, type, isVarArg, position));
+        mCurrentMethod.setVarargs(isVarArg);
       } else if (qName.equals("exception")) {
         mCurrentMethod.addException(attributes.getValue("type"));
       } else if (qName.equals("implements")) {

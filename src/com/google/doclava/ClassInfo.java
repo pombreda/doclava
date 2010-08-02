@@ -1176,7 +1176,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   }
 
   private MethodInfo matchMethod(MethodInfo[] methods, String name, String[] params,
-      String[] dimensions) {
+      String[] dimensions, boolean varargs) {
     int len = methods.length;
     for (int i = 0; i < len; i++) {
       MethodInfo method = methods[i];
@@ -1184,7 +1184,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
         if (params == null) {
           return method;
         } else {
-          if (method.matchesParams(params, dimensions)) {
+          if (method.matchesParams(params, dimensions, varargs)) {
             return method;
           }
         }
@@ -1193,19 +1193,19 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     return null;
   }
 
-  public MethodInfo findMethod(String name, String[] params, String[] dimensions) {
+  public MethodInfo findMethod(String name, String[] params, String[] dimensions, boolean varargs) {
     // first look on our class, and our superclasses
 
     // for methods
     MethodInfo rv;
-    rv = matchMethod(methods(), name, params, dimensions);
+    rv = matchMethod(methods(), name, params, dimensions, varargs);
 
     if (rv != null) {
       return rv;
     }
 
     // for constructors
-    rv = matchMethod(constructors(), name, params, dimensions);
+    rv = matchMethod(constructors(), name, params, dimensions, varargs);
     if (rv != null) {
       return rv;
     }
@@ -1213,7 +1213,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     // then recursively look at our containing class
     ClassInfo containing = containingClass();
     if (containing != null) {
-      return containing.findMethod(name, params, dimensions);
+      return containing.findMethod(name, params, dimensions, varargs);
     }
 
     return null;

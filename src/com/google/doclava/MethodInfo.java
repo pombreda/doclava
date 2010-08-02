@@ -491,7 +491,7 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
   }
 
 
-  public boolean matchesParams(String[] params, String[] dimensions) {
+  public boolean matchesParams(String[] params, String[] dimensions, boolean varargs) {
     if (mParamStrings == null) {
       ParameterInfo[] mine = mParameters;
       int len = mine.length;
@@ -499,11 +499,10 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
         return false;
       }
       for (int i = 0; i < len; i++) {
-        TypeInfo t = mine[i].type();
-        if (!t.dimension().equals(dimensions[i])) {
+        if (!mine[i].matchesDimension(dimensions[i], varargs)) {
           return false;
         }
-        String qn = t.qualifiedTypeName();
+        String qn = mine[i].type().qualifiedTypeName();
         String s = params[i];
         int slen = s.length();
         int qnlen = qn.length();

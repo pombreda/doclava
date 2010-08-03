@@ -502,17 +502,32 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
         if (!mine[i].matchesDimension(dimensions[i], varargs)) {
           return false;
         }
-        String qn = mine[i].type().qualifiedTypeName();
+        TypeInfo myType = mine[i].type();
+        String qualifiedName = myType.qualifiedTypeName();
+        String realType = myType.isPrimitive() ? "" : myType.asClassInfo().qualifiedName();
         String s = params[i];
         int slen = s.length();
-        int qnlen = qn.length();
-        if (!(qn.equals(s) || ((slen + 1) < qnlen && qn.charAt(qnlen - slen - 1) == '.' && qn
-            .endsWith(s)))) {
+        int qnlen = qualifiedName.length();
+        
+        // Check for a matching generic name or best known type
+        if (!matchesType(qualifiedName, s) && !matchesType(realType, s)) {
           return false;
         }
       }
     }
     return true;
+  }
+  
+  /**
+   * Checks to see if a parameter from a method signature is
+   * compatible with a parameter given in a {@code @link} tag.
+   */
+  private boolean matchesType(String signatureParam, String callerParam) {
+    int signatureLength = signatureParam.length();
+    int callerLength = callerParam.length();
+    return ((signatureParam.equals(callerParam) || ((callerLength + 1) < signatureLength
+        && signatureParam.charAt(signatureLength - callerLength - 1) == '.'
+        && signatureParam.endsWith(callerParam))));
   }
 
   public void makeHDF(Data data, String base) {

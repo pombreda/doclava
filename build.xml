@@ -36,7 +36,7 @@
 			<fileset dir="res/assets"/>
 		</copy>
 
-		<jar jarfile="${jar.file}" manifest="src/MANIFEST.mf">
+		<jar jarfile="${jar.file}">
 			<fileset dir="build/classes"/>
 			<zipfileset src="${jsilver}" />
 		</jar>

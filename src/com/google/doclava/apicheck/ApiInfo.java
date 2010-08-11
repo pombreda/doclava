@@ -29,7 +29,7 @@ public class ApiInfo {
       = new HashMap<String, PackageInfo>();
   private HashMap<String, ClassInfo> mAllClasses
       = new HashMap<String, ClassInfo>();
-  private Map<ClassInfo,String> mClassToSuper
+  private Map<ClassInfo, String> mClassToSuper
       = new HashMap<ClassInfo, String>();
   private Map<ClassInfo, ArrayList<String>> mClassToInterface
       = new HashMap<ClassInfo, ArrayList<String>>();

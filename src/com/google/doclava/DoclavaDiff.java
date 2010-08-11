@@ -225,9 +225,6 @@ public final class DoclavaDiff {
     return classes;
   }
   
-  /**
-   * Returns all known methods from all sites for a given class.
-   */
   private List<MethodInfo> knownMethodsForClass(String qualifiedClassName,
       List<FederatedSite> sites) {
     
@@ -295,7 +292,7 @@ public final class DoclavaDiff {
         return false;
       }
       
-      if (!siteClass.supportsMethod(method)) {
+      if (!siteClass.containsMethod(method)) {
         return false;
       }
     }

@@ -344,7 +344,7 @@ public class ApiCheck {
     
     private String qualifiedName(String pkg, String className, ClassInfo parent) {
       String parentQName = (parent != null) ? (parent.qualifiedName() + ".") : "";
-        return pkg + "." + parentQName + className;
+      return pkg + "." + parentQName + className;
     }
   }
   

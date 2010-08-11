@@ -42,8 +42,9 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     super("", SourcePositionInfo.UNKNOWN);
     
     mQualifiedName = qualifiedName;
-    if (qualifiedName.lastIndexOf('.') != -1) {
-      mName = qualifiedName.substring(qualifiedName.lastIndexOf('.') + 1);
+    int pos = qualifiedName.lastIndexOf('.'); 
+    if (pos != -1) {
+      mName = qualifiedName.substring(pos + 1);
     } else {
       mName = qualifiedName;
     }
@@ -270,8 +271,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   }
 
   public ClassInfo[] realInterfaces() {
-    ClassInfo[] classInfos = new ClassInfo[mRealInterfaces.size()];
-    return mRealInterfaces.toArray(classInfos);
+    return mRealInterfaces.toArray(new ClassInfo[mRealInterfaces.size()]);
   }
 
   TypeInfo[] realInterfaceTypes() {
@@ -509,8 +509,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
       }
       // mine
       if (mAllSelfMethods != null) {
-        for (int i = 0; i < mAllSelfMethods.length; i++) {
-          MethodInfo m = mAllSelfMethods[i];
+        for (MethodInfo m : mAllSelfMethods) {
           if (m.checkLevel()) {
             methods.put(m.name() + m.signature(), m);
           }
@@ -1219,7 +1218,11 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     return null;
   }
   
-  public boolean supportsMethod(MethodInfo method) {
+  /**
+   * Returns true if the given method's signature is available in this class,
+   * either directly or via inheritance.
+   */
+  public boolean containsMethod(MethodInfo method) {
     for (MethodInfo m : methods()) {
       if (m.getHashableName().equals(method.getHashableName())) {
         return true;
@@ -1496,9 +1499,9 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
 
   /**
    * Returns all methods defined directly in this class. For a list of all
-   * methods supported by this class, see {@link #methods()}.
+   * methods defined by this class and inherited from its supertypes, see
+   * {@link #methods()}.
    */
-  
   public Map<String, MethodInfo> allMethods() {
     return mApiCheckMethods;
   }
@@ -1519,7 +1522,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
       if (mQualifiedName.equals("java.lang.Object")) {
         return null;
       }
-      throw new UnsupportedOperationException("Superclass not set for " + qualifiedName());
+      throw new IllegalStateException("Superclass not set for " + qualifiedName());
     }
     return mSuperclass.mQualifiedName;
   }

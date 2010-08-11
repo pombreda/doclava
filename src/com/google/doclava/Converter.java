@@ -505,11 +505,6 @@ public class Converter {
     }
 
     @Override
-    protected void made(Object o, Object r) {
-      
-    }
-
-    @Override
     protected Object keyFor(Object o) {
       return o;
     }

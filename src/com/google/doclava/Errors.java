@@ -24,51 +24,22 @@ public class Errors {
   private static boolean warningsAreErrors = false;
   private static TreeSet<ErrorMessage> allErrors = new TreeSet<ErrorMessage>();
 
-  public static class ErrorMessage implements Comparable {
-    Error error;
-    SourcePositionInfo pos;
-    String msg;
-
-    ErrorMessage(Error e, SourcePositionInfo p, String m) {
-      error = e;
-      pos = p;
-      msg = m;
-    }
-
-    public int compareTo(Object o) {
-      ErrorMessage that = (ErrorMessage) o;
-      int r = this.pos.compareTo(that.pos);
-      if (r != 0) return r;
-      return this.msg.compareTo(that.msg);
-    }
-
-    @Override
-    public String toString() {
-      String whereText = this.pos == null ? "unknown: " : this.pos.toString() + ':';
-      return whereText + this.msg;
-    }
-    
-    public Error error() {
-      return error;
-    }
-  }
-
-  public static void error(Error error, SourcePositionInfo where, String text) {
-    if (error.level == HIDDEN) {
+  public static void error(ErrorCode error, SourcePositionInfo where, String text) {
+    if (error.getLevel() == HIDDEN) {
       return;
     }
 
-    int level = (!warningsAreErrors && error.level == WARNING) ? WARNING : ERROR;
+    int level = (!warningsAreErrors && error.getLevel() == WARNING) ? WARNING : ERROR;
     String which = level == WARNING ? " warning " : " error ";
-    String message = which + error.code + ": " + text;
+    String message = which + error.getCode() + ": " + text;
 
     if (where == null) {
-      where = new SourcePositionInfo("unknown", 0, 0);
+      where = SourcePositionInfo.UNKNOWN;
     }
 
     allErrors.add(new ErrorMessage(error, where, message));
 
-    if (error.level == ERROR || (warningsAreErrors && error.level == WARNING)) {
+    if (error.getLevel() == ERROR || (warningsAreErrors && error.getLevel() == WARNING)) {
       hadError = true;
     }
   }
@@ -84,12 +55,12 @@ public class Errors {
   
   public static void printErrors(Set<ErrorMessage> errors) {
     for (ErrorMessage m : errors) {
-      if (m.error.level == WARNING) {
+      if (m.getError().getLevel() == WARNING) {
         System.err.println(m.toString());
       }
     }
     for (ErrorMessage m : errors) {
-      if (m.error.level == ERROR) {
+      if (m.getError().getLevel() == ERROR) {
         System.err.println(m.toString());
       }
     }
@@ -107,67 +78,59 @@ public class Errors {
     warningsAreErrors = val;
   }
 
-  public static class Error {
-    public int code;
-    public int level;
-
-    public Error(int code, int level) {
-      this.code = code;
-      this.level = level;
-    }
-    
-    public String toString() {
-      return "Error #" + this.code;
-    }
-  }
+  // Exit status codes
+  public static final int EXIT_NORMAL = 0;
+  public static final int EXIT_ERROR = 1;
+  public static final int EXIT_BAD_ARGUMENTS = 2;
+  public static final int EXIT_PARSE_ERROR = 3;
 
   // Errors for API verification
-  public static Error PARSE_ERROR = new Error(1, ERROR);
-  public static Error ADDED_PACKAGE = new Error(2, WARNING);
-  public static Error ADDED_CLASS = new Error(3, WARNING);
-  public static Error ADDED_METHOD = new Error(4, WARNING);
-  public static Error ADDED_FIELD = new Error(5, WARNING);
-  public static Error ADDED_INTERFACE = new Error(6, WARNING);
-  public static Error REMOVED_PACKAGE = new Error(7, WARNING);
-  public static Error REMOVED_CLASS = new Error(8, WARNING);
-  public static Error REMOVED_METHOD = new Error(9, WARNING);
-  public static Error REMOVED_FIELD = new Error(10, WARNING);
-  public static Error REMOVED_INTERFACE = new Error(11, WARNING);
-  public static Error CHANGED_STATIC = new Error(12, WARNING);
-  public static Error CHANGED_FINAL = new Error(13, WARNING);
-  public static Error CHANGED_TRANSIENT = new Error(14, WARNING);
-  public static Error CHANGED_VOLATILE = new Error(15, WARNING);
-  public static Error CHANGED_TYPE = new Error(16, WARNING);
-  public static Error CHANGED_VALUE = new Error(17, WARNING);
-  public static Error CHANGED_SUPERCLASS = new Error(18, WARNING);
-  public static Error CHANGED_SCOPE = new Error(19, WARNING);
-  public static Error CHANGED_ABSTRACT = new Error(20, WARNING);
-  public static Error CHANGED_THROWS = new Error(21, WARNING);
-  public static Error CHANGED_NATIVE = new Error(22, HIDDEN);
-  public static Error CHANGED_CLASS = new Error(23, WARNING);
-  public static Error CHANGED_DEPRECATED = new Error(24, WARNING);
-  public static Error CHANGED_SYNCHRONIZED = new Error(25, ERROR);
+  public static final ErrorCode PARSE_ERROR = new ErrorCode(1, ERROR);
+  public static final ErrorCode ADDED_PACKAGE = new ErrorCode(2, WARNING);
+  public static final ErrorCode ADDED_CLASS = new ErrorCode(3, WARNING);
+  public static final ErrorCode ADDED_METHOD = new ErrorCode(4, WARNING);
+  public static final ErrorCode ADDED_FIELD = new ErrorCode(5, WARNING);
+  public static final ErrorCode ADDED_INTERFACE = new ErrorCode(6, WARNING);
+  public static final ErrorCode REMOVED_PACKAGE = new ErrorCode(7, WARNING);
+  public static final ErrorCode REMOVED_CLASS = new ErrorCode(8, WARNING);
+  public static final ErrorCode REMOVED_METHOD = new ErrorCode(9, WARNING);
+  public static final ErrorCode REMOVED_FIELD = new ErrorCode(10, WARNING);
+  public static final ErrorCode REMOVED_INTERFACE = new ErrorCode(11, WARNING);
+  public static final ErrorCode CHANGED_STATIC = new ErrorCode(12, WARNING);
+  public static final ErrorCode CHANGED_FINAL = new ErrorCode(13, WARNING);
+  public static final ErrorCode CHANGED_TRANSIENT = new ErrorCode(14, WARNING);
+  public static final ErrorCode CHANGED_VOLATILE = new ErrorCode(15, WARNING);
+  public static final ErrorCode CHANGED_TYPE = new ErrorCode(16, WARNING);
+  public static final ErrorCode CHANGED_VALUE = new ErrorCode(17, WARNING);
+  public static final ErrorCode CHANGED_SUPERCLASS = new ErrorCode(18, WARNING);
+  public static final ErrorCode CHANGED_SCOPE = new ErrorCode(19, WARNING);
+  public static final ErrorCode CHANGED_ABSTRACT = new ErrorCode(20, WARNING);
+  public static final ErrorCode CHANGED_THROWS = new ErrorCode(21, WARNING);
+  public static final ErrorCode CHANGED_NATIVE = new ErrorCode(22, HIDDEN);
+  public static final ErrorCode CHANGED_CLASS = new ErrorCode(23, WARNING);
+  public static final ErrorCode CHANGED_DEPRECATED = new ErrorCode(24, WARNING);
+  public static final ErrorCode CHANGED_SYNCHRONIZED = new ErrorCode(25, ERROR);
 
   // Errors in javadoc generation
-  public static final Error UNRESOLVED_LINK = new Error(101, WARNING);
-  public static final Error BAD_INCLUDE_TAG = new Error(102, WARNING);
-  public static final Error UNKNOWN_TAG = new Error(103, WARNING);
-  public static final Error UNKNOWN_PARAM_TAG_NAME = new Error(104, WARNING);
-  public static final Error UNDOCUMENTED_PARAMETER = new Error(105, HIDDEN);
-  public static final Error BAD_ATTR_TAG = new Error(106, ERROR);
-  public static final Error BAD_INHERITDOC = new Error(107, HIDDEN);
-  public static final Error HIDDEN_LINK = new Error(108, WARNING);
-  public static final Error HIDDEN_CONSTRUCTOR = new Error(109, WARNING);
-  public static final Error UNAVAILABLE_SYMBOL = new Error(110, ERROR);
-  public static final Error HIDDEN_SUPERCLASS = new Error(111, WARNING);
-  public static final Error DEPRECATED = new Error(112, HIDDEN);
-  public static final Error DEPRECATION_MISMATCH = new Error(113, WARNING);
-  public static final Error MISSING_COMMENT = new Error(114, WARNING);
-  public static final Error IO_ERROR = new Error(115, HIDDEN);
-  public static final Error NO_SINCE_DATA = new Error(116, HIDDEN);
-  public static final Error NO_FEDERATION_DATA = new Error(117, WARNING);
+  public static final ErrorCode UNRESOLVED_LINK = new ErrorCode(101, WARNING);
+  public static final ErrorCode BAD_INCLUDE_TAG = new ErrorCode(102, WARNING);
+  public static final ErrorCode UNKNOWN_TAG = new ErrorCode(103, WARNING);
+  public static final ErrorCode UNKNOWN_PARAM_TAG_NAME = new ErrorCode(104, WARNING);
+  public static final ErrorCode UNDOCUMENTED_PARAMETER = new ErrorCode(105, HIDDEN);
+  public static final ErrorCode BAD_ATTR_TAG = new ErrorCode(106, ERROR);
+  public static final ErrorCode BAD_INHERITDOC = new ErrorCode(107, HIDDEN);
+  public static final ErrorCode HIDDEN_LINK = new ErrorCode(108, WARNING);
+  public static final ErrorCode HIDDEN_CONSTRUCTOR = new ErrorCode(109, WARNING);
+  public static final ErrorCode UNAVAILABLE_SYMBOL = new ErrorCode(110, ERROR);
+  public static final ErrorCode HIDDEN_SUPERCLASS = new ErrorCode(111, WARNING);
+  public static final ErrorCode DEPRECATED = new ErrorCode(112, HIDDEN);
+  public static final ErrorCode DEPRECATION_MISMATCH = new ErrorCode(113, WARNING);
+  public static final ErrorCode MISSING_COMMENT = new ErrorCode(114, WARNING);
+  public static final ErrorCode IO_ERROR = new ErrorCode(115, HIDDEN);
+  public static final ErrorCode NO_SINCE_DATA = new ErrorCode(116, HIDDEN);
+  public static final ErrorCode NO_FEDERATION_DATA = new ErrorCode(117, WARNING);
 
-  public static final Error[] ERRORS =
+  public static final ErrorCode[] ERRORS =
       {UNRESOLVED_LINK, BAD_INCLUDE_TAG, UNKNOWN_TAG, UNKNOWN_PARAM_TAG_NAME,
           UNDOCUMENTED_PARAMETER, BAD_ATTR_TAG, BAD_INHERITDOC, HIDDEN_LINK, HIDDEN_CONSTRUCTOR,
           UNAVAILABLE_SYMBOL, HIDDEN_SUPERCLASS, DEPRECATED, DEPRECATION_MISMATCH, MISSING_COMMENT,
@@ -179,9 +142,9 @@ public class Errors {
           CHANGED_DEPRECATED, CHANGED_SYNCHRONIZED};
 
   public static boolean setErrorLevel(int code, int level) {
-    for (Error e : ERRORS) {
-      if (e.code == code) {
-        e.level = level;
+    for (ErrorCode e : ERRORS) {
+      if (e.getCode() == code) {
+        e.setLevel(level);
         return true;
       }
     }

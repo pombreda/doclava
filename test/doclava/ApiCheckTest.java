@@ -79,6 +79,38 @@ public class ApiCheckTest extends TestCase {
     assertTrue(m2.getError().equals(Errors.ADDED_METHOD) || m2.getError().equals(Errors.REMOVED_METHOD));
   }
   
+  public void testAddedMethod() {
+    String[] args = { "test/api/simple.xml", "test/api/added-method.xml" };
+    ApiCheck apiCheck = new ApiCheck();
+    ErrorReport report = apiCheck.checkApi(args);
+    assertEquals(1, report.getErrors().size());
+    assertEquals(Errors.ADDED_METHOD, report.getErrors().iterator().next().getError());
+  }
+  
+  public void testRemovedMethod() {
+    String[] args = { "test/api/added-method.xml", "test/api/simple.xml" };
+    ApiCheck apiCheck = new ApiCheck();
+    ErrorReport report = apiCheck.checkApi(args);
+    assertEquals(1, report.getErrors().size());
+    assertEquals(Errors.REMOVED_METHOD, report.getErrors().iterator().next().getError());
+  }
+  
+  public void testAddedConstructor() {
+    String[] args = { "test/api/simple.xml", "test/api/added-constructor.xml" };
+    ApiCheck apiCheck = new ApiCheck();
+    ErrorReport report = apiCheck.checkApi(args);
+    assertEquals(1, report.getErrors().size());
+    assertEquals(Errors.ADDED_METHOD, report.getErrors().iterator().next().getError());
+  }
+  
+  public void testRemovedConstructor() {
+    String[] args = { "test/api/added-constructor.xml", "test/api/simple.xml" };
+    ApiCheck apiCheck = new ApiCheck();
+    ErrorReport report = apiCheck.checkApi(args);
+    assertEquals(1, report.getErrors().size());
+    assertEquals(Errors.REMOVED_METHOD, report.getErrors().iterator().next().getError());
+  }
+  
   public void testAddedClass() {
     String[] args = { "test/api/simple.xml", "test/api/add-class.xml" };
     ApiCheck apiCheck = new ApiCheck();

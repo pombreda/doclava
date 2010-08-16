@@ -31,7 +31,9 @@
 <?cs if:subcount(package.shortDescr) ?>
   <div class="jd-descr">
   <p><?cs call:tag_list(package.shortDescr) ?></p>
+  <?cs if:(package.shortDescr != package.desc) ?>
   <p><span class="jd-more"><a href="package-descr.html">more...</a></span></p>
+  <?cs /if ?>
   </div>
 <?cs /if ?>
 

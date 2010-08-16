@@ -254,7 +254,13 @@ public class Doclava {
 
       // HTML Pages
       if (ClearPage.htmlDir != null) {
-        writeHTMLPages();
+        File f = new File(ClearPage.htmlDir);
+        if (!f.isDirectory()) {
+          System.err.println("htmlDir not a directory: " + ClearPage.htmlDir);
+          return false;
+        }
+        
+        writeHTMLPages(f);
       }
 
       writeAssets();
@@ -593,15 +599,14 @@ public class Doclava {
     }
   }
 
-  public static void writeHTMLPages() {
-    File f = new File(ClearPage.htmlDir);
-    if (!f.isDirectory()) {
-      System.err.println("htmlDir not a directory: " + ClearPage.htmlDir);
+  public static void writeHTMLPages(File dir) {
+    if (!dir.isDirectory()) {
+      throw new IllegalArgumentException("Not a directory: " + dir);
     }
 
-    ResourceLoader loader = new FileSystemResourceLoader(f);
+    ResourceLoader loader = new FileSystemResourceLoader(dir);
     JSilver js = new JSilver(loader);
-    writeDirectory(f, "", js);
+    writeDirectory(dir, "", js);
   }
 
   public static void writeAssets() {

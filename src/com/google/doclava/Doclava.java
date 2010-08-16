@@ -850,8 +850,13 @@ public class Doclava {
     makeClassListHDF(data, "package.enums", ClassInfo.sortByName(pkg.enums()));
     makeClassListHDF(data, "package.exceptions", ClassInfo.sortByName(pkg.exceptions()));
     makeClassListHDF(data, "package.errors", ClassInfo.sortByName(pkg.errors()));
-    TagInfo.makeHDF(data, "package.shortDescr", pkg.firstSentenceTags());
-    TagInfo.makeHDF(data, "package.descr", pkg.inlineTags());
+    
+    TagInfo[] shortDescrTags = pkg.firstSentenceTags();
+    TagInfo[] longDescrTags = pkg.inlineTags();
+    TagInfo.makeHDF(data, "package.shortDescr", shortDescrTags);
+    TagInfo.makeHDF(data, "package.descr", longDescrTags);
+    data.setValue("package.hasLongDescr",
+        TagInfo.tagsEqual(shortDescrTags, longDescrTags) ? "0" : "1");
 
     String filename = pkg.htmlPage();
     setPageTitle(data, name);

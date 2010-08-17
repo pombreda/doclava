@@ -87,4 +87,26 @@ public class TagInfo {
     }
     return j;
   }
+  
+  /**
+   * Returns true if the given list of tags match. Tags must be ordered
+   * equivalently for the lists to be equal.
+   */
+  static boolean tagsEqual(TagInfo[] first, TagInfo[] second) {
+    if (first.length != second.length) {
+      return false;
+    }
+    for (int i = 0; i < first.length; i++) {
+      if (!first[i].mName.equals(second[i].mName)) {
+        return false;
+      }
+      if (!first[i].mKind.equals(second[i].mKind)) {
+        return false;
+      }
+      if (!first[i].mText.equals(second[i].mText)) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

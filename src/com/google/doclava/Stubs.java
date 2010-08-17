@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,9 +37,9 @@ public class Stubs {
     ClassInfo[] all = Converter.allClasses();
     PrintStream xmlWriter = null;
     if (xmlFile != null) {
+      File xml = new File(xmlFile);
+      xml.getParentFile().mkdirs();
       try {
-        File xml = new File(xmlFile);
-        xml.getParentFile().mkdirs();
         xmlWriter = new PrintStream(xml);
       } catch (FileNotFoundException e) {
         Errors.error(Errors.IO_ERROR, new SourcePositionInfo(xmlFile, 0, 0),
@@ -119,10 +120,23 @@ public class Stubs {
       }
     }
 
-    HashMap<PackageInfo, List<ClassInfo>> packages = new HashMap<PackageInfo, List<ClassInfo>>();
-    for (ClassInfo cl : notStrippable) {
+    if (stubPackages != null) {
+      for (ClassInfo cl : notStrippable) {
+        if (!stubPackages.contains(cl.containingPackage().name())) {
+          notStrippable.remove(cl);
+        }
+      }
+    }
+    
+    writeStubsAndXml(stubsDir, xmlWriter, notStrippable);
+  }
+  
+  public static void writeStubsAndXml(String stubsDir, PrintStream xmlWriter,
+                                      Set<ClassInfo> classes) {
+    
+    Map<PackageInfo, List<ClassInfo>> packages = new HashMap<PackageInfo, List<ClassInfo>>();
+    for (ClassInfo cl : classes) {
       if (!cl.isDocOnly()) {
-        if (stubPackages == null || stubPackages.contains(cl.containingPackage().name())) {
           // write out the stubs
           if (stubsDir != null) {
             writeClassFile(stubsDir, cl);
@@ -132,18 +146,17 @@ public class Stubs {
             if (packages.containsKey(cl.containingPackage())) {
               packages.get(cl.containingPackage()).add(cl);
             } else {
-              ArrayList<ClassInfo> classes = new ArrayList<ClassInfo>();
-              classes.add(cl);
-              packages.put(cl.containingPackage(), classes);
+              ArrayList<ClassInfo> adding = new ArrayList<ClassInfo>();
+              adding.add(cl);
+              packages.put(cl.containingPackage(), adding);
             }
           }
-        }
       }
     }
 
     // write out the XML
     if (xmlWriter != null) {
-      writeXML(xmlWriter, packages, notStrippable);
+      writeXML(xmlWriter, packages, classes);
       xmlWriter.close();
     }
   }
@@ -167,12 +180,12 @@ public class Stubs {
     if (cl.allSelfFields() != null) {
       for (FieldInfo fInfo : cl.allSelfFields()) {
         if (fInfo.type() != null) {
-          if (fInfo.type().asClassInfo() != null) {
+          if (fInfo.type().asClassInfo() != null && fInfo.type().asClassInfo().isIncluded()) {
             cantStripThis(fInfo.type().asClassInfo(), notStrippable, "2:" + cl.qualifiedName());
           }
           if (fInfo.type().typeArguments() != null) {
             for (TypeInfo tTypeInfo : fInfo.type().typeArguments()) {
-              if (tTypeInfo.asClassInfo() != null) {
+              if (tTypeInfo.asClassInfo() != null && tTypeInfo.asClassInfo().isIncluded()) {
                 cantStripThis(tTypeInfo.asClassInfo(), notStrippable, "3:" + cl.qualifiedName());
               }
             }
@@ -184,7 +197,7 @@ public class Stubs {
     if (cl.asTypeInfo() != null) {
       if (cl.asTypeInfo().typeArguments() != null) {
         for (TypeInfo tInfo : cl.asTypeInfo().typeArguments()) {
-          if (tInfo.asClassInfo() != null) {
+          if (tInfo.asClassInfo() != null && tInfo.asClassInfo().isIncluded()) {
             cantStripThis(tInfo.asClassInfo(), notStrippable, "4:" + cl.qualifiedName());
           }
         }
@@ -196,12 +209,12 @@ public class Stubs {
     cantStripThis(cl.allSelfMethods(), notStrippable);
     cantStripThis(cl.allConstructors(), notStrippable);
     // blow the outer class open if this is an inner class
-    if (cl.containingClass() != null) {
+    if (cl.containingClass() != null && cl.containingClass().isIncluded()) {
       cantStripThis(cl.containingClass(), notStrippable, "5:" + cl.qualifiedName());
     }
     // blow open super class and interfaces
     ClassInfo supr = cl.realSuperclass();
-    if (supr != null) {
+    if (supr != null && supr.isIncluded()) {
       if (supr.isHidden()) {
         // cl is a public class declared as extending a hidden superclass.
         // this is not a desired practice but it's happened, so we deal
@@ -226,7 +239,7 @@ public class Stubs {
       for (MethodInfo mInfo : mInfos) {
         if (mInfo.getTypeParameters() != null) {
           for (TypeInfo tInfo : mInfo.getTypeParameters()) {
-            if (tInfo.asClassInfo() != null) {
+            if (tInfo.asClassInfo() != null && tInfo.asClassInfo().isIncluded()) {
               cantStripThis(tInfo.asClassInfo(), notStrippable, "8:"
                   + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
             }
@@ -234,12 +247,13 @@ public class Stubs {
         }
         if (mInfo.parameters() != null) {
           for (ParameterInfo pInfo : mInfo.parameters()) {
-            if (pInfo.type() != null && pInfo.type().asClassInfo() != null) {
+            if (pInfo.type() != null && pInfo.type().asClassInfo() != null
+                && pInfo.type().asClassInfo().isIncluded()) {
               cantStripThis(pInfo.type().asClassInfo(), notStrippable, "9:"
                   + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
               if (pInfo.type().typeArguments() != null) {
                 for (TypeInfo tInfoType : pInfo.type().typeArguments()) {
-                  if (tInfoType.asClassInfo() != null) {
+                  if (tInfoType.asClassInfo() != null && tInfoType.asClassInfo().isIncluded()) {
                     ClassInfo tcl = tInfoType.asClassInfo();
                     if (tcl.isHidden()) {
                       Errors
@@ -258,15 +272,18 @@ public class Stubs {
           }
         }
         for (ClassInfo thrown : mInfo.thrownExceptions()) {
-          cantStripThis(thrown, notStrippable, "11:" + mInfo.realContainingClass().qualifiedName()
-              + ":" + mInfo.name());
+          if (thrown.isIncluded()) {
+            cantStripThis(thrown, notStrippable, "11:" + mInfo.realContainingClass().qualifiedName()
+                + ":" + mInfo.name());
+          }
         }
-        if (mInfo.returnType() != null && mInfo.returnType().asClassInfo() != null) {
+        if (mInfo.returnType() != null && mInfo.returnType().asClassInfo() != null
+            && mInfo.returnType().asClassInfo().isIncluded()) {
           cantStripThis(mInfo.returnType().asClassInfo(), notStrippable, "12:"
               + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
           if (mInfo.returnType().typeArguments() != null) {
             for (TypeInfo tyInfo : mInfo.returnType().typeArguments()) {
-              if (tyInfo.asClassInfo() != null) {
+              if (tyInfo.asClassInfo() != null && tyInfo.asClassInfo().isIncluded()) {
                 cantStripThis(tyInfo.asClassInfo(), notStrippable, "13:"
                     + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
               }
@@ -342,7 +359,7 @@ public class Stubs {
       stream.print("strictfp ");
     }
 
-    HashSet<String> classDeclTypeVars = new HashSet();
+    HashSet<String> classDeclTypeVars = new HashSet<String>();
     String leafName = cl.asTypeInfo().fullName(classDeclTypeVars);
     int bracket = leafName.indexOf('<');
     if (bracket < 0) bracket = leafName.length() - 1;
@@ -520,7 +537,7 @@ public class Stubs {
       stream.print("strictfp ");
     }
 
-    stream.print(method.typeArgumentsName(new HashSet()) + " ");
+    stream.print(method.typeArgumentsName(new HashSet<String>()) + " ");
 
     if (!isConstructor) {
       stream.print(method.returnType().fullName(method.typeVariables()) + " ");
@@ -736,8 +753,8 @@ public class Stubs {
     stream.println(";");
   }
 
-  static void writeXML(PrintStream xmlWriter, HashMap<PackageInfo, List<ClassInfo>> allClasses,
-      HashSet notStrippable) {
+  static void writeXML(PrintStream xmlWriter, Map<PackageInfo, List<ClassInfo>> allClasses,
+      Set<ClassInfo> notStrippable) {
     // extract the set of packages, sort them by name, and write them out in that order
     Set<PackageInfo> allClassKeys = allClasses.keySet();
     PackageInfo[] allPackages = allClassKeys.toArray(new PackageInfo[allClassKeys.size()]);
@@ -751,7 +768,7 @@ public class Stubs {
   }
 
   static void writePackageXML(PrintStream xmlWriter, PackageInfo pack, List<ClassInfo> classList,
-      HashSet notStrippable) {
+      Set<ClassInfo> notStrippable) {
     ClassInfo[] classes = classList.toArray(new ClassInfo[classList.size()]);
     Arrays.sort(classes, ClassInfo.comparator);
     // Work around the bogus "Array" class we invent for
@@ -770,7 +787,7 @@ public class Stubs {
 
   }
 
-  static void writeClassXML(PrintStream xmlWriter, ClassInfo cl, HashSet notStrippable) {
+  static void writeClassXML(PrintStream xmlWriter, ClassInfo cl, Set<ClassInfo> notStrippable) {
     String scope = cl.scope();
     String deprecatedString = "";
     String declString = (cl.isInterface()) ? "interface" : "class";

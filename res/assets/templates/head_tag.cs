@@ -3,11 +3,10 @@
 <link rel="shortcut icon" type="image/x-icon" href="<?cs var:toroot ?>favicon.ico" />
 <title>
 <?cs if:page.title ?>
-  <?cs var:page.title ?> |
+  <?cs var:page.title ?>
 <?cs /if ?>
 <?cs if:project.name ?>
-  <?cs var:project.name ?>
-<?cs else ?>Doclava
+| <?cs var:project.name ?>
 <?cs /if ?>
 </title>
 <link href="<?cs var:toroot ?>assets/android-developer-docs.css" rel="stylesheet" type="text/css" />

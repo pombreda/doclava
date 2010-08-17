@@ -215,7 +215,6 @@ public class Doclava {
     Converter.makeInfo(r);
 
     if (generateDocs) {
-      ClearPage.addBundledTemplateDir("assets/customizations");
       ClearPage.addBundledTemplateDir("assets/templates");
 
       List<ResourceLoader> resourceLoaders = new ArrayList<ResourceLoader>();

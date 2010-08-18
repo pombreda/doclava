@@ -225,7 +225,7 @@ public class Doclava {
 
       templates = ClearPage.getBundledTemplateDirs();
       for (String tmpl : templates) {
-        resourceLoaders.add(new ClassResourceLoader(Doclava.class, '/'+tmpl));
+        resourceLoaders.add(new ClassResourceLoader(Doclava.class, '/' + tmpl));
       }
 
       ResourceLoader compositeResourceLoader = new CompositeResourceLoader(resourceLoaders);

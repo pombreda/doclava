@@ -127,13 +127,13 @@ public class Stubs {
         }
       }
     }
-    
+
     writeStubsAndXml(stubsDir, xmlWriter, notStrippable);
   }
-  
+
   public static void writeStubsAndXml(String stubsDir, PrintStream xmlWriter,
                                       Set<ClassInfo> classes) {
-    
+
     Map<PackageInfo, List<ClassInfo>> packages = new HashMap<PackageInfo, List<ClassInfo>>();
     for (ClassInfo cl : classes) {
       if (!cl.isDocOnly()) {

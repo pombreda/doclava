@@ -146,9 +146,7 @@ function new_node(me, mom, text, link, children_data, api_level)
       a.className = "nolink";
       a.href = "javascript:void(0)";
       a.onclick = node.expand_toggle.onclick;
-      // This next line shouldn't be necessary.  I'll buy a beer for the first
-      // person who figures out how to remove this line and have the link
-      // toggle shut on the first try. --joeo@android.com
+      // This next line shouldn't be necessary.
       node.expanded = false;
     }
   }

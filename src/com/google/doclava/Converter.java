@@ -16,8 +16,6 @@
 
 package com.google.doclava;
 
-import com.google.common.base.Strings;
-
 import com.sun.javadoc.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -210,9 +208,9 @@ public class Converter {
     protected Object make(Object o) {
       ClassDoc c = (ClassDoc) o;
       // A bug while generating OpenJDK documentation reports some classes with no name.
-      /*if (Strings.isNullOrEmpty(c.name())) {
+      if (c.name() == null || c.name().equals("")) {
          return null;
-      }*/
+      }
       ClassInfo cl =
           new ClassInfo(c, c.getRawCommentText(), Converter.convertSourcePosition(c.position()), c
               .isPublic(), c.isProtected(), c.isPackagePrivate(), c.isPrivate(), c.isStatic(), c

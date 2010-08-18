@@ -352,6 +352,7 @@ links to summary tables) */
 #api-level-toggle {
   padding:0 0px;
   font-size:11px;
+  margin:3px 10px 0 0;
 }
 
 #api-level-toggle label.disabled {
@@ -1236,11 +1237,7 @@ body .ui-resizable-autohide .ui-resizable-handle { display: none; }
   }
 
   #header {
-    height:60px;
-  }
-
-  #headerLeft {
-    padding:0;
+    height:50px;
   }
 
   #header-tabs,

@@ -2,7 +2,7 @@
 <div id="header">
     <div id="headerLeft">
     <?cs if:project.name ?>
-      <span id="masthead-title"> <?cs var:project.name ?></span>
+      <span id="masthead-title"><?cs var:project.name ?></span>
     <?cs /if ?>
     </div>
     <div id="headerRight">

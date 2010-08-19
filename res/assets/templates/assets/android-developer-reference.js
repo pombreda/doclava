@@ -47,7 +47,7 @@ function buildApiLevelSelector() {
 function changeApiLevel() {
   var maxLevel = SINCE_DATA.length;
   var userApiLevelEnabled = readCookie(API_LEVEL_ENABLED_COOKIE);
-  var selectedLevel = maxLevel;
+  var selectedLevel = SINCE_DATA[SINCE_DATA.length-1];
   
   if (userApiLevelEnabled == 0) {
     toggleVisisbleApis(selectedLevel, "body");

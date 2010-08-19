@@ -43,7 +43,7 @@ public class NavTree {
 
     Data data = Doclava.makeHDF();
     data.setValue("reference_tree", buf.toString());
-    ClearPage.write(data, "navtree_data.cs", "navtree_data.js");
+    ClearPage.write(data, "navtree_data.cs", "assets/navtree_data.js");
   }
 
   private static Node makePackageNode(PackageInfo pkg) {

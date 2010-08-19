@@ -20,7 +20,7 @@
 </script><?cs 
 if:reference ?>
 <script src="<?cs var:toroot ?>assets/android-developer-reference.js" type="text/javascript"></script>
-<script src="<?cs var:toroot ?>navtree_data.js" type="text/javascript"></script><?cs 
+<script src="<?cs var:toroot ?>assets/navtree_data.js" type="text/javascript"></script><?cs 
 /if ?>
 <script src="<?cs var:toroot ?>assets/customizations.js" type="text/javascript"></script>
 <noscript>

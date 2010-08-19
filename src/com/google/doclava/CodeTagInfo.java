@@ -16,15 +16,13 @@
 
 package com.google.doclava;
 
+/**
+ * Inline tag for code references, such as {@code CodeTagInfo info}.
+ * Code tags are html-encoded.
+ *
+ */
 public class CodeTagInfo extends TagInfo {
-  private static String encode(String t) {
-    t = t.replace("&", "&amp;");
-    t = t.replace("<", "&lt;");
-    t = t.replace(">", "&gt;");
-    return t;
-  }
-
   public CodeTagInfo(String text, SourcePositionInfo sp) {
-    super("@code", "@code", encode(text), sp);
+    super("@code", "@code", LiteralTagInfo.encode(text), sp);
   }
 }

@@ -260,6 +260,16 @@ public class Doclava {
         }
         
         writeHTMLPages(f);
+      } else {
+        // Generate a simple index.html file
+        JarFile thisJar = JarUtils.jarForClass(Doclava.class, null);
+        if (thisJar != null) {
+          try {
+            JarUtils.copyResourcesToDirectory(thisJar, "assets/html", ClearPage.outputDir);
+          } catch (IOException e) {
+            System.err.println("Failed to copy html resources.");
+          }
+        }
       }
 
       writeAssets();
@@ -1062,7 +1072,7 @@ public class Doclava {
       return null;
     }
 
-    Class type = o.getClass();
+    Class<?> type = o.getClass();
     if (type.getName().startsWith("com.sun.")) {
       // TODO: Implement interfaces from superclasses, too.
       return Proxy

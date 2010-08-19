@@ -124,7 +124,7 @@ public class Errors {
   public static final ErrorCode UNAVAILABLE_SYMBOL = new ErrorCode(110, ERROR);
   public static final ErrorCode HIDDEN_SUPERCLASS = new ErrorCode(111, WARNING);
   public static final ErrorCode DEPRECATED = new ErrorCode(112, HIDDEN);
-  public static final ErrorCode DEPRECATION_MISMATCH = new ErrorCode(113, WARNING);
+  public static final ErrorCode DEPRECATION_MISMATCH = new ErrorCode(113, HIDDEN);
   public static final ErrorCode MISSING_COMMENT = new ErrorCode(114, WARNING);
   public static final ErrorCode IO_ERROR = new ErrorCode(115, HIDDEN);
   public static final ErrorCode NO_SINCE_DATA = new ErrorCode(116, HIDDEN);

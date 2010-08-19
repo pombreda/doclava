@@ -75,6 +75,7 @@ public class Doclava {
   public static FederationTagger federationTagger = new FederationTagger();
   private static boolean generateDocs = true;
   private static boolean parseComments = false;
+  public static String apiVersion = null;
   
   public static JSilver jSilver = null;
 
@@ -207,6 +208,8 @@ public class Doclava {
           System.err.println("Could not parse URL for federation: " + a[1]);
           return false;
         }
+      } else if (a[0].equals("-apiversion")) {
+        apiVersion = a[1];
       }
     }
 
@@ -214,6 +217,15 @@ public class Doclava {
     // Set up the data structures
     Converter.makeInfo(r);
 
+    // Stubs and xml
+    final File currentApiFile = new File(ClearPage.outputDir + FederatedSite.XML_API_PATH);
+    Stubs.writeStubsAndXml(stubsDir, currentApiFile, stubPackages);
+
+    if (apiFile != null) {
+      ClearPage.copyFile(currentApiFile, new File(apiFile));
+    }
+
+    // Reference documentation
     if (generateDocs) {
       ClearPage.addBundledTemplateDir("assets/templates");
 
@@ -236,6 +248,11 @@ public class Doclava {
       }
 
       long startTime = System.nanoTime();
+
+      // Use current version information
+      if (apiVersion != null && sinceTagger.hasVersions()) {
+        sinceTagger.addVersion(currentApiFile.getAbsolutePath(), apiVersion);
+      }
 
       // Apply @since tags from the XML file
       sinceTagger.tagAll(Converter.rootClasses());
@@ -309,11 +326,6 @@ public class Doclava {
       long time = System.nanoTime() - startTime;
       System.out.println("DroidDoc took " + (time / 1000000000) + " sec. to write docs to "
           + ClearPage.outputDir);
-    }
-
-    // Stubs
-    if (stubsDir != null || apiFile != null) {
-      Stubs.writeStubsAndXml(stubsDir, apiFile, stubPackages);
     }
 
     Errors.printErrors();
@@ -479,6 +491,9 @@ public class Doclava {
     if (option.equals("-federate")) {
       return 3;
     }
+    if (option.equals("-apiversion")) {
+      return 2;
+    }
     return 0;
   }
 
@@ -600,7 +615,7 @@ public class Doclava {
           String filename = templ.substring(0, len - 3) + htmlExtension;
           DocFile.writePage(f.getAbsolutePath(), relative, filename);
         } else {
-          ClearPage.copyFile(f, templ);
+          ClearPage.copyFile(f, new File(ClearPage.outputDir + "/" + templ));
         }
       } else if (f.isDirectory()) {
         writeDirectory(f, relative + f.getName() + "/", js);

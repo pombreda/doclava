@@ -153,8 +153,7 @@ public class ClearPage {
     }
   }
 
-  public static void copyFile(File from, String toPath) {
-    File to = new File(outputDir + "/" + toPath);
+  public static void copyFile(File from, File to) {
     FileInputStream in;
     FileOutputStream out;
     try {

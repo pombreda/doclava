@@ -30,19 +30,18 @@ import java.io.PrintStream;
 public class Stubs {
   private static HashSet<ClassInfo> notStrippable;
 
-  public static void writeStubsAndXml(String stubsDir, String xmlFile,
+  public static void writeStubsAndXml(String stubsDir, File xmlFile,
       HashSet<String> stubPackages) {
     // figure out which classes we need
     notStrippable = new HashSet<ClassInfo>();
     ClassInfo[] all = Converter.allClasses();
     PrintStream xmlWriter = null;
     if (xmlFile != null) {
-      File xml = new File(xmlFile);
-      xml.getParentFile().mkdirs();
+      xmlFile.getParentFile().mkdirs();
       try {
-        xmlWriter = new PrintStream(xml);
+        xmlWriter = new PrintStream(xmlFile);
       } catch (FileNotFoundException e) {
-        Errors.error(Errors.IO_ERROR, new SourcePositionInfo(xmlFile, 0, 0),
+        Errors.error(Errors.IO_ERROR, new SourcePositionInfo(xmlFile.getAbsolutePath(), 0, 0),
             "Cannot open file for write.");
       }
     }

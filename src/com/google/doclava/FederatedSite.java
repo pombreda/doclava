@@ -29,6 +29,7 @@ import java.net.URL;
  * be referenced or shared across codebases.
  */
 public final class FederatedSite {
+  public static final String XML_API_PATH = "/xml/current.xml";
   private final String name;
   private final URL baseUrl;
   private final ApiInfo apiInfo;
@@ -38,7 +39,7 @@ public final class FederatedSite {
     this.baseUrl = baseUrl;
     
     try {
-      URL xmlUrl = new URL(baseUrl + "/xml/current.xml");
+      URL xmlUrl = new URL(baseUrl + XML_API_PATH);
       this.apiInfo = new ApiCheck().parseApi(xmlUrl);
     } catch (MalformedURLException e) {
       throw new AssertionError(e);

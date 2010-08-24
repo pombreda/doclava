@@ -710,7 +710,7 @@ public class Doclava {
     if (supr != null) {
       cantStripThis(supr, notStrippable);
     }
-    for (ClassInfo iface : cl.interfaces()) {
+    for (ClassInfo iface : cl.getInterfaces()) {
       cantStripThis(iface, notStrippable);
     }
   }

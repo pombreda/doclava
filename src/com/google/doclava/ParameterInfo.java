@@ -67,6 +67,7 @@ public class ParameterInfo {
    * with the represented callee's dimension information.
    */
   public boolean matchesDimension(String dimension, boolean varargs) {
+    // foo(int... a) can be called as foo(int[] a).
     if (varargs) {
       dimension += "[]";
     }

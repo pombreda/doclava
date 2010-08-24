@@ -111,7 +111,7 @@ public class Hierarchy {
     }
 
     i = 0;
-    for (ClassInfo iface : cl.interfaces()) {
+    for (ClassInfo iface : cl.getInterfaces()) {
       hdf.setValue("interfaces." + i + ".class.label", iface.name());
       hdf.setValue("interfaces." + i + ".class.qualified", iface.qualifiedName());
       if (iface.checkLevel()) {

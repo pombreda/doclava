@@ -249,7 +249,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     }
   }
 
-  public ClassInfo[] interfaces() {
+  public ClassInfo[] getInterfaces() {
     if (mInterfaces == null) {
       if (checkLevel()) {
         HashSet<ClassInfo> interfaces = new HashSet<ClassInfo>();
@@ -366,7 +366,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     if (mMethods == null) {
       TreeMap<String, MethodInfo> all = new TreeMap<String, MethodInfo>();
 
-      ClassInfo[] ifaces = interfaces();
+      ClassInfo[] ifaces = getInterfaces();
       for (ClassInfo iface : ifaces) {
         if (iface != null) {
           MethodInfo[] inhereted = iface.methods();
@@ -420,7 +420,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
       int N;
       TreeMap<String, FieldInfo> all = new TreeMap<String, FieldInfo>();
 
-      ClassInfo[] interfaces = interfaces();
+      ClassInfo[] interfaces = getInterfaces();
       N = interfaces.length;
       for (int i = 0; i < N; i++) {
         addFields(interfaces[i], all);
@@ -641,7 +641,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   }
 
   TypeInfo[] interfaceTypes() {
-    ClassInfo[] infos = interfaces();
+    ClassInfo[] infos = getInterfaces();
     int len = infos.length;
     TypeInfo[] types = new TypeInfo[len];
     for (int i = 0; i < len; i++) {
@@ -672,7 +672,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
         }
       }
     }
-    for (ClassInfo iface : interfaces()) {
+    for (ClassInfo iface : getInterfaces()) {
       if (iface.equals(cl)) {
         return true;
       } else {
@@ -1068,11 +1068,11 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
 
     // inherited methods
     Set<ClassInfo> interfaces = new TreeSet<ClassInfo>();
-    addInterfaces(interfaces(), interfaces);
+    addInterfaces(getInterfaces(), interfaces);
     ClassInfo cl = superclass();
     i = 0;
     while (cl != null) {
-      addInterfaces(cl.interfaces(), interfaces);
+      addInterfaces(cl.getInterfaces(), interfaces);
       makeInheritedHDF(data, i, cl);
       cl = cl.superclass();
       i++;
@@ -1086,7 +1086,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   private static void addInterfaces(ClassInfo[] ifaces, Set<ClassInfo> out) {
     for (ClassInfo cl : ifaces) {
       out.add(cl);
-      addInterfaces(cl.interfaces(), out);
+      addInterfaces(cl.getInterfaces(), out);
     }
   }
 
@@ -1459,7 +1459,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     if (cl.qualifiedName().equals(iface)) {
       return true;
     }
-    for (ClassInfo clImplements : cl.interfaces()) {
+    for (ClassInfo clImplements : cl.getInterfaces()) {
       if (implementsInterface(clImplements, iface)) {
         return true;
       }
@@ -1693,7 +1693,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     if (newClassObj == null) {
       return null;
     }
-    for (ClassInfo interfaceInfo : newClassObj.interfaces()) {
+    for (ClassInfo interfaceInfo : newClassObj.getInterfaces()) {
       for (MethodInfo mi : interfaceInfo.mApiCheckMethods.values()) {
         if (mi.matches(candidate)) {
           return mi;

@@ -52,13 +52,13 @@ public class ApiInfo {
   }
 
   /**
-   * Checks to see if this api is consistent with a newer version.
+   * Returns true if this API is consistent with a newer version
    */
-  public boolean isConsistent(ApiInfo otherApi) {
+  public boolean isConsistent(ApiInfo newApi) {
     boolean consistent = true;
     for (PackageInfo pInfo : mPackages.values()) {
-      if (otherApi.getPackages().containsKey(pInfo.name())) {
-        if (!pInfo.isConsistent(otherApi.getPackages().get(pInfo.name()))) {
+      if (newApi.getPackages().containsKey(pInfo.name())) {
+        if (!pInfo.isConsistent(newApi.getPackages().get(pInfo.name()))) {
           consistent = false;
         }
       } else {
@@ -66,7 +66,7 @@ public class ApiInfo {
         consistent = false;
       }
     }
-    for (PackageInfo pInfo : otherApi.mPackages.values()) {
+    for (PackageInfo pInfo : newApi.mPackages.values()) {
       if (!mPackages.containsKey(pInfo.name())) {
         Errors.error(Errors.ADDED_PACKAGE, pInfo.position(), "Added package " + pInfo.name());
         consistent = false;

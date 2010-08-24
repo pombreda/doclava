@@ -48,7 +48,7 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
       queue.add(i);
     }
     for (ClassInfo i : ifaces) {
-      addInterfaces(i.interfaces(), queue);
+      addInterfaces(i.getInterfaces(), queue);
     }
   }
 
@@ -64,7 +64,7 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     }
 
     ArrayList<ClassInfo> queue = new ArrayList<ClassInfo>();
-    addInterfaces(containingClass().interfaces(), queue);
+    addInterfaces(containingClass().getInterfaces(), queue);
     for (ClassInfo iface : queue) {
       for (MethodInfo me : iface.methods()) {
         if (me.name().equals(name) && me.signature().equals(signature)
@@ -519,15 +519,15 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
   }
   
   /**
-   * Checks to see if a parameter from a method signature is
+   * Returns true if a parameter from a method signature is
    * compatible with a parameter given in a {@code @link} tag.
    */
   private boolean matchesType(String signatureParam, String callerParam) {
     int signatureLength = signatureParam.length();
     int callerLength = callerParam.length();
-    return ((signatureParam.equals(callerParam) || ((callerLength + 1) < signatureLength
+    return signatureParam.equals(callerParam) || ((callerLength + 1) < signatureLength
         && signatureParam.charAt(signatureLength - callerLength - 1) == '.'
-        && signatureParam.endsWith(callerParam))));
+        && signatureParam.endsWith(callerParam));
   }
 
   public void makeHDF(Data data, String base) {

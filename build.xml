@@ -7,15 +7,19 @@
 	<property name="jsilver" value="lib/jsilver.jar"/>
 	<property name="junit" value="lib/junit-4.8.2.jar"/>
 	
+	<path id="classpath.main">
+	  <pathelement location="${jsilver}"/>
+	</path>
+	
 	<path id="classpath.test">
-		<pathelement location="${junit}" />
+	  <pathelement location="${junit}" />
     <pathelement location="${jar.file}" />
-		<pathelement location="build/test" />
+    <pathelement location="build/test" />
 	</path>
 	
 	<target name="compile" description="Compile Java source.">
 		<mkdir dir="build/classes"/>
-
+		
 		<javac srcdir="src"
          debug="on"
          destdir="build/classes"
@@ -23,9 +27,7 @@
          target="1.5"
          extdirs="">
 			<compilerarg value="-Xlint:all"/>
-			<classpath>
-				<pathelement location="${jsilver}"/>
-			</classpath>
+			<classpath refid="classpath.main" />
 		</javac>
 	</target>
 
@@ -78,29 +80,20 @@
 	    </junit>
 	 </target>
 
-	<target name="doclava" description="Generate documentation">
-		<taskdef name="doclava" classname="com.google.doclava.DoclavaTask" classpath="${jar.file}"/>
-		
-		 <mkdir dir="build"/>
-		 <exec executable="/bin/sh">
-		   <arg value="-c"/>
-		   <arg value="find ./src -name '*.java' &gt; build/src-list"/>
-		 </exec>
-			
-			
-		<doclava>
-			<arguments>
-	        	-quiet
-	        	-bootclasspath "${javahome}/jre/lib/rt.jar"
-	        	-doclet com.google.doclava.Doclava
-	        	-docletpath ${jar.file}
-	        	-classpath ${jar.file}
-	        	-d build/api
-	 	       	-hdf project.name "Junction"
-	        	-stubs build/stubs
-	        	-apixml build/public_api.xml
-	        	@build/src-list
-	      	</arguments>
-		</doclava>
-	</target>
+  <target name="doclava" depends="jar">
+    <javadoc packagenames="com.google.*"
+           destdir="build/docs"
+           sourcepath="src"
+           docletpath="${jar.file}"
+           bootclasspath="${javahome}/jre/lib/rt.jar"
+           >
+      <doclet name="com.google.doclava.Doclava">
+        <param name="-stubs" value="build/stubs" />
+        <param name="-hdf"/> <param name="project.name"/> <param name="Doclava"/>
+        <param name="-federate"/> <param name="OpenJDK"/> <param name="http://manatee.mtv.corp.google.com/doclava/openjdk"/>
+        <param name="-since"/> <param name="doclava/previous.xml"/> <param name="v1" />
+        <param name="-apiversion" value="v2"/>
+      </doclet>
+    </javadoc>
+  </target>
 </project>

@@ -61,13 +61,15 @@ function changeApiLevel() {
     writeCookie(API_LEVEL_COOKIE, selectedLevel, null, expiration);
   }
   
+  var thing = ($("#jd-header").html().indexOf("package") != -1) ? "package" : "class";
+  showApiWarning(thing, selectedLevel, minLevel);
+}
+
+function showApiWarning(thing, selectedLevel, minLevel) {
   if (selectedLevel < minLevel) {
-    var thing = ($("#jd-header").html().indexOf("package") != -1) ? "package" : "class";
-    $("#naMessage").show().html("<div><p><strong>This " + thing + " is not available with API Level " + selectedLevel + ".</strong></p>"
-                              + "<p>To use this " + thing + ", your application must specify API Level " + minLevel + " or higher in its manifest "
-                              + "and be compiled against a version of the Android library that supports an equal or higher API Level. To reveal this "
-                              + "document, change the value of the API Level filter above.</p>"
-                              + "<p><a href='" +toRoot+ "guide/appendix/api-levels.html'>What is the API Level?</a></p></div>");
+	  $("#naMessage").show().html("<div><p><strong>This " + thing + " is not available with API version " + selectedLevel + ".</strong></p>"
+	      + "<p>To reveal this "
+	      + "document, change the value in the API filter above.</p>");
   } else {
     $("#naMessage").hide();
   }

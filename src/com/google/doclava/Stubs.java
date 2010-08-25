@@ -32,12 +32,18 @@ public class Stubs {
 
   public static void writeStubsAndXml(String stubsDir, File xmlFile,
       HashSet<String> stubPackages) {
+
+    if (stubsDir == null && xmlFile == null) {
+      // nothing to do.
+      return;
+    }
+
     // figure out which classes we need
     notStrippable = new HashSet<ClassInfo>();
     ClassInfo[] all = Converter.allClasses();
     PrintStream xmlWriter = null;
     if (xmlFile != null) {
-      xmlFile.getParentFile().mkdirs();
+      ClearPage.ensureDirectory(xmlFile);
       try {
         xmlWriter = new PrintStream(xmlFile);
       } catch (FileNotFoundException e) {

@@ -218,10 +218,18 @@ public class Doclava {
     Converter.makeInfo(r);
 
     // Stubs and xml
-    final File currentApiFile = new File(ClearPage.outputDir + FederatedSite.XML_API_PATH);
+    final File currentApiFile;
+    if (!generateDocs && apiFile != null) {
+      currentApiFile = new File(apiFile);
+    } else if (generateDocs) {
+      currentApiFile = new File(ClearPage.outputDir + FederatedSite.XML_API_PATH);
+    } else {
+      currentApiFile = null;
+    }
+
     Stubs.writeStubsAndXml(stubsDir, currentApiFile, stubPackages);
 
-    if (apiFile != null) {
+    if (generateDocs && apiFile != null) {
       ClearPage.copyFile(currentApiFile, new File(apiFile));
     }
 

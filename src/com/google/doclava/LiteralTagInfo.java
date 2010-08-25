@@ -17,7 +17,7 @@
 package com.google.doclava;
 
 public class LiteralTagInfo extends TagInfo {
-  protected static String encode(String t) {
+  static String encode(String t) {
     t = t.replace("&", "&amp;");
     t = t.replace("<", "&lt;");
     t = t.replace(">", "&gt;");

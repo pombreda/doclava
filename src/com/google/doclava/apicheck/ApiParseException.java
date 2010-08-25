@@ -17,6 +17,8 @@
 package com.google.doclava.apicheck;
 
 public final class ApiParseException extends Exception {
+  private static final long serialVersionUID = 435829894462754L;
+  
   public ApiParseException(String message, Exception cause) {
     super(message, cause);
   }

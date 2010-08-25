@@ -5,6 +5,7 @@ var gLastText = "";
 var ROW_COUNT = 20;
 var gInitialized = false;
 var DEFAULT_TEXT = "search developer docs";
+var HAS_SEARCH_PAGE = false;
 
 function set_row_selected(row, selected)
 {
@@ -113,7 +114,12 @@ function search_changed(e, kd, toroot)
             window.location = toroot + gMatches[gSelectedIndex].link;
             return false;
         } else if (gSelectedIndex < 0) {
-            return true;
+            if (HAS_SEARCH_PAGE) {
+                return true;
+            } else {
+                sync_selection_table(toroot);
+                return false;
+            }
         }
     }
     // 38 -- arrow up

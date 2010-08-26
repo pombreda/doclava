@@ -42,6 +42,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Stack;
@@ -132,17 +133,26 @@ public class ApiCheck {
         Errors.getErrors());
   }
 
-  public ApiInfo parseApi(String xmlFile) throws ApiParseException {
-    FileInputStream fileStream = null;
+  private InputStream getInputStreamForFile(String filename) throws IOException {
     try {
-      fileStream = new FileInputStream(xmlFile);
-      return parseApi(fileStream);
+      URL url = new URL(filename);
+      return url.openStream();
+    } catch (MalformedURLException e) {
+      return new FileInputStream(filename);
+    }
+  }
+  
+  public ApiInfo parseApi(String xmlFile) throws ApiParseException {
+    InputStream inStream = null;
+    try {
+      inStream = getInputStreamForFile(xmlFile);
+      return parseApi(inStream);
     } catch (IOException e) {
-      throw new ApiParseException("Could not open file for parsing: " + xmlFile, e);
+      throw new ApiParseException("Error parsing xml: " + xmlFile, e);
     } finally {
-      if (fileStream != null) {
+      if (inStream != null) {
         try {
-          fileStream.close();
+          inStream.close();
         } catch (IOException ignored) {}
       }
     }

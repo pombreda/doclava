@@ -127,7 +127,7 @@ public class Errors {
   public static final ErrorCode DEPRECATION_MISMATCH = new ErrorCode(113, HIDDEN);
   public static final ErrorCode MISSING_COMMENT = new ErrorCode(114, WARNING);
   public static final ErrorCode IO_ERROR = new ErrorCode(115, HIDDEN);
-  public static final ErrorCode NO_SINCE_DATA = new ErrorCode(116, WARNING);
+  public static final ErrorCode NO_SINCE_DATA = new ErrorCode(116, HIDDEN);
   public static final ErrorCode NO_FEDERATION_DATA = new ErrorCode(117, WARNING);
   public static final ErrorCode NO_SINCE_FILE = new ErrorCode(118, WARNING);
 

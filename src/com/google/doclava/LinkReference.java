@@ -403,6 +403,7 @@ public class LinkReference {
 
   /** turn this LinkReference into one with an error message */
   private void makeError() {
+    this.label = text.trim();
     this.kind = "@seeJustLabel";
   }
 

@@ -64,7 +64,7 @@ public class SinceTagger {
       try {
         specApi = new ApiCheck().parseApi(xmlFile);
       } catch (ApiParseException e) {
-        Errors.error(Errors.NO_SINCE_DATA, null, "Could not add since data for " + versionName);
+        Errors.error(Errors.NO_SINCE_FILE, null, "Could not add since data for " + versionName);
         continue;
       }
 

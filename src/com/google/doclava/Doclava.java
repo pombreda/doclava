@@ -899,7 +899,7 @@ public class Doclava {
     data.setValue("package.hasLongDescr",
         TagInfo.tagsEqual(shortDescrTags, longDescrTags) ? "0" : "1");
 
-    String filename = pkg.htmlPage();
+    String filename = Doclava.javadocDir + pkg.relativePath();
     setPageTitle(data, name);
     ClearPage.write(data, "package.cs", filename);
 
@@ -1012,7 +1012,7 @@ public class Doclava {
     cl.makeHDF(data);
 
     setPageTitle(data, cl.name());
-    ClearPage.write(data, "class.cs", cl.htmlPage());
+    ClearPage.write(data, "class.cs", Doclava.javadocDir + cl.relativePath());
 
     Proofread.writeClass(cl.htmlPage(), cl);
   }

@@ -48,7 +48,7 @@ public class ClearPage {
     if (ClearPage.toroot != null) {
       toroot = ClearPage.toroot;
     } else {
-      int slashcount = countSlashes(path);
+      int slashcount = countSlashes(path) - 1;
       if (slashcount > 0) {
         toroot = "";
         for (int i = 0; i < slashcount; i++) {

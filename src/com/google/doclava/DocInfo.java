@@ -46,7 +46,7 @@ public abstract class DocInfo {
    */
   public final String htmlPage() {
     if (isDefinedLocally()) {
-      return Doclava.javadocDir + relativePath();
+      return relativePath();
     }
     
     Set<FederatedSite> sites = getFederatedReferences();

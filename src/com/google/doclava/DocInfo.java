@@ -41,8 +41,8 @@ public abstract class DocInfo {
 
   /**
    * The path to a web page representing this item. The reference is
-   * a path relative to {@code from} if {@link #isDefinedLocally()}
-   * returns true. Otherwise, it is a fully qualified link.
+   * a relative path if {@link #isDefinedLocally()} returns true.
+   * Otherwise, it is a fully qualified link.
    */
   public final String htmlPage() {
     if (isDefinedLocally()) {

@@ -702,11 +702,11 @@ public class Doclava {
       Object o = sorted.get(s);
       if (o instanceof PackageInfo) {
         PackageInfo pkg = (PackageInfo) o;
-        data.setValue("docs.pages." + i + ".link", pkg.relativePath());
+        data.setValue("docs.pages." + i + ".link", pkg.htmlPage());
         data.setValue("docs.pages." + i + ".type", "package");
       } else if (o instanceof ClassInfo) {
         ClassInfo cl = (ClassInfo) o;
-        data.setValue("docs.pages." + i + ".link", cl.relativePath());
+        data.setValue("docs.pages." + i + ".link", cl.htmlPage());
         data.setValue("docs.pages." + i + ".type", "class");
       }
       i++;
@@ -856,7 +856,7 @@ public class Doclava {
       writePackage(pkg);
 
       data.setValue("docs.packages." + i + ".name", pkg.name());
-      data.setValue("docs.packages." + i + ".link", pkg.relativePath());
+      data.setValue("docs.packages." + i + ".link", pkg.htmlPage());
       TagInfo.makeHDF(data, "docs.packages." + i + ".shortDescr", pkg.firstSentenceTags());
 
       i++;
@@ -897,7 +897,7 @@ public class Doclava {
     data.setValue("package.hasLongDescr",
         TagInfo.tagsEqual(shortDescrTags, longDescrTags) ? "0" : "1");
 
-    String filename = javadocDir + pkg.relativePath();
+    String filename = pkg.htmlPage();
     setPageTitle(data, name);
     ClearPage.write(data, "package.cs", filename);
 
@@ -1010,9 +1010,9 @@ public class Doclava {
     cl.makeHDF(data);
 
     setPageTitle(data, cl.name());
-    ClearPage.write(data, "class.cs", javadocDir + cl.relativePath());
+    ClearPage.write(data, "class.cs", cl.htmlPage());
 
-    Proofread.writeClass(cl.relativePath(), cl);
+    Proofread.writeClass(cl.htmlPage(), cl);
   }
 
   public static void makeClassListHDF(Data data, String base, ClassInfo[] classes) {

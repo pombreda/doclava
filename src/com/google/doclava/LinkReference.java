@@ -38,6 +38,9 @@ public class LinkReference {
   /** The link. */
   public String href;
 
+  /** True if the link is for a page in this documentation. */
+  public boolean isLocal = true;
+
   /** The {@link PackageInfo} if any. */
   public PackageInfo packageInfo;
 
@@ -295,26 +298,6 @@ public class LinkReference {
       result.referencedMemberName = result.referencedMemberName + ")";
     }
 
-    // debugging spew
-    if (false) {
-      result.label = result.label + "/" + ref + "/" + mem + '/';
-      if (params != null) {
-        for (int i = 0; i < params.length; i++) {
-          result.label += params[i] + "|";
-        }
-      }
-
-      FieldInfo f = (result.memberInfo instanceof FieldInfo) ? (FieldInfo) result.memberInfo : null;
-      MethodInfo m =
-          (result.memberInfo instanceof MethodInfo) ? (MethodInfo) result.memberInfo : null;
-      result.label =
-          result.label + "/package="
-              + (result.packageInfo != null ? result.packageInfo.name() : "") + "/class="
-              + (result.classInfo != null ? result.classInfo.qualifiedName() : "") + "/field="
-              + (f != null ? f.name() : "") + "/method=" + (m != null ? m.name() : "");
-
-    }
-
     MethodInfo method = null;
     boolean skipHref = false;
 
@@ -341,13 +324,14 @@ public class LinkReference {
         result.makeError();
         return result;
       }
+      result.isLocal = false;
       result.href = matcher.group(1);
       result.label = matcher.group(2);
       result.kind = "@seeHref";
     } else if (result.packageInfo != null) {
       result.href = result.packageInfo.htmlPage();
+      result.isLocal = result.packageInfo.isDefinedLocally();
       if (result.label.length() == 0) {
-        result.href = result.packageInfo.htmlPage();
         result.label = result.packageInfo.name();
       }
     } else if (result.classInfo != null && result.referencedMemberName == null) {
@@ -356,6 +340,7 @@ public class LinkReference {
         result.label = result.classInfo.name();
       }
       result.href = result.classInfo.htmlPage();
+      result.isLocal = result.classInfo.isDefinedLocally();
     } else if (result.memberInfo != null) {
       // member reference
       ClassInfo containing = result.memberInfo.containingClass();
@@ -368,6 +353,7 @@ public class LinkReference {
         result.label = result.referencedMemberName;
       }
       result.href = containing.htmlPage() + '#' + result.memberInfo.anchor();
+      result.isLocal = containing.isDefinedLocally();
     }
 
     if (result.href == null && !skipHref) {

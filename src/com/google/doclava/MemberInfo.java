@@ -48,8 +48,12 @@ public abstract class MemberInfo extends DocInfo implements Comparable, Scoped {
     }
   }
 
-  public String htmlPage() {
-    return mContainingClass.htmlPage() + "#" + anchor();
+  public boolean isDefinedLocally() {
+    return mContainingClass.isDefinedLocally();
+  }
+
+  public String relativePath() {
+    return mContainingClass.relativePath() + "#" + anchor();
   }
 
   public int compareTo(Object that) {

@@ -56,20 +56,26 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     }
   }
 
-  public String htmlPage() {
+  public boolean isDefinedLocally() {
+    return true;
+  }
+
+  public String relativePath() {
     String s = mName;
     s = s.replace('.', '/');
     s += "/package-summary.html";
-    s = Doclava.javadocDir + s;
     return s;
   }
 
-  public String fullDescriptionHtmlPage() {
+  public String fullDescriptionFile() {
     String s = mName;
     s = s.replace('.', '/');
     s += "/package-descr.html";
-    s = Doclava.javadocDir + s;
     return s;
+  }
+  
+  public String fullDescriptionHtmlPage() {
+    return htmlPage().replace("/package-summary.html", "/package-descr.html");
   }
 
   @Override
@@ -126,7 +132,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
 
   public void makeClassLinkListHDF(Data data, String base) {
     makeLink(data, base);
-    ClassInfo.makeLinkListHDF(data, base + ".interfaces", interfaces());
+    ClassInfo.makeLinkListHDF(data, base + ".interfaces", getInterfaces());
     ClassInfo.makeLinkListHDF(data, base + ".classes", ordinaryClasses());
     ClassInfo.makeLinkListHDF(data, base + ".enums", enums());
     ClassInfo.makeLinkListHDF(data, base + ".exceptions", exceptions());
@@ -134,7 +140,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     data.setValue(base + ".since", getSince());
   }
 
-  public ClassInfo[] interfaces() {
+  public ClassInfo[] getInterfaces() {
     if (mInterfaces == null) {
       mInterfaces =
           ClassInfo.sortByName(filterHidden(Converter.convertClasses(mPackage.interfaces())));

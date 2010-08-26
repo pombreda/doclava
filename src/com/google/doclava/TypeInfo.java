@@ -203,14 +203,14 @@ public class TypeInfo {
       // could link to an @param tag on the class to describe this
       // but for now, just don't make it a link
     } else if (!isPrimitive() && mClass != null) {
-      if (mClass.isIncluded()) {
+      if (mClass.isDefinedLocally()) {
         data.setValue(base + ".link", mClass.htmlPage());
         data.setValue(base + ".since", mClass.getSince());
       } else {
         Doclava.federationTagger.tagAll(new ClassInfo[] {mClass});
         if (!mClass.getFederatedReferences().isEmpty()) {
           FederatedSite site = mClass.getFederatedReferences().iterator().next();
-          data.setValue(base + ".link", site.linkFor(mClass.htmlPage()));
+          data.setValue(base + ".link", site.linkFor(mClass.relativePath()));
           data.setValue(base + ".federated", site.name());
         }
       }

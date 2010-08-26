@@ -54,7 +54,7 @@ public class Stubs {
     // If a class is public or protected, not hidden, and marked as included,
     // then we can't strip it
     for (ClassInfo cl : all) {
-      if (cl.checkLevel() && cl.isIncluded()) {
+      if (cl.checkLevel() && cl.isDefinedLocally()) {
         cantStripThis(cl, notStrippable, "0:0");
       }
     }
@@ -185,12 +185,12 @@ public class Stubs {
     if (cl.allSelfFields() != null) {
       for (FieldInfo fInfo : cl.allSelfFields()) {
         if (fInfo.type() != null) {
-          if (fInfo.type().asClassInfo() != null && fInfo.type().asClassInfo().isIncluded()) {
+          if (fInfo.type().asClassInfo() != null && fInfo.type().asClassInfo().isDefinedLocally()) {
             cantStripThis(fInfo.type().asClassInfo(), notStrippable, "2:" + cl.qualifiedName());
           }
           if (fInfo.type().typeArguments() != null) {
             for (TypeInfo tTypeInfo : fInfo.type().typeArguments()) {
-              if (tTypeInfo.asClassInfo() != null && tTypeInfo.asClassInfo().isIncluded()) {
+              if (tTypeInfo.asClassInfo() != null && tTypeInfo.asClassInfo().isDefinedLocally()) {
                 cantStripThis(tTypeInfo.asClassInfo(), notStrippable, "3:" + cl.qualifiedName());
               }
             }
@@ -202,7 +202,7 @@ public class Stubs {
     if (cl.asTypeInfo() != null) {
       if (cl.asTypeInfo().typeArguments() != null) {
         for (TypeInfo tInfo : cl.asTypeInfo().typeArguments()) {
-          if (tInfo.asClassInfo() != null && tInfo.asClassInfo().isIncluded()) {
+          if (tInfo.asClassInfo() != null && tInfo.asClassInfo().isDefinedLocally()) {
             cantStripThis(tInfo.asClassInfo(), notStrippable, "4:" + cl.qualifiedName());
           }
         }
@@ -214,12 +214,12 @@ public class Stubs {
     cantStripThis(cl.allSelfMethods(), notStrippable);
     cantStripThis(cl.allConstructors(), notStrippable);
     // blow the outer class open if this is an inner class
-    if (cl.containingClass() != null && cl.containingClass().isIncluded()) {
+    if (cl.containingClass() != null && cl.containingClass().isDefinedLocally()) {
       cantStripThis(cl.containingClass(), notStrippable, "5:" + cl.qualifiedName());
     }
     // blow open super class and interfaces
     ClassInfo supr = cl.realSuperclass();
-    if (supr != null && supr.isIncluded()) {
+    if (supr != null && supr.isDefinedLocally()) {
       if (supr.isHidden()) {
         // cl is a public class declared as extending a hidden superclass.
         // this is not a desired practice but it's happened, so we deal
@@ -244,7 +244,7 @@ public class Stubs {
       for (MethodInfo mInfo : mInfos) {
         if (mInfo.getTypeParameters() != null) {
           for (TypeInfo tInfo : mInfo.getTypeParameters()) {
-            if (tInfo.asClassInfo() != null && tInfo.asClassInfo().isIncluded()) {
+            if (tInfo.asClassInfo() != null && tInfo.asClassInfo().isDefinedLocally()) {
               cantStripThis(tInfo.asClassInfo(), notStrippable, "8:"
                   + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
             }
@@ -253,12 +253,12 @@ public class Stubs {
         if (mInfo.parameters() != null) {
           for (ParameterInfo pInfo : mInfo.parameters()) {
             if (pInfo.type() != null && pInfo.type().asClassInfo() != null
-                && pInfo.type().asClassInfo().isIncluded()) {
+                && pInfo.type().asClassInfo().isDefinedLocally()) {
               cantStripThis(pInfo.type().asClassInfo(), notStrippable, "9:"
                   + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
               if (pInfo.type().typeArguments() != null) {
                 for (TypeInfo tInfoType : pInfo.type().typeArguments()) {
-                  if (tInfoType.asClassInfo() != null && tInfoType.asClassInfo().isIncluded()) {
+                  if (tInfoType.asClassInfo() != null && tInfoType.asClassInfo().isDefinedLocally()) {
                     ClassInfo tcl = tInfoType.asClassInfo();
                     if (tcl.isHidden()) {
                       Errors
@@ -277,18 +277,18 @@ public class Stubs {
           }
         }
         for (ClassInfo thrown : mInfo.thrownExceptions()) {
-          if (thrown.isIncluded()) {
+          if (thrown.isDefinedLocally()) {
             cantStripThis(thrown, notStrippable, "11:" + mInfo.realContainingClass().qualifiedName()
                 + ":" + mInfo.name());
           }
         }
         if (mInfo.returnType() != null && mInfo.returnType().asClassInfo() != null
-            && mInfo.returnType().asClassInfo().isIncluded()) {
+            && mInfo.returnType().asClassInfo().isDefinedLocally()) {
           cantStripThis(mInfo.returnType().asClassInfo(), notStrippable, "12:"
               + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
           if (mInfo.returnType().typeArguments() != null) {
             for (TypeInfo tyInfo : mInfo.returnType().typeArguments()) {
-              if (tyInfo.asClassInfo() != null && tyInfo.asClassInfo().isIncluded()) {
+              if (tyInfo.asClassInfo() != null && tyInfo.asClassInfo().isDefinedLocally()) {
                 cantStripThis(tyInfo.asClassInfo(), notStrippable, "13:"
                     + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
               }

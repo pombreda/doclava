@@ -51,7 +51,7 @@ public class NavTree {
 
     children.add(new Node("Description", pkg.fullDescriptionHtmlPage(), null, null));
 
-    addClassNodes(children, "Interfaces", pkg.interfaces());
+    addClassNodes(children, "Interfaces", pkg.getInterfaces());
     addClassNodes(children, "Classes", pkg.ordinaryClasses());
     addClassNodes(children, "Enums", pkg.enums());
     addClassNodes(children, "Exceptions", pkg.exceptions());

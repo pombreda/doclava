@@ -43,6 +43,24 @@ public class ClearPage {
   public static String htmlDir = null;
   public static String toroot = null;
 
+  public static String getPathToRoot(String path) {
+    String toroot;
+    if (ClearPage.toroot != null) {
+      toroot = ClearPage.toroot;
+    } else {
+      int slashcount = countSlashes(path);
+      if (slashcount > 0) {
+        toroot = "";
+        for (int i = 0; i < slashcount; i++) {
+          toroot += "../";
+        }
+      } else {
+        toroot = "./";
+      }
+    }
+    return toroot;
+  }
+
   public static void addTemplateDir(String dir) {
     mTemplateDirSet = true;
     mTemplateDirs.add(dir);
@@ -89,21 +107,7 @@ public class ClearPage {
       data.setValue("hasindex", "true");
     }
 
-    String toroot;
-    if (ClearPage.toroot != null) {
-      toroot = ClearPage.toroot;
-    } else {
-      int slashcount = countSlashes(filename);
-      if (slashcount > 0) {
-        toroot = "";
-        for (int i = 0; i < slashcount; i++) {
-          toroot += "../";
-        }
-      } else {
-        toroot = "./";
-      }
-    }
-    data.setValue("toroot", toroot);
+    data.setValue("toroot", getPathToRoot(filename));
 
     data.setValue("filename", filename);
 

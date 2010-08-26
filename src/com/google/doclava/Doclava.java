@@ -573,7 +573,7 @@ public class Doclava {
             classesToCheck = pkg.exceptions();
             break;
           case 4:
-            classesToCheck = pkg.interfaces();
+            classesToCheck = pkg.getInterfaces();
             break;
           default:
             System.err.println("Error reading package: " + pkg.name());
@@ -695,11 +695,11 @@ public class Doclava {
       Object o = sorted.get(s);
       if (o instanceof PackageInfo) {
         PackageInfo pkg = (PackageInfo) o;
-        data.setValue("docs.pages." + i + ".link", pkg.htmlPage());
+        data.setValue("docs.pages." + i + ".link", pkg.relativePath());
         data.setValue("docs.pages." + i + ".type", "package");
       } else if (o instanceof ClassInfo) {
         ClassInfo cl = (ClassInfo) o;
-        data.setValue("docs.pages." + i + ".link", cl.htmlPage());
+        data.setValue("docs.pages." + i + ".link", cl.relativePath());
         data.setValue("docs.pages." + i + ".type", "class");
       }
       i++;
@@ -813,7 +813,7 @@ public class Doclava {
             classesToCheck = pkg.exceptions();
             break;
           case 4:
-            classesToCheck = pkg.interfaces();
+            classesToCheck = pkg.getInterfaces();
             break;
           default:
             System.err.println("Error reading package: " + pkg.name());
@@ -849,7 +849,7 @@ public class Doclava {
       writePackage(pkg);
 
       data.setValue("docs.packages." + i + ".name", pkg.name());
-      data.setValue("docs.packages." + i + ".link", pkg.htmlPage());
+      data.setValue("docs.packages." + i + ".link", pkg.relativePath());
       TagInfo.makeHDF(data, "docs.packages." + i + ".shortDescr", pkg.firstSentenceTags());
 
       i++;
@@ -877,7 +877,7 @@ public class Doclava {
     data.setValue("package.descr", "...description...");
     pkg.setFederatedReferences(data, "package");
 
-    makeClassListHDF(data, "package.interfaces", ClassInfo.sortByName(pkg.interfaces()));
+    makeClassListHDF(data, "package.interfaces", ClassInfo.sortByName(pkg.getInterfaces()));
     makeClassListHDF(data, "package.classes", ClassInfo.sortByName(pkg.ordinaryClasses()));
     makeClassListHDF(data, "package.enums", ClassInfo.sortByName(pkg.enums()));
     makeClassListHDF(data, "package.exceptions", ClassInfo.sortByName(pkg.exceptions()));
@@ -890,11 +890,11 @@ public class Doclava {
     data.setValue("package.hasLongDescr",
         TagInfo.tagsEqual(shortDescrTags, longDescrTags) ? "0" : "1");
 
-    String filename = pkg.htmlPage();
+    String filename = javadocDir + pkg.relativePath();
     setPageTitle(data, name);
     ClearPage.write(data, "package.cs", filename);
 
-    filename = pkg.fullDescriptionHtmlPage();
+    filename = javadocDir + pkg.fullDescriptionFile();
     setPageTitle(data, name + " Details");
     ClearPage.write(data, "package-descr.cs", filename);
 
@@ -1003,9 +1003,9 @@ public class Doclava {
     cl.makeHDF(data);
 
     setPageTitle(data, cl.name());
-    ClearPage.write(data, "class.cs", cl.htmlPage());
+    ClearPage.write(data, "class.cs", javadocDir + cl.relativePath());
 
-    Proofread.writeClass(cl.htmlPage(), cl);
+    Proofread.writeClass(cl.relativePath(), cl);
   }
 
   public static void makeClassListHDF(Data data, String base, ClassInfo[] classes) {

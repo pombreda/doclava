@@ -33,7 +33,8 @@ public final class FederatedSite {
   private final String name;
   private final URL baseUrl;
   private final ApiInfo apiInfo;
-  
+  private String assumedPath = Doclava.javadocDir;
+
   public FederatedSite(String name, URL baseUrl) throws ApiParseException {
     this.name = name;
     this.baseUrl = baseUrl;
@@ -47,7 +48,7 @@ public final class FederatedSite {
   }
   
   public String linkFor(String htmlPage) {
-    return baseUrl + "/" + htmlPage;
+    return baseUrl + "/" + assumedPath + htmlPage;
   }
 
   public String name() {

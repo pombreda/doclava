@@ -88,7 +88,7 @@ public class Hierarchy {
   }
 
   private static boolean exists(ClassInfo cl) {
-    return cl != null && !cl.isHidden() && cl.isIncluded();
+    return cl != null && !cl.isHidden() && cl.isDefinedLocally();
   }
 
   private static void recurse(HashMap<String, TreeSet<String>> nodes, String name, Data hdf,

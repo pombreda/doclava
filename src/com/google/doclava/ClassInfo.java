@@ -222,7 +222,11 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     return mIsFinal;
   }
 
-  public boolean isIncluded() {
+  /**
+   * Returns true if the class represented by this object is defined
+   * locally, and thus will be included in local documentation.
+   */
+  public boolean isDefinedLocally() {
     return mIsIncluded;
   }
 
@@ -650,13 +654,12 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     return types;
   }
 
-  public String htmlPage() {
+  public String relativePath() {
     String s = containingPackage().name();
     s = s.replace('.', '/');
     s += '/';
     s += name();
     s += ".html";
-    s = Doclava.javadocDir + s;
     return s;
   }
 
@@ -802,7 +805,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
 
   public void makeLink(Data data, String base) {
     data.setValue(base + ".label", this.name());
-    if (!this.isPrimitive() && this.isIncluded() && this.checkLevel()) {
+    if (!this.isPrimitive() && this.isDefinedLocally() && this.checkLevel()) {
       data.setValue(base + ".link", this.htmlPage());
     }
   }
@@ -1103,13 +1106,13 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
       data.setValue(base + ".kind", kind);
     }
 
-    if (cl.mIsIncluded) {
+    if (cl.isDefinedLocally()) {
       data.setValue(base + ".included", "true");
     } else {
       Doclava.federationTagger.tagAll(new ClassInfo[] {cl});
       if (!cl.getFederatedReferences().isEmpty()) {
         FederatedSite site = cl.getFederatedReferences().iterator().next();
-        data.setValue(base + ".link", site.linkFor(cl.htmlPage()));
+        data.setValue(base + ".link", site.linkFor(cl.relativePath()));
         data.setValue(base + ".federated", site.name());
       }
     }

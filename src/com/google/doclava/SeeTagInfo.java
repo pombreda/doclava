@@ -54,6 +54,9 @@ public class SeeTagInfo extends TagInfo {
     data.setValue(base + ".label", linkRef.label);
     if (linkRef.href != null) {
       data.setValue(base + ".href", linkRef.href);
+      if (linkRef.isLocal) {
+        data.setValue(base + ".isLocal", "1");
+      }
     }
   }
 

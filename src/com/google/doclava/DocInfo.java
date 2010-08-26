@@ -28,9 +28,33 @@ public abstract class DocInfo {
   }
 
   /**
-   * The relative path to a web page representing this item.
+   * Returns true if the class represented by this object is defined
+   * locally, and thus will be included in local documentation.
    */
-  public abstract String htmlPage();
+  public abstract boolean isDefinedLocally();
+
+  /**
+   * Returns the relative path that represents this item on a
+   * documentation source.
+   */
+  public abstract String relativePath();
+
+  /**
+   * The path to a web page representing this item. The reference is
+   * a path relative to {@code from} if {@link #isDefinedLocally()}
+   * returns true. Otherwise, it is a fully qualified link.
+   */
+  public final String htmlPage() {
+    if (isDefinedLocally()) {
+      return Doclava.javadocDir + relativePath();
+    }
+    
+    Set<FederatedSite> sites = getFederatedReferences();
+    if (!sites.isEmpty()) {
+      return sites.iterator().next().linkFor(relativePath());
+    }
+    return null;
+  }
   
   public boolean isHidden() {
     return comment().isHidden();
@@ -76,7 +100,7 @@ public abstract class DocInfo {
   public final void setFederatedReferences(Data data, String base) {
     int pos = 0;
     for (FederatedSite source : getFederatedReferences()) {
-      data.setValue(base + ".federated." + pos + ".url", source.linkFor(htmlPage()));
+      data.setValue(base + ".federated." + pos + ".url", source.linkFor(relativePath()));
       data.setValue(base + ".federated." + pos + ".name", source.name());
       pos++;
     }

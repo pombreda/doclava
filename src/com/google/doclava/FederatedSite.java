@@ -58,7 +58,11 @@ public final class FederatedSite {
   }
   
   public String linkFor(String htmlPage) {
-    return baseUrl + "/" + htmlPage;
+    String urlStr = baseUrl.toString();
+    if (urlStr.endsWith("/") || urlStr.endsWith("?")) {
+      return baseUrl + htmlPage;
+    }
+    return urlStr + "/" + htmlPage;
   }
 
   public String name() {

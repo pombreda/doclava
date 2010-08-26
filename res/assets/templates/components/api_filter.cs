@@ -11,6 +11,13 @@ def:default_api_filter() ?><?cs
   <script>
    var SINCE_DATA = [ <?cs 
       each:since = since ?>'<?cs 
+        var:since.key ?>'<?cs 
+        if:!last(since) ?>, <?cs /if ?><?cs
+      /each 
+    ?> ];
+    
+    var SINCE_LABELS = [ <?cs 
+      each:since = since ?>'<?cs 
         var:since.name ?>'<?cs 
         if:!last(since) ?>, <?cs /if ?><?cs
       /each 

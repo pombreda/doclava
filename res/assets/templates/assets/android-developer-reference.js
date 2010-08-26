@@ -1,6 +1,6 @@
 var API_LEVEL_ENABLED_COOKIE = "api_level_enabled";
-var API_LEVEL_COOKIE = "api_level";
-var minLevel = 1;
+var API_LEVEL_INDEX_COOKIE = "api_level_index";
+var minLevelIndex = 0;
 
 function toggleApiLevelSelector(checkbox) {
   var date = new Date();
@@ -19,11 +19,9 @@ function toggleApiLevelSelector(checkbox) {
 }
 
 function buildApiLevelSelector() {
-  var maxLevel = SINCE_DATA.length;
   var userApiLevelEnabled = readCookie(API_LEVEL_ENABLED_COOKIE);
-  var userApiLevel = readCookie(API_LEVEL_COOKIE);
-  userApiLevel = userApiLevel == 0 ? maxLevel : userApiLevel; // If there's no cookie (zero), use the max by default
-
+  var userApiLevelIndex = readCookie(API_LEVEL_INDEX_COOKIE); // No cookie (zero) is the same as maxLevel.
+  
   if (userApiLevelEnabled == 0) {
     $("#apiLevelSelector").attr("disabled","disabled");
   } else {
@@ -31,43 +29,44 @@ function buildApiLevelSelector() {
     $("#api-level-toggle label").removeClass("disabled");
   }
   
-  minLevel = $("body").attr("class");
+  minLevelValue = $("body").attr("class");
+  minLevelIndex = apiKeyToIndex(minLevelValue);
   var select = $("#apiLevelSelector").html("").change(changeApiLevel);
-  for (var i = maxLevel-1; i >= 0; i--) {
-    var option = $("<option />").attr("value",""+SINCE_DATA[i]).append(""+SINCE_DATA[i]);
-  //  if (SINCE_DATA[i] < minLevel) option.addClass("absent"); // always false for strings (codenames)
+  for (var i = SINCE_DATA.length-1; i >= 0; i--) {
+    var option = $("<option />").attr("value",""+SINCE_DATA[i]).append(""+SINCE_LABELS[i]);
     select.append(option);
   }
   
   // get the DOM element and use setAttribute cuz IE6 fails when using jquery .attr('selected',true)
-  var selectedLevelItem = $("#apiLevelSelector option[value='"+userApiLevel+"']").get(0);
+  var selectedLevelItem = $("#apiLevelSelector option").get(SINCE_DATA.length - userApiLevelIndex - 1);
   selectedLevelItem.setAttribute('selected',true);
 }
 
 function changeApiLevel() {
-  var maxLevel = SINCE_DATA.length;
   var userApiLevelEnabled = readCookie(API_LEVEL_ENABLED_COOKIE);
-  var selectedLevel = SINCE_DATA[SINCE_DATA.length-1];
+  var selectedLevelIndex = SINCE_DATA.length - 1;
   
   if (userApiLevelEnabled == 0) {
-    toggleVisisbleApis(selectedLevel, "body");
+    toggleVisisbleApis(selectedLevelIndex, "body");
   } else {
-    selectedLevel = $("#apiLevelSelector option:selected").val();
-    toggleVisisbleApis(selectedLevel, "body");
+    selectedLevelIndex = getSelectedLevelIndex();
+    toggleVisisbleApis(selectedLevelIndex, "body");
     
     var date = new Date();
     date.setTime(date.getTime()+(10*365*24*60*60*1000)); // keep this for 10 years
     var expiration = date.toGMTString();
-    writeCookie(API_LEVEL_COOKIE, selectedLevel, null, expiration);
+    writeCookie(API_LEVEL_INDEX_COOKIE, selectedLevelIndex, null, expiration);
   }
   
   var thing = ($("#jd-header").html().indexOf("package") != -1) ? "package" : "class";
-  showApiWarning(thing, selectedLevel, minLevel);
+  showApiWarning(thing, selectedLevelIndex, minLevelIndex);
 }
 
-function showApiWarning(thing, selectedLevel, minLevel) {
-  if (selectedLevel < minLevel) {
-	  $("#naMessage").show().html("<div><p><strong>This " + thing + " is not available with API version " + selectedLevel + ".</strong></p>"
+function showApiWarning(thing, selectedLevelIndex, minLevelIndex) {
+  if (selectedLevelIndex < minLevelIndex) {
+	  $("#naMessage").show().html("<div><p><strong>This " + thing
+		  + " is not available with API version "
+		  + SINCE_LABELS[selectedLevelIndex] + ".</strong></p>"
 	      + "<p>To reveal this "
 	      + "document, change the value in the API filter above.</p>");
   } else {
@@ -75,18 +74,35 @@ function showApiWarning(thing, selectedLevel, minLevel) {
   }
 }
 
-function toggleVisisbleApis(selectedLevel, context) {
+function toggleVisisbleApis(selectedLevelIndex, context) {
   var apis = $(".api",context);
   apis.each(function(i) {
     var obj = $(this);
     var className = obj.attr("class");
-    var apiLevelIndex = className.lastIndexOf("-")+1;
-    var apiLevelEndIndex = className.indexOf(" ", apiLevelIndex);
-    apiLevelEndIndex = apiLevelEndIndex != -1 ? apiLevelEndIndex : className.length;
-    var apiLevel = className.substring(apiLevelIndex, apiLevelEndIndex);
-    if (apiLevel > selectedLevel) obj.addClass("absent").attr("title","Requires API Level "+apiLevel+" or higher");
-    else obj.removeClass("absent").removeAttr("title");
+    var apiLevelPos = className.lastIndexOf("-")+1;
+    var apiLevelEndPos = className.indexOf(" ", apiLevelPos);
+    apiLevelEndPos = apiLevelEndPos != -1 ? apiLevelEndPos : className.length;
+    var apiLevelName = className.substring(apiLevelPos, apiLevelEndPos);
+    var apiLevelIndex = apiKeyToIndex(apiLevelName);
+    if (apiLevelIndex > selectedLevelIndex) {
+      obj.addClass("absent").attr("title","Requires API Level "+SINCE_LABELS[apiLevelIndex]+" or higher");
+    } else {
+      obj.removeClass("absent").removeAttr("title");
+    }
   });
+}
+
+function apiKeyToIndex(key) {
+  for (i = 0; i < SINCE_DATA.length; i++) {
+    if (SINCE_DATA[i] == key) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function getSelectedLevelIndex() {
+  return SINCE_DATA.length - $("#apiLevelSelector").attr("selectedIndex") - 1;
 }
 
 /* NAVTREE */
@@ -182,7 +198,7 @@ function expand_node(me, node)
     node.expanded = true;
     
     // perform api level toggling because new nodes are new to the DOM
-    var selectedLevel = $("#apiLevelSelector option:selected").val();
+    var selectedLevel = $("#apiLevelSelector").attr("selectedIndex");
     toggleVisisbleApis(selectedLevel, "#side-nav");
   }
 }
@@ -254,7 +270,7 @@ function init_default_navtree(toroot) {
   init_navtree("nav-tree", toroot, NAVTREE_DATA);
   
   // perform api level toggling because because the whole tree is new to the DOM
-  var selectedLevel = $("#apiLevelSelector option:selected").val();
+  var selectedLevel = $("#apiLevelSelector").attr("selectedIndex");
   toggleVisisbleApis(selectedLevel, "#side-nav");
 }
 

@@ -127,7 +127,8 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
       data.setValue(base + ".link", htmlPage());
     }
     data.setValue(base + ".name", name());
-    data.setValue(base + ".since", getSince());
+    data.setValue(base + ".since.key", SinceTagger.keyForName(getSince()));
+    data.setValue(base + ".since.name", getSince());
   }
 
   public void makeClassLinkListHDF(Data data, String base) {
@@ -137,7 +138,8 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     ClassInfo.makeLinkListHDF(data, base + ".enums", enums());
     ClassInfo.makeLinkListHDF(data, base + ".exceptions", exceptions());
     ClassInfo.makeLinkListHDF(data, base + ".errors", errors());
-    data.setValue(base + ".since", getSince());
+    data.setValue(base + ".since.key", SinceTagger.keyForName(getSince()));
+    data.setValue(base + ".since.name", getSince());
   }
 
   public ClassInfo[] getInterfaces() {

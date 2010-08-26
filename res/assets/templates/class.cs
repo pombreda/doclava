@@ -2,7 +2,7 @@
 <?cs include:"macros.cs" ?>
 <html>
 <?cs include:"head_tag.cs" ?>
-<body class="<?cs var:class.since ?>">
+<body class="<?cs var:class.since.key ?>">
 <?cs include:"header.cs" ?>
 
 <div class="g-unit" id="doc-content">
@@ -118,7 +118,7 @@ Summary:
 
 <div id="naMessage"></div>
 
-<div id="jd-content" class="api apilevel-<?cs var:class.since ?>">
+<div id="jd-content" class="api apilevel-<?cs var:class.since.key ?>">
 <table class="jd-inheritance-table">
 <?cs set:colspan = subcount(class.inheritance) ?>
 <?cs each:supr = class.inheritance ?>
@@ -171,7 +171,7 @@ Summary:
 <?cs set:count = #1 ?>
 <?cs each:method = methods ?>
 	 <?cs # The apilevel-N class MUST BE LAST in the sequence of class names ?>
-    <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:method.since ?>" >
+    <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:method.since.key ?>" >
         <td class="jd-typecol"><nobr>
             <?cs var:method.abstract ?>
             <?cs var:method.synchronized ?>
@@ -193,7 +193,7 @@ Summary:
 <?cs def:write_field_summary(fields, included) ?>
 <?cs set:count = #1 ?>
     <?cs each:field=fields ?>
-      <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:field.since ?>" >
+      <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:field.since.key ?>" >
           <td class="jd-typecol"><nobr>
           <?cs var:field.scope ?>
           <?cs var:field.static ?>
@@ -209,7 +209,7 @@ Summary:
 <?cs def:write_constant_summary(fields, included) ?>
 <?cs set:count = #1 ?>
     <?cs each:field=fields ?>
-    <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:field.since ?>" >
+    <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:field.since.key ?>" >
         <td class="jd-typecol"><?cs call:type_link(field.type) ?></td>
         <td class="jd-linkcol"><?cs call:cond_link(field.name, toroot, field.href, included) ?></td>
         <td class="jd-descrcol" width="100%"><?cs call:short_descr(field) ?></td>
@@ -226,7 +226,7 @@ Summary:
         <td><nobr><em>Description</em></nobr></td>
     </tr>
     <?cs each:attr=attrs ?>
-    <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:attr.since ?>" >
+    <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:attr.since.key ?>" >
         <td class="jd-linkcol"><?cs if:included ?><a href="<?cs var:toroot ?><?cs var:attr.href ?>"><?cs /if ?><?cs var:attr.name ?><?cs if:included ?></a><?cs /if ?></td>
         <td class="jd-linkcol"><?cs each:m=attr.methods ?>
             <?cs call:cond_link(m.name, toroot, m.href, included) ?>
@@ -241,7 +241,7 @@ Summary:
 <?cs def:write_inners_summary(classes) ?>
 <?cs set:count = #1 ?>
   <?cs each:cl=class.inners ?>
-    <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:cl.since ?>" >
+    <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:cl.since.key ?>" >
       <td class="jd-typecol"><nobr>
         <?cs var:cl.scope ?>
         <?cs var:cl.static ?> 
@@ -297,7 +297,7 @@ Summary:
   <div style="clear:left;">Inherited XML Attributes</div></th></tr>
 <?cs each:cl=class.inherited ?>
 <?cs if:subcount(cl.attrs) ?>
-<tr class="api apilevel-<?cs var:cl.since ?>" >
+<tr class="api apilevel-<?cs var:cl.since.key ?>" >
 <td colspan="12">
 <?cs call:expando_trigger("inherited-attrs-"+cl.qualified, "closed") ?>From <?cs var:cl.kind ?>
 <?cs call:cond_link(cl.qualified, toroot, cl.link, cl.included) ?>
@@ -322,7 +322,7 @@ Summary:
 <table id="enumconstants" class="jd-sumtable"><tr><th colspan="12">Enum Values</th></tr>
 <?cs set:count = #1 ?>
     <?cs each:field=class.enumConstants ?>
-    <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:field.since ?>" >
+    <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:field.since.key ?>" >
         <td class="jd-descrcol"><?cs call:type_link(field.type) ?>&nbsp;</td>
         <td class="jd-linkcol"><?cs call:cond_link(field.name, toroot, field.href, cl.included) ?>&nbsp;</td>
         <td class="jd-descrcol" width="100%"><?cs call:short_descr(field) ?>&nbsp;</td>
@@ -348,7 +348,7 @@ Summary:
   <div style="clear:left;">Inherited Constants</div></th></tr>
 <?cs each:cl=class.inherited ?>
 <?cs if:subcount(cl.constants) ?>
-<tr class="api apilevel-<?cs var:cl.since ?>" >
+<tr class="api apilevel-<?cs var:cl.since.key ?>" >
 <td colspan="12">
 <?cs call:expando_trigger("inherited-constants-"+cl.qualified, "closed") ?>From <?cs var:cl.kind ?>
 <?cs call:cond_link(cl.qualified, toroot, cl.link, cl.included) ?>
@@ -384,7 +384,7 @@ Summary:
   <div style="clear:left;">Inherited Fields</div></th></tr>
 <?cs each:cl=class.inherited ?>
 <?cs if:subcount(cl.fields) ?>
-<tr class="api apilevel-<?cs var:cl.since ?>" >
+<tr class="api apilevel-<?cs var:cl.since.key ?>" >
 <td colspan="12">
 <?cs call:expando_trigger("inherited-fields-"+cl.qualified, "closed") ?>From <?cs var:cl.kind ?>
 <?cs call:cond_link(cl.qualified, toroot, cl.link, cl.included) ?>
@@ -444,7 +444,7 @@ Summary:
   <div style="clear:left;">Inherited Methods</div></th></tr>
 <?cs each:cl=class.inherited ?>
 <?cs if:subcount(cl.methods) ?>
-<tr class="api apilevel-<?cs var:cl.since ?>" >
+<tr class="api apilevel-<?cs var:cl.since.key ?>" >
 <td colspan="12"><?cs call:expando_trigger("inherited-methods-"+cl.qualified, "closed") ?>
 From <?cs var:cl.kind ?>
 <?cs if:cl.included ?>
@@ -479,7 +479,7 @@ From <?cs var:cl.kind ?>
 <?cs # the A tag in the next line must remain where it is, so that Eclipse can parse the docs ?>
 <A NAME="<?cs var:field.anchor ?>"></A>
 <?cs # The apilevel-N class MUST BE LAST in the sequence of class names ?>
-<div class="jd-details api apilevel-<?cs var:field.since ?>"> 
+<div class="jd-details api apilevel-<?cs var:field.since.key ?>"> 
     <h4 class="jd-details-title">
       <span class="normal">
         <?cs var:field.scope ?> 
@@ -518,7 +518,7 @@ From <?cs var:cl.kind ?>
 <?cs # the A tag in the next line must remain where it is, so that Eclipse can parse the docs ?>
 <A NAME="<?cs var:method.anchor ?>"></A>
 <?cs # The apilevel-N class MUST BE LAST in the sequence of class names ?>
-<div class="jd-details api apilevel-<?cs var:method.since ?>"> 
+<div class="jd-details api apilevel-<?cs var:method.since.key ?>"> 
     <h4 class="jd-details-title">
       <span class="normal">
         <?cs var:method.scope ?> 
@@ -547,7 +547,7 @@ From <?cs var:cl.kind ?>
 <?cs # the A tag in the next line must remain where it is, so that Eclipse can parse the docs ?>
 <A NAME="<?cs var:attr.anchor ?>"></A>
 <?cs # The apilevel-N class MUST BE LAST in the sequence of class names ?>
-<div class="jd-details api apilevel-<?cs var:attr.since ?>"> 
+<div class="jd-details api apilevel-<?cs var:attr.since.key ?>"> 
     <h4 class="jd-details-title"><?cs var:attr.name ?>
     </h4>
       <div class="api-level">

@@ -2,7 +2,7 @@
 <?cs include:"macros.cs" ?>
 <html>
 <?cs include:"head_tag.cs" ?>
-<body class="<?cs var:package.since ?>">
+<body class="<?cs var:package.since.key ?>">
 <?cs include:"header.cs" ?>
 
 <div class="g-unit" id="doc-content">
@@ -26,7 +26,7 @@
 
 <div id="naMessage"></div>
 
-<div id="jd-content" class="api apilevel-<?cs var:package.since ?>">
+<div id="jd-content" class="api apilevel-<?cs var:package.since.key ?>">
 
 <?cs if:subcount(package.shortDescr) ?>
   <div class="jd-descr">

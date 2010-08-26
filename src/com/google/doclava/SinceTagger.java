@@ -79,6 +79,13 @@ public class SinceTagger {
   public boolean hasVersions() {
     return !xmlToName.isEmpty();
   }
+  
+  public static String keyForName(String name) {
+    if (name == null) {
+      return "";
+    }
+    return name.replace(" ", "_");
+  }
 
   /**
    * Writes an index of the version names to {@code data}.
@@ -87,6 +94,7 @@ public class SinceTagger {
     int index = 1;
     for (String version : xmlToName.values()) {
       data.setValue("since." + index + ".name", version);
+      data.setValue("since." + index + ".key", keyForName(version));
       index++;
     }
   }

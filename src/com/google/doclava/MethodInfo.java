@@ -549,7 +549,8 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     TagInfo.makeHDF(data, base + ".descr", inlineTags());
     TagInfo.makeHDF(data, base + ".deprecated", deprecatedTags());
     TagInfo.makeHDF(data, base + ".seeAlso", seeTags());
-    data.setValue(base + ".since", getSince());
+    data.setValue(base + ".since.key", SinceTagger.keyForName(getSince()));
+    data.setValue(base + ".since.name", getSince());
     ParamTagInfo.makeHDF(data, base + ".paramTags", paramTags());
     AttrTagInfo.makeReferenceHDF(data, base + ".attrRefs", comment().attrTags());
     ThrowsTagInfo.makeHDF(data, base + ".throws", throwsTags());

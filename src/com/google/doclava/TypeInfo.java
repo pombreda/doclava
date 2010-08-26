@@ -205,7 +205,8 @@ public class TypeInfo {
     } else if (!isPrimitive() && mClass != null) {
       if (mClass.isDefinedLocally()) {
         data.setValue(base + ".link", mClass.htmlPage());
-        data.setValue(base + ".since", mClass.getSince());
+        data.setValue(base + ".since.key", SinceTagger.keyForName(mClass.getSince()));
+        data.setValue(base + ".since.name", mClass.getSince());
       } else {
         Doclava.federationTagger.tagAll(new ClassInfo[] {mClass});
         if (!mClass.getFederatedReferences().isEmpty()) {

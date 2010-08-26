@@ -605,7 +605,8 @@ public class Doclava {
       data.setValue("reference.apilevels", sinceTagger.hasVersions() ? "1" : "0");
       data.setValue("docs.packages." + i + ".name", s);
       data.setValue("docs.packages." + i + ".link", pkg.htmlPage());
-      data.setValue("docs.packages." + i + ".since", pkg.getSince());
+      data.setValue("docs.packages." + i + ".since.key", SinceTagger.keyForName(pkg.getSince()));
+      data.setValue("docs.packages." + i + ".since.name", pkg.getSince());
       TagInfo.makeHDF(data, "docs.packages." + i + ".shortDescr", pkg.firstSentenceTags());
       i++;
     }
@@ -880,7 +881,8 @@ public class Doclava {
     String name = pkg.name();
 
     data.setValue("package.name", name);
-    data.setValue("package.since", pkg.getSince());
+    data.setValue("package.since.key", SinceTagger.keyForName(pkg.getSince()));
+    data.setValue("package.since.name", pkg.getSince());
     data.setValue("package.descr", "...description...");
     pkg.setFederatedReferences(data, "package");
 

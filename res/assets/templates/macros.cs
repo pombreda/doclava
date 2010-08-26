@@ -142,7 +142,7 @@ def:see_also_tags(also) ?><?cs
 <?cs # print the API Level ?><?cs
 def:since_tags(obj) ?>
 <?cs if:reference.apilevels ?>
-  Since: <a href="<?cs var:toroot ?>guide/appendix/api-levels.html#level<?cs var:obj.since ?>">API Level <?cs var:obj.since ?></a>
+  Since: <a href="<?cs var:toroot ?>guide/appendix/api-levels.html#level<?cs var:obj.since.key ?>">API Level <?cs var:obj.since.name ?></a>
 <?cs /if ?>
 <?cs /def ?>
 <?cs def:federated_refs(obj) ?>
@@ -212,7 +212,7 @@ def:class_link_table(classes) ?><?cs
   set:count = #1 ?>
   <table class="jd-sumtable-expando"><?cs
       each:cl=classes ?>
-        <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:cl.type.since ?>" >
+        <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:cl.type.since.key ?>" >
               <td class="jd-linkcol"><?cs call:type_link(cl.type) ?></td>
               <td class="jd-descrcol" width="100%"><?cs call:short_descr(cl) ?>&nbsp;</td>
           </tr><?cs set:count = count + #1 ?><?cs
@@ -226,7 +226,7 @@ def:class_link_list(label, classes) ?><?cs
     <li><h2><?cs var:label ?></h2>
       <ul><?cs 
       each:cl=classes ?>
-        <li class="api apilevel-<?cs var:cl.type.since ?>"><?cs call:type_link(cl.type) ?></li><?cs 
+        <li class="api apilevel-<?cs var:cl.type.since.key ?>"><?cs call:type_link(cl.type) ?></li><?cs 
       /each ?>
       </ul>
     </li><?cs 
@@ -239,7 +239,7 @@ def:list(label, classes) ?><?cs
     <li><h2><?cs var:label ?></h2>
       <ul><?cs 
       each:cl=classes ?>
-          <li class="<?cs if:class.name == cl.label?>selected <?cs /if ?>api apilevel-<?cs var:cl.since ?>"><?cs call:type_link(cl) ?></li><?cs 
+          <li class="<?cs if:class.name == cl.label?>selected <?cs /if ?>api apilevel-<?cs var:cl.since.key ?>"><?cs call:type_link(cl) ?></li><?cs 
       /each ?>
       </ul>
     </li><?cs 
@@ -249,7 +249,7 @@ def:list(label, classes) ?><?cs
 <?cs # A list of links to packages, for use in the side navigation of packages (panel nav) ?><?cs 
 def:package_link_list(packages) ?><?cs 
   each:pkg=packages ?>
-    <li class="<?cs if:(class.package.name == pkg.name) || (package.name == pkg.name)?>selected <?cs /if ?>api apilevel-<?cs var:pkg.since ?>"><?cs call:package_link(pkg) ?></li><?cs 
+    <li class="<?cs if:(class.package.name == pkg.name) || (package.name == pkg.name)?>selected <?cs /if ?>api apilevel-<?cs var:pkg.since.key ?>"><?cs call:package_link(pkg) ?></li><?cs 
   /each ?><?cs
 /def ?>
 

@@ -403,12 +403,7 @@ public class LinkReference {
 
   /** turn this LinkReference into one with an error message */
   private void makeError() {
-    // this.href = "ERROR(" + this.text.trim() + ")";
-    this.href = null;
-    if (this.label == null) {
-      this.label = "";
-    }
-    this.label = "ERROR(" + this.label + "/" + text.trim() + ")";
+    this.kind = "@seeJustLabel";
   }
 
   /** private. **/

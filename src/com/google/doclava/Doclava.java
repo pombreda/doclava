@@ -203,11 +203,15 @@ public class Doclava {
         try {
           String name = a[1];
           URL federationURL = new URL(a[2]);
-          federationTagger.addSite(name, federationURL);
+          federationTagger.addSiteUrl(name, federationURL);
         } catch (MalformedURLException e) {
           System.err.println("Could not parse URL for federation: " + a[1]);
           return false;
         }
+      } else if (a[0].equals("-federationxml")) {
+        String name = a[1];
+        String file = a[2];
+        federationTagger.addSiteXml(name, file);
       } else if (a[0].equals("-apiversion")) {
         apiVersion = a[1];
       }
@@ -222,7 +226,7 @@ public class Doclava {
     if (!generateDocs && apiFile != null) {
       currentApiFile = new File(apiFile);
     } else if (generateDocs) {
-      currentApiFile = new File(ClearPage.outputDir + FederatedSite.XML_API_PATH);
+      currentApiFile = new File(ClearPage.outputDir + "/" + javadocDir + FederatedSite.XML_API_PATH);
     } else {
       currentApiFile = null;
     }
@@ -497,6 +501,9 @@ public class Doclava {
       return 1;
     }
     if (option.equals("-federate")) {
+      return 3;
+    }
+    if (option.equals("-federationxml")) {
       return 3;
     }
     if (option.equals("-apiversion")) {

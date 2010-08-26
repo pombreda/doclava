@@ -20,6 +20,7 @@ import com.google.doclava.apicheck.ApiCheck;
 import com.google.doclava.apicheck.ApiInfo;
 import com.google.doclava.apicheck.ApiParseException;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -29,12 +30,11 @@ import java.net.URL;
  * be referenced or shared across codebases.
  */
 public final class FederatedSite {
-  public static final String XML_API_PATH = "/xml/current.xml";
+  public static final String XML_API_PATH = "/current.xml";
   private final String name;
   private final URL baseUrl;
   private final ApiInfo apiInfo;
-  private String assumedPath = Doclava.javadocDir;
-
+  
   public FederatedSite(String name, URL baseUrl) throws ApiParseException {
     this.name = name;
     this.baseUrl = baseUrl;
@@ -46,9 +46,19 @@ public final class FederatedSite {
       throw new AssertionError(e);
     }
   }
+
+  /**
+   * Constructs a federated site using an xml file not contained on
+   * the site itself.
+   */
+  public FederatedSite(String name, URL baseUrl, String xml) throws ApiParseException {
+    this.name = name;
+    this.baseUrl = baseUrl;
+    this.apiInfo = new ApiCheck().parseApi(xml);
+  }
   
   public String linkFor(String htmlPage) {
-    return baseUrl + "/" + assumedPath + htmlPage;
+    return baseUrl + "/" + htmlPage;
   }
 
   public String name() {

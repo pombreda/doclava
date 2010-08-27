@@ -147,7 +147,7 @@ public class Stubs {
             writeClassFile(stubsDir, cl);
           }
           // build class list for xml file
-          if (xmlWriter != null) {
+          if (xmlWriter != null && cl.isDefinedLocally()) {
             if (packages.containsKey(cl.containingPackage())) {
               packages.get(cl.containingPackage()).add(cl);
             } else {
@@ -185,12 +185,12 @@ public class Stubs {
     if (cl.allSelfFields() != null) {
       for (FieldInfo fInfo : cl.allSelfFields()) {
         if (fInfo.type() != null) {
-          if (fInfo.type().asClassInfo() != null && fInfo.type().asClassInfo().isDefinedLocally()) {
+          if (fInfo.type().asClassInfo() != null) {
             cantStripThis(fInfo.type().asClassInfo(), notStrippable, "2:" + cl.qualifiedName());
           }
           if (fInfo.type().typeArguments() != null) {
             for (TypeInfo tTypeInfo : fInfo.type().typeArguments()) {
-              if (tTypeInfo.asClassInfo() != null && tTypeInfo.asClassInfo().isDefinedLocally()) {
+              if (tTypeInfo.asClassInfo() != null) {
                 cantStripThis(tTypeInfo.asClassInfo(), notStrippable, "3:" + cl.qualifiedName());
               }
             }
@@ -202,7 +202,7 @@ public class Stubs {
     if (cl.asTypeInfo() != null) {
       if (cl.asTypeInfo().typeArguments() != null) {
         for (TypeInfo tInfo : cl.asTypeInfo().typeArguments()) {
-          if (tInfo.asClassInfo() != null && tInfo.asClassInfo().isDefinedLocally()) {
+          if (tInfo.asClassInfo() != null) {
             cantStripThis(tInfo.asClassInfo(), notStrippable, "4:" + cl.qualifiedName());
           }
         }
@@ -214,12 +214,12 @@ public class Stubs {
     cantStripThis(cl.allSelfMethods(), notStrippable);
     cantStripThis(cl.allConstructors(), notStrippable);
     // blow the outer class open if this is an inner class
-    if (cl.containingClass() != null && cl.containingClass().isDefinedLocally()) {
+    if (cl.containingClass() != null) {
       cantStripThis(cl.containingClass(), notStrippable, "5:" + cl.qualifiedName());
     }
     // blow open super class and interfaces
     ClassInfo supr = cl.realSuperclass();
-    if (supr != null && supr.isDefinedLocally()) {
+    if (supr != null) {
       if (supr.isHidden()) {
         // cl is a public class declared as extending a hidden superclass.
         // this is not a desired practice but it's happened, so we deal
@@ -244,7 +244,7 @@ public class Stubs {
       for (MethodInfo mInfo : mInfos) {
         if (mInfo.getTypeParameters() != null) {
           for (TypeInfo tInfo : mInfo.getTypeParameters()) {
-            if (tInfo.asClassInfo() != null && tInfo.asClassInfo().isDefinedLocally()) {
+            if (tInfo.asClassInfo() != null) {
               cantStripThis(tInfo.asClassInfo(), notStrippable, "8:"
                   + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
             }
@@ -252,13 +252,12 @@ public class Stubs {
         }
         if (mInfo.parameters() != null) {
           for (ParameterInfo pInfo : mInfo.parameters()) {
-            if (pInfo.type() != null && pInfo.type().asClassInfo() != null
-                && pInfo.type().asClassInfo().isDefinedLocally()) {
+            if (pInfo.type() != null && pInfo.type().asClassInfo() != null) {
               cantStripThis(pInfo.type().asClassInfo(), notStrippable, "9:"
                   + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
               if (pInfo.type().typeArguments() != null) {
                 for (TypeInfo tInfoType : pInfo.type().typeArguments()) {
-                  if (tInfoType.asClassInfo() != null && tInfoType.asClassInfo().isDefinedLocally()) {
+                  if (tInfoType.asClassInfo() != null) {
                     ClassInfo tcl = tInfoType.asClassInfo();
                     if (tcl.isHidden()) {
                       Errors
@@ -277,18 +276,15 @@ public class Stubs {
           }
         }
         for (ClassInfo thrown : mInfo.thrownExceptions()) {
-          if (thrown.isDefinedLocally()) {
             cantStripThis(thrown, notStrippable, "11:" + mInfo.realContainingClass().qualifiedName()
                 + ":" + mInfo.name());
-          }
         }
-        if (mInfo.returnType() != null && mInfo.returnType().asClassInfo() != null
-            && mInfo.returnType().asClassInfo().isDefinedLocally()) {
+        if (mInfo.returnType() != null && mInfo.returnType().asClassInfo() != null) {
           cantStripThis(mInfo.returnType().asClassInfo(), notStrippable, "12:"
               + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
           if (mInfo.returnType().typeArguments() != null) {
             for (TypeInfo tyInfo : mInfo.returnType().typeArguments()) {
-              if (tyInfo.asClassInfo() != null && tyInfo.asClassInfo().isDefinedLocally()) {
+              if (tyInfo.asClassInfo() != null) {
                 cantStripThis(tyInfo.asClassInfo(), notStrippable, "13:"
                     + mInfo.realContainingClass().qualifiedName() + ":" + mInfo.name());
               }

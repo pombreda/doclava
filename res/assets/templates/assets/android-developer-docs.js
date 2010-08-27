@@ -9,6 +9,7 @@ var NAV_PREF_TREE = "tree";
 var NAV_PREF_PANELS = "panels";
 var nav_pref;
 var toRoot;
+var toAssets;
 var isMobile = false; // true if mobile, so we can adjust some layout
 var isIE6 = false; // true if IE6
 
@@ -59,7 +60,7 @@ Loading this in the head was slowing page load time */
 addLoadEvent( function() {
   var lists = document.createElement("script");
   lists.setAttribute("type","text/javascript");
-  lists.setAttribute("src", toRoot+"reference/lists.js");
+  lists.setAttribute("src", toRoot+"lists.js");
   document.getElementsByTagName("head")[0].appendChild(lists);
 } );
 
@@ -68,8 +69,9 @@ addLoadEvent( function() {
   prettyPrint();
 } );
 
-function setToRoot(root) {
+function setToRoot(root, assets) {
   toRoot = root;
+  toAssets = assets;
   // note: toRoot also used by carousel.js
 }
 
@@ -192,7 +194,7 @@ function tryPopulateResourcesNav() {
     topicList.append(
         $('<li>').append(
           $('<a>')
-            .attr('href', toRoot + "resources/browser.html?tag=" + topics[i].name)
+            .attr('href', toRoot + "../resources/browser.html?tag=" + topics[i].name)
             .append($('<span>')
               .addClass('en')
               .html(topics[i].title)
@@ -224,7 +226,7 @@ function tryPopulateResourcesNav() {
       resource = resources[i];
       var listItemNode = $('<li>').append(
           $('<a>')
-            .attr('href', toRoot + "resources/" + resource.path)
+            .attr('href', toRoot + "../resources/" + resource.path)
             .append($('<span>')
               .addClass('en')
               .html(resource.title.en)

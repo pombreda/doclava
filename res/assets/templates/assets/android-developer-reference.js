@@ -136,7 +136,7 @@ function new_node(me, mom, text, link, children_data, api_level)
     node.expand_toggle.onclick = function() {
           if (node.expanded) {
             $(node.get_children_ul()).slideUp("fast");
-            node.plus_img.src = me.toroot + "assets/images/triangle-closed-small.png";
+            node.plus_img.src = toAssets + "images/triangle-closed-small.png";
             node.expanded = false;
           } else {
             expand_node(me, node);
@@ -145,7 +145,7 @@ function new_node(me, mom, text, link, children_data, api_level)
     node.label_div.appendChild(node.expand_toggle);
 
     node.plus_img = document.createElement("img");
-    node.plus_img.src = me.toroot + "assets/images/triangle-closed-small.png";
+    node.plus_img.src = toAssets + "images/triangle-closed-small.png";
     node.plus_img.className = "plus";
     node.plus_img.border = "0";
     node.expand_toggle.appendChild(node.plus_img);
@@ -194,7 +194,7 @@ function expand_node(me, node)
       if ($(node.label_div).hasClass("absent")) $(node.get_children_ul()).addClass("absent");
       $(node.get_children_ul()).slideDown("fast");
     }
-    node.plus_img.src = me.toroot + "assets/images/triangle-opened-small.png";
+    node.plus_img.src = toAssets + "images/triangle-opened-small.png";
     node.expanded = true;
     
     // perform api level toggling because new nodes are new to the DOM
@@ -259,10 +259,10 @@ function find_page(url, data)
   return null;
 }
 
-function load_navtree_data(toroot) {
+function load_navtree_data() {
   var navtreeData = document.createElement("script");
   navtreeData.setAttribute("type","text/javascript");
-  navtreeData.setAttribute("src", toroot+"navtree_data.js");
+  navtreeData.setAttribute("src", toAssets + "navtree_data.js");
   $("head").append($(navtreeData));
 }
 
@@ -323,13 +323,13 @@ function toggleInherited(linkObj, expand) {
     if ( (expand == null && a.hasClass("closed")) || expand ) {
         list.style.display = "none";
         summary.style.display = "block";
-        trigger.src = toRoot + "assets/images/triangle-opened.png";
+        trigger.src = toAssets + "images/triangle-opened.png";
         a.removeClass("closed");
         a.addClass("opened");
     } else if ( (expand == null && a.hasClass("opened")) || (expand == false) ) {
         list.style.display = "block";
         summary.style.display = "none";
-        trigger.src = toRoot + "assets/images/triangle-closed.png";
+        trigger.src = toAssets + "images/triangle-closed.png";
         a.removeClass("opened");
         a.addClass("closed");
     }

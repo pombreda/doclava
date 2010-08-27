@@ -107,8 +107,9 @@ public class ClearPage {
       data.setValue("hasindex", "true");
     }
 
-    data.setValue("toroot", getPathToRoot(filename));
-
+    String rootPath = getPathToRoot(filename);
+    data.setValue("toroot", rootPath);
+    data.setValue("toassets", rootPath + "../" + Doclava.assetsOutputDir + "/");
     data.setValue("filename", filename);
 
     if (!fullPath) {

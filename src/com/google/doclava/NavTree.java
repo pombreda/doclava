@@ -43,7 +43,7 @@ public class NavTree {
 
     Data data = Doclava.makeHDF();
     data.setValue("reference_tree", buf.toString());
-    ClearPage.write(data, "navtree_data.cs", "assets/navtree_data.js");
+    ClearPage.write(data, "navtree_data.cs", dir + "/navtree_data.js");
   }
 
   private static Node makePackageNode(PackageInfo pkg) {
@@ -80,11 +80,11 @@ public class NavTree {
     List<Node> mChildren;
     private String mSince;
 
-    Node(String label, String link, List<Node> children, String since) {
+    Node(String label, String link, List<Node> children, String sinceName) {
       mLabel = label;
       mLink = link;
       mChildren = children;
-      mSince = since;
+      mSince = SinceTagger.keyForName(sinceName);
     }
 
     static void renderString(StringBuilder buf, String s) {

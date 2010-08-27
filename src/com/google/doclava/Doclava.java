@@ -65,6 +65,7 @@ public class Doclava {
   public static int showLevel = SHOW_PROTECTED;
 
   public static final String javadocDir = "reference/";
+  public static String assetsOutputDir = "assets";
   public static String htmlExtension;
 
   public static RootDoc root;
@@ -214,6 +215,8 @@ public class Doclava {
         federationTagger.addSiteXml(name, file);
       } else if (a[0].equals("-apiversion")) {
         apiVersion = a[1];
+      } else if (a[0].equals("-assetsdir")) {
+        assetsOutputDir = a[1];
       }
     }
 
@@ -304,7 +307,7 @@ public class Doclava {
       writeAssets();
 
       // Navigation tree
-      NavTree.writeNavTree(javadocDir);
+      NavTree.writeNavTree(assetsOutputDir);
 
       // Packages Pages
       writePackages(javadocDir + "packages" + htmlExtension);
@@ -509,6 +512,9 @@ public class Doclava {
     if (option.equals("-apiversion")) {
       return 2;
     }
+    if (option.equals("-assetsdir")) {
+      return 2;
+    }
     return 0;
   }
 
@@ -656,7 +662,8 @@ public class Doclava {
         List<String> templateDirs = ClearPage.getBundledTemplateDirs();
         for (String templateDir : templateDirs) {
           String assetsDir = templateDir + "/assets";
-          JarUtils.copyResourcesToDirectory(thisJar, assetsDir, ClearPage.outputDir + "/assets");
+          JarUtils.copyResourcesToDirectory(thisJar, assetsDir,
+              ClearPage.outputDir + "/" + assetsOutputDir);
         }
       } catch (IOException e) {
         System.err.println("Error copying assets directory.");
@@ -669,7 +676,7 @@ public class Doclava {
     for (String templateDir : templateDirs) {
       File assets = new File(templateDir + "/assets");
       if (assets.isDirectory()) {
-        writeDirectory(assets, "assets/", null);
+        writeDirectory(assets, assetsOutputDir, null);
       }
     }
   }

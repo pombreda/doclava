@@ -257,7 +257,7 @@ def:package_link_list(packages) ?><?cs
 def:expando_trigger(id, default) ?>
   <a href="#" onclick="return toggleInherited(this, null)" id="<?cs var:id ?>" class="jd-expando-trigger closed"
           ><img id="<?cs var:id ?>-trigger"
-          src="<?cs var:toroot ?>assets/images/triangle-<?cs var:default ?>.png"
+          src="<?cs var:toassets ?>images/triangle-<?cs var:default ?>.png"
           class="jd-expando-trigger-img" /></a><?cs 
 /def ?>
 

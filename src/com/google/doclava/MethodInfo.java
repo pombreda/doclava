@@ -88,7 +88,10 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     }
   }
 
-  public MethodInfo findRealOverriddenMethod(String name, String signature, HashSet notStrippable) {
+  public MethodInfo findRealOverriddenMethod(MethodInfo other, HashSet<ClassInfo> notStrippable) {
+	String name = other.name();
+	String signature = other.signature();
+	
     if (mReturnType == null) {
       // ctor
       return null;

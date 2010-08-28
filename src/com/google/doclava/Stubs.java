@@ -477,7 +477,7 @@ public class Stubs {
     // These can't be hidden.
     for (MethodInfo method : cl.getHiddenMethods()) {
       MethodInfo overriddenMethod =
-          method.findRealOverriddenMethod(method.name(), method.signature(), notStrippable);
+          method.findRealOverriddenMethod(method, notStrippable);
       ClassInfo classContainingMethod =
           method.findRealOverriddenClass(method.name(), method.signature());
       if (overriddenMethod != null && !overriddenMethod.isHidden() && !overriddenMethod.isDocOnly()

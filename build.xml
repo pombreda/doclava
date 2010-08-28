@@ -90,9 +90,6 @@
       <doclet name="com.google.doclava.Doclava">
         <param name="-stubs" value="build/stubs" />
         <param name="-hdf"/> <param name="project.name"/> <param name="Doclava"/>
-        <param name="-federate"/> <param name="OpenJDK"/> <param name="http://manatee.mtv.corp.google.com/doclava/openjdk"/>
-        <param name="-since"/> <param name="doclava/previous.xml"/> <param name="v1" />
-        <param name="-apiversion" value="v2"/>
       </doclet>
     </javadoc>
   </target>

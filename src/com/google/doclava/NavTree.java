@@ -28,7 +28,7 @@ public class NavTree {
     for (PackageInfo pkg : Doclava.choosePackages()) {
       children.add(makePackageNode(pkg));
     }
-    Node node = new Node("Reference", dir + "packages.html", children, null);
+    Node node = new Node("Reference", Doclava.ensureSlash(dir) + "packages.html", children, null);
 
     StringBuilder buf = new StringBuilder();
     if (false) {
@@ -43,7 +43,7 @@ public class NavTree {
 
     Data data = Doclava.makeHDF();
     data.setValue("reference_tree", buf.toString());
-    ClearPage.write(data, "navtree_data.cs", dir + "/navtree_data.js");
+    ClearPage.write(data, "navtree_data.cs", Doclava.ensureSlash(dir) + "navtree_data.js");
   }
 
   private static Node makePackageNode(PackageInfo pkg) {

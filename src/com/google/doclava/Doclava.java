@@ -229,7 +229,8 @@ public class Doclava {
     if (!generateDocs && apiFile != null) {
       currentApiFile = new File(apiFile);
     } else if (generateDocs) {
-      currentApiFile = new File(ClearPage.outputDir + "/" + javadocDir + FederatedSite.XML_API_PATH);
+      currentApiFile = new File(ensureSlash(ClearPage.outputDir)
+          + javadocDir + FederatedSite.XML_API_PATH);
     } else {
       currentApiFile = null;
     }
@@ -627,7 +628,7 @@ public class Doclava {
     for (i = 0; i < count; i++) {
       File f = files[i];
       if (f.isFile()) {
-        String templ = relative + f.getName();
+        String templ = ensureSlash(relative) + f.getName();
         int len = templ.length();
         if (len > 3 && ".cs".equals(templ.substring(len - 3))) {
           Data data = makeHDF();
@@ -637,10 +638,10 @@ public class Doclava {
           String filename = templ.substring(0, len - 3) + htmlExtension;
           DocFile.writePage(f.getAbsolutePath(), relative, filename);
         } else {
-          ClearPage.copyFile(f, new File(ClearPage.outputDir + "/" + templ));
+          ClearPage.copyFile(f, new File(ensureSlash(ClearPage.outputDir) + templ));
         }
       } else if (f.isDirectory()) {
-        writeDirectory(f, relative + f.getName() + "/", js);
+        writeDirectory(f, ensureSlash(relative) + f.getName() + "/", js);
       }
     }
   }
@@ -661,9 +662,9 @@ public class Doclava {
       try {
         List<String> templateDirs = ClearPage.getBundledTemplateDirs();
         for (String templateDir : templateDirs) {
-          String assetsDir = templateDir + "/assets";
+          String assetsDir = ensureSlash(templateDir) + "assets";
           JarUtils.copyResourcesToDirectory(thisJar, assetsDir,
-              ClearPage.outputDir + "/" + assetsOutputDir);
+              ensureSlash(ClearPage.outputDir) + assetsOutputDir);
         }
       } catch (IOException e) {
         System.err.println("Error copying assets directory.");
@@ -674,7 +675,7 @@ public class Doclava {
 
     List<String> templateDirs = ClearPage.getTemplateDirs();
     for (String templateDir : templateDirs) {
-      File assets = new File(templateDir + "/assets");
+      File assets = new File(ensureSlash(templateDir) + "assets");
       if (assets.isDirectory()) {
         writeDirectory(assets, assetsOutputDir, null);
       }
@@ -1436,5 +1437,12 @@ public class Doclava {
     }
 
     return TYPE_NONE;
+  }
+
+  /**
+   * Ensures a trailing '/' at the end of a string.
+   */
+  static String ensureSlash(String path) {
+    return path.endsWith("/") ? path : path + "/";
   }
 }

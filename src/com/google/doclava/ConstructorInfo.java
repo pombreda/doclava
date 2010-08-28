@@ -27,7 +27,6 @@ public class ConstructorInfo implements AbstractMethodInfo {
   private String mType;
   private boolean mIsStatic;
   private boolean mIsFinal;
-  private String mDeprecated;
   private boolean mIsDeprecated;
   private String mScope;
   private List<String> mExceptions;
@@ -41,7 +40,6 @@ public class ConstructorInfo implements AbstractMethodInfo {
     mType = type;
     mIsStatic = isStatic;
     mIsFinal = isFinal;
-    mDeprecated = deprecated;
     mIsDeprecated = "deprecated".equals(deprecated);
     mScope = scope;
     mExceptions = new ArrayList<String>();

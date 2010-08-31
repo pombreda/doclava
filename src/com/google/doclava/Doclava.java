@@ -894,6 +894,7 @@ public class Doclava {
     data.setValue("package.descr", "...description...");
     pkg.setFederatedReferences(data, "package");
 
+    makeClassListHDF(data, "package.annotations", ClassInfo.sortByName(pkg.getAnnotations()));
     makeClassListHDF(data, "package.interfaces", ClassInfo.sortByName(pkg.getInterfaces()));
     makeClassListHDF(data, "package.classes", ClassInfo.sortByName(pkg.ordinaryClasses()));
     makeClassListHDF(data, "package.enums", ClassInfo.sortByName(pkg.enums()));

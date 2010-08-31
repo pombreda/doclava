@@ -144,9 +144,11 @@ public class Converter {
     }
     return out;
   }
-
+  
   public static ClassInfo[] convertClasses(ClassDoc[] classes) {
-    if (classes == null) return null;
+    if (classes == null) {
+      return null;
+    }
     int N = classes.length;
     ClassInfo[] result = new ClassInfo[N];
     for (int i = 0; i < N; i++) {

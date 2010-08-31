@@ -133,6 +133,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
 
   public void makeClassLinkListHDF(Data data, String base) {
     makeLink(data, base);
+    ClassInfo.makeLinkListHDF(data, base + ".annotations", getAnnotations());
     ClassInfo.makeLinkListHDF(data, base + ".interfaces", getInterfaces());
     ClassInfo.makeLinkListHDF(data, base + ".classes", ordinaryClasses());
     ClassInfo.makeLinkListHDF(data, base + ".enums", enums());
@@ -142,6 +143,18 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     data.setValue(base + ".since.name", getSince());
   }
 
+  /**
+   * Returns the list of annotations defined in this package.
+   * @return
+   */
+  public ClassInfo[] getAnnotations() {
+    if (mAnnotations == null) {
+    	mAnnotations = ClassInfo.sortByName(
+    	    filterHidden(Converter.convertClasses(mPackage.annotationTypes())));
+    }
+    return mAnnotations;
+  }
+  
   public ClassInfo[] getInterfaces() {
     if (mInterfaces == null) {
       mInterfaces =
@@ -188,6 +201,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
 
   private String mName;
   private PackageDoc mPackage;
+  private ClassInfo[] mAnnotations;
   private ClassInfo[] mInterfaces;
   private ClassInfo[] mOrdinaryClasses;
   private ClassInfo[] mEnums;

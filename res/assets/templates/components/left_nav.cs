@@ -20,6 +20,7 @@ def:custom_left_nav() ?>
             <ul>
               <?cs call:list("Interfaces", class.package.interfaces) ?>
               <?cs call:list("Classes", class.package.classes) ?>
+              <?cs call:list("Annotations", class.package.annotations) ?>
               <?cs call:list("Enums", class.package.enums) ?>
               <?cs call:list("Exceptions", class.package.exceptions) ?>
               <?cs call:list("Errors", class.package.errors) ?>
@@ -28,6 +29,7 @@ def:custom_left_nav() ?>
             <ul>
               <?cs call:class_link_list("Interfaces", package.interfaces) ?>
               <?cs call:class_link_list("Classes", package.classes) ?>
+              <?cs call:class_link_list("Annotations", package.annotations) ?>
               <?cs call:class_link_list("Enums", package.enums) ?>
               <?cs call:class_link_list("Exceptions", package.exceptions) ?>
               <?cs call:class_link_list("Errors", package.errors) ?>

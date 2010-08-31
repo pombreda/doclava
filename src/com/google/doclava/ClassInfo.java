@@ -17,7 +17,6 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-import com.google.doclava.apicheck.ApiInfo;
 
 import com.sun.javadoc.*;
 import java.util.*;
@@ -339,7 +338,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   }
 
   public boolean isDeprecated() {
-    boolean deprecated = false;
     if (!mDeprecatedKnown) {
       boolean commentDeprecated = comment().isDeprecated();
       boolean annotationDeprecated = false;
@@ -698,7 +696,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     keywords.add(new KeywordEntry(name(), htmlPage, "class in " + containingPackage().name()));
 
     FieldInfo[] fields = selfFields();
-    FieldInfo[] enumConstants = enumConstants();
     MethodInfo[] ctors = constructors();
     MethodInfo[] methods = selfMethods();
 
@@ -852,7 +849,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     mTypeInfo.makeQualifiedHDF(data, "class.qualifiedType");
     data.setValue("class.name", name);
     data.setValue("class.qualified", qualified);
-    String scope = "";
     if (isProtected()) {
       data.setValue("class.scope", "protected");
     } else if (isPublic()) {

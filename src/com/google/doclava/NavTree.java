@@ -53,6 +53,7 @@ public class NavTree {
 
     addClassNodes(children, "Interfaces", pkg.getInterfaces());
     addClassNodes(children, "Classes", pkg.ordinaryClasses());
+    addClassNodes(children, "Annotations", pkg.getAnnotations());
     addClassNodes(children, "Enums", pkg.enums());
     addClassNodes(children, "Exceptions", pkg.exceptions());
     addClassNodes(children, "Errors", pkg.errors());

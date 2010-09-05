@@ -202,34 +202,33 @@ public class Converter {
       new ArrayList<ClassNeedingInit>();
 
   static ClassInfo obtainClass(ClassDoc o) {
-    return (ClassInfo) mClasses.obtain(o);
+    return mClasses.obtain(o);
   }
 
-  private static Cache mClasses = new Cache() {
+  private static Cache<ClassDoc, ClassInfo> mClasses = new Cache<ClassDoc, ClassInfo>() {
     @Override
-    protected Object make(Object o) {
-      ClassDoc c = (ClassDoc) o;
+    protected ClassInfo make(ClassDoc input) {
       // A bug while generating OpenJDK documentation reports some classes with no name.
-      if (c.name() == null || c.name().equals("")) {
+      if (input.name() == null || input.name().equals("")) {
          return null;
       }
       ClassInfo cl =
-          new ClassInfo(c, c.getRawCommentText(), Converter.convertSourcePosition(c.position()), c
-              .isPublic(), c.isProtected(), c.isPackagePrivate(), c.isPrivate(), c.isStatic(), c
-              .isInterface(), c.isAbstract(), c.isOrdinaryClass(), c.isException(), c.isError(), c
-              .isEnum(), (c instanceof AnnotationTypeDoc), c.isFinal(), c.isIncluded(), c.name(), c
-              .qualifiedName(), c.qualifiedTypeName(), c.isPrimitive());
+          new ClassInfo(input, input.getRawCommentText(), Converter.convertSourcePosition(input.position()), input
+              .isPublic(), input.isProtected(), input.isPackagePrivate(), input.isPrivate(), input.isStatic(), input
+              .isInterface(), input.isAbstract(), input.isOrdinaryClass(), input.isException(), input.isError(), input
+              .isEnum(), (input instanceof AnnotationTypeDoc), input.isFinal(), input.isIncluded(), input.name(), input
+              .qualifiedName(), input.qualifiedTypeName(), input.isPrimitive());
       if (mClassesNeedingInit != null) {
-        mClassesNeedingInit.add(new ClassNeedingInit(c, cl));
+        mClassesNeedingInit.add(new ClassNeedingInit(input, cl));
       }
       return cl;
     }
 
     @Override
-    protected void made(Object o, Object r) {
+    protected void made(ClassDoc input, ClassInfo output) {
       if (mClassesNeedingInit == null) {
-        initClass((ClassDoc) o, (ClassInfo) r);
-        ((ClassInfo) r).init2();
+        initClass(input, output);
+        output.init2();
       }
     }
 
@@ -312,16 +311,17 @@ public class Converter {
   }
 
   private static MethodInfo obtainMethod(MethodDoc o) {
-    return (MethodInfo) mMethods.obtain(o);
+    return mMethods.obtain(o);
   }
 
   private static MethodInfo obtainMethod(ConstructorDoc o) {
-    return (MethodInfo) mMethods.obtain(o);
+    return mMethods.obtain(o);
   }
 
-  private static Cache mMethods = new Cache() {
+  private static Cache<ExecutableMemberDoc, MethodInfo> mMethods
+      = new Cache<ExecutableMemberDoc, MethodInfo>() {
     @Override
-    protected Object make(Object o) {
+    protected MethodInfo make(ExecutableMemberDoc o) {
       if (o instanceof AnnotationTypeElementDoc) {
         AnnotationTypeElementDoc m = (AnnotationTypeElementDoc) o;
         MethodInfo result =
@@ -385,17 +385,12 @@ public class Converter {
   }
 
   private static FieldInfo obtainField(FieldDoc o) {
-    return (FieldInfo) mFields.obtain(o);
+    return mFields.obtain(o);
   }
 
-  private static FieldInfo obtainField(ConstructorDoc o) {
-    return (FieldInfo) mFields.obtain(o);
-  }
-
-  private static Cache mFields = new Cache() {
+  private static Cache<FieldDoc, FieldInfo> mFields = new Cache<FieldDoc, FieldInfo>() {
     @Override
-    protected Object make(Object o) {
-      FieldDoc f = (FieldDoc) o;
+    protected FieldInfo make(FieldDoc f) {
       return new FieldInfo(f.name(), Converter.obtainClass(f.containingClass()), Converter
           .obtainClass(f.containingClass()), f.isPublic(), f.isProtected(), f.isPackagePrivate(), f
           .isPrivate(), f.isFinal(), f.isStatic(), f.isTransient(), f.isVolatile(),
@@ -406,25 +401,23 @@ public class Converter {
   };
 
   private static PackageInfo obtainPackage(PackageDoc o) {
-    return (PackageInfo) mPackagees.obtain(o);
+    return mPackages.obtain(o);
   }
 
-  private static Cache mPackagees = new Cache() {
+  private static Cache<PackageDoc, PackageInfo> mPackages = new Cache<PackageDoc, PackageInfo>() {
     @Override
-    protected Object make(Object o) {
-      PackageDoc p = (PackageDoc) o;
+    protected PackageInfo make(PackageDoc p) {
       return new PackageInfo(p, p.name(), Converter.convertSourcePosition(p.position()));
     }
   };
 
   private static TypeInfo obtainType(Type o) {
-    return (TypeInfo) mTypes.obtain(o);
+    return mTypes.obtain(o);
   }
 
-  private static Cache mTypes = new Cache() {
+  private static Cache<Type, TypeInfo> mTypes = new Cache<Type, TypeInfo>() {
     @Override
-    protected Object make(Object o) {
-      Type t = (Type) o;
+    protected TypeInfo make(Type t) {
       String simpleTypeName;
       if (t instanceof ClassDoc) {
         simpleTypeName = ((ClassDoc) t).name();
@@ -438,9 +431,7 @@ public class Converter {
     }
 
     @Override
-    protected void made(Object o, Object r) {
-      Type t = (Type) o;
-      TypeInfo ti = (TypeInfo) r;
+    protected void made(Type t, TypeInfo ti) {
       if (t.asParameterizedType() != null) {
         ti.setTypeArguments(Converter.convertTypes(t.asParameterizedType().typeArguments()));
       } else if (t instanceof ClassDoc) {
@@ -456,82 +447,57 @@ public class Converter {
     }
 
     @Override
-    protected Object keyFor(Object o) {
-      Type t = (Type) o;
-      String keyString = o.getClass().getName() + "/" + o.toString() + "/";
+    protected Object keyFor(Type t) {
+      StringBuilder result = new StringBuilder();
+      result.append(t.getClass().getName()).append("/").append(t).append("/");
       if (t.asParameterizedType() != null) {
-        keyString += t.asParameterizedType().toString() + "/";
+        result.append(t.asParameterizedType()).append("/");
         if (t.asParameterizedType().typeArguments() != null) {
           for (Type ty : t.asParameterizedType().typeArguments()) {
-            keyString += ty.toString() + "/";
+            result.append(ty).append("/");
           }
         }
       } else {
-        keyString += "NoParameterizedType//";
+        result.append("NoParameterizedType//");
       }
       if (t.asTypeVariable() != null) {
-        keyString += t.asTypeVariable().toString() + "/";
+        result.append(t.asTypeVariable()).append("/");
         if (t.asTypeVariable().bounds() != null) {
           for (Type ty : t.asTypeVariable().bounds()) {
-            keyString += ty.toString() + "/";
+            result.append(ty).append("/");
           }
         }
       } else {
-        keyString += "NoTypeVariable//";
+        result.append("NoTypeVariable//");
       }
       if (t.asWildcardType() != null) {
-        keyString += t.asWildcardType().toString() + "/";
+        result.append(t.asWildcardType()).append("/");
         if (t.asWildcardType().superBounds() != null) {
           for (Type ty : t.asWildcardType().superBounds()) {
-            keyString += ty.toString() + "/";
+            result.append(ty).append("/");
           }
         }
         if (t.asWildcardType().extendsBounds() != null) {
           for (Type ty : t.asWildcardType().extendsBounds()) {
-            keyString += ty.toString() + "/";
+            result.append(ty).append("/");
           }
         }
       } else {
-        keyString += "NoWildCardType//";
+        result.append("NoWildCardType//");
       }
 
-      return keyString;
+      return result.toString();
     }
   };
   
   public static TypeInfo obtainTypeFromString(String type) {
-    return (TypeInfo) mTypesFromString.obtain(type);
+    return mTypesFromString.obtain(type);
   }
   
-  private static final Cache mTypesFromString = new Cache() {
+  private static final Cache<String, TypeInfo> mTypesFromString = new Cache<String, TypeInfo>() {
     @Override
-    protected Object make(Object o) {
-      String name = (String) o;
+    protected TypeInfo make(String name) {
       return new TypeInfo(name);
-    }
-
-    @Override
-    protected Object keyFor(Object o) {
-      return o;
-    }
-  };
-
-  private static MemberInfo obtainMember(MemberDoc o) {
-    return (MemberInfo) mMembers.obtain(o);
-  }
-
-  private static Cache mMembers = new Cache() {
-    @Override
-    protected Object make(Object o) {
-      if (o instanceof MethodDoc) {
-        return Converter.obtainMethod((MethodDoc) o);
-      } else if (o instanceof ConstructorDoc) {
-        return Converter.obtainMethod((ConstructorDoc) o);
-      } else if (o instanceof FieldDoc) {
-        return Converter.obtainField((FieldDoc) o);
-      } else {
-        return null;
-      }
     }
   };
 
@@ -546,13 +512,13 @@ public class Converter {
 
 
   private static AnnotationInstanceInfo obtainAnnotationInstance(AnnotationDesc o) {
-    return (AnnotationInstanceInfo) mAnnotationInstances.obtain(o);
+    return mAnnotationInstances.obtain(o);
   }
 
-  private static Cache mAnnotationInstances = new Cache() {
+  private static Cache<AnnotationDesc, AnnotationInstanceInfo> mAnnotationInstances
+      = new Cache<AnnotationDesc, AnnotationInstanceInfo>() {
     @Override
-    protected Object make(Object o) {
-      AnnotationDesc a = (AnnotationDesc) o;
+    protected AnnotationInstanceInfo make(AnnotationDesc a) {
       ClassInfo annotationType = Converter.obtainClass(a.annotationType());
       AnnotationDesc.ElementValuePair[] ev = a.elementValues();
       AnnotationValueInfo[] elementValues = new AnnotationValueInfo[ev.length];
@@ -565,35 +531,31 @@ public class Converter {
   };
 
 
-  private abstract static class Cache {
-    void put(Object key, Object value) {
-      mCache.put(key, value);
-    }
-
-    Object obtain(Object o) {
-      if (o == null) {
+  private abstract static class Cache<K, V> {
+    V obtain(K input) {
+      if (input == null) {
         return null;
       }
-      Object k = keyFor(o);
-      Object r = mCache.get(k);
-      if (r == null) {
-        r = make(o);
-        if (r != null) {
-          mCache.put(k, r);
-          made(o, r);
+      Object key = keyFor(input);
+      V value = mCache.get(key);
+      if (value == null) {
+        value = make(input);
+        if (value != null) {
+          mCache.put(key, value);
+          made(input, value);
         }
       }
-      return r;
+      return value;
     }
 
-    protected HashMap<Object, Object> mCache = new HashMap<Object, Object>();
+    protected final HashMap<Object, V> mCache = new HashMap<Object, V>();
 
-    protected abstract Object make(Object o);
+    protected abstract V make(K input);
 
-    protected void made(Object o, Object r) {}
+    protected void made(K input, V value) {}
 
-    protected Object keyFor(Object o) {
-      return o;
+    protected Object keyFor(K key) {
+      return key;
     }
 
     Object[] all() {
@@ -649,7 +611,6 @@ public class Converter {
   }
 
   private static void finishAnnotationValueInit() {
-    int depth = 0;
     while (mAnnotationValuesNeedingInit.size() > 0) {
       HashSet<AnnotationValue> set = mAnnotationValuesNeedingInit;
       mAnnotationValuesNeedingInit = new HashSet<AnnotationValue>();
@@ -657,7 +618,6 @@ public class Converter {
         AnnotationValueInfo v = mAnnotationValues.get(o);
         initAnnotationValue(o, v);
       }
-      depth++;
     }
     mAnnotationValuesNeedingInit = null;
   }

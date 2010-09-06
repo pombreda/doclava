@@ -16,8 +16,10 @@
 
 package com.google.doclava;
 
+import java.util.List;
+
 public interface InheritedTags {
-  TagInfo[] tags();
+  List<TagInfo> tags();
 
   InheritedTags inherited();
 }

@@ -18,6 +18,7 @@ package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
 import java.util.Comparator;
+import java.util.List;
 
 public class FieldInfo extends MemberInfo {
   public static final Comparator<FieldInfo> comparator = new Comparator<FieldInfo>() {
@@ -69,11 +70,11 @@ public class FieldInfo extends MemberInfo {
     return isStatic() && isFinal();
   }
 
-  public TagInfo[] firstSentenceTags() {
+  public List<TagInfo> firstSentenceTags() {
     return comment().briefTags();
   }
 
-  public TagInfo[] inlineTags() {
+  public List<TagInfo> inlineTags() {
     return comment().tags();
   }
 
@@ -231,7 +232,7 @@ public class FieldInfo extends MemberInfo {
       String str = null;
 
       if (val instanceof Boolean) {
-        str = ((Boolean) val).toString();
+        str = val.toString();
       } else if (val instanceof Byte) {
         dec = String.format("%d", val);
         hex = String.format("0x%02x", val);
@@ -239,9 +240,9 @@ public class FieldInfo extends MemberInfo {
         dec = String.format("\'%c\'", val);
         hex = String.format("0x%04x", val);
       } else if (val instanceof Double) {
-        str = ((Double) val).toString();
+        str = val.toString();
       } else if (val instanceof Float) {
-        str = ((Float) val).toString();
+        str = val.toString();
       } else if (val instanceof Integer) {
         dec = String.format("%d", val);
         hex = String.format("0x%08x", val);
@@ -252,7 +253,7 @@ public class FieldInfo extends MemberInfo {
         dec = String.format("%d", val);
         hex = String.format("0x%04x", val);
       } else if (val instanceof String) {
-        str = "\"" + ((String) val) + "\"";
+        str = "\"" + val + "\"";
       } else {
         str = "";
       }

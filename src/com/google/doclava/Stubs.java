@@ -81,7 +81,7 @@ public class Stubs {
                 + "." + m.name() + " returns unavailable type " + returnClass.name());
           }
 
-          ParameterInfo[] params = m.parameters();
+          List<ParameterInfo> params = m.parameters();
           for (ParameterInfo p : params) {
             TypeInfo t = p.type();
             if (!t.isPrimitive()) {
@@ -106,8 +106,7 @@ public class Stubs {
                 + "' returns unavailable type " + returnClass.name());
           }
 
-          ParameterInfo[] params = m.parameters();
-          for (ParameterInfo p : params) {
+          for (ParameterInfo p : m.parameters()) {
             TypeInfo t = p.type();
             if (!t.isPrimitive()) {
               if (t.asClassInfo().isHidden()) {
@@ -235,7 +234,7 @@ public class Stubs {
     }
   }
 
-  private static void cantStripThis(MethodInfo[] mInfos, HashSet<ClassInfo> notStrippable) {
+  private static void cantStripThis(List<MethodInfo> mInfos, HashSet<ClassInfo> notStrippable) {
     // for each method, blow open the parameters, throws and return types. also blow open their
     // generics
     if (mInfos != null) {
@@ -371,7 +370,7 @@ public class Stubs {
       }
     }
 
-    TypeInfo[] interfaces = cl.realInterfaceTypes();
+    List<TypeInfo> interfaces = cl.realInterfaceTypes();
     List<TypeInfo> usedInterfaces = new ArrayList<TypeInfo>();
     for (TypeInfo iface : interfaces) {
       if (notStrippable.contains(iface.asClassInfo()) && !iface.asClassInfo().isDocOnly()) {
@@ -538,7 +537,7 @@ public class Stubs {
     stream.print(n + "(");
     comma = "";
     int count = 1;
-    int size = method.parameters().length;
+    int size = method.parameters().size();
     for (ParameterInfo param : method.parameters()) {
       stream.print(comma + fullParameterTypeName(method, param.type(), count == size) + " "
           + param.name());
@@ -674,7 +673,7 @@ public class Stubs {
           continue;
         }
         // if it has no args, we're done
-        if (m.parameters().length == 0) {
+        if (m.parameters().isEmpty()) {
           return "";
         }
         ctor = m;
@@ -683,10 +682,10 @@ public class Stubs {
     if (ctor != null) {
       String result = "";
       result += "super(";
-      ParameterInfo[] params = ctor.parameters();
-      int N = params.length;
+      List<ParameterInfo> params = ctor.parameters();
+      int N = params.size();
       for (int i = 0; i < N; i++) {
-        TypeInfo t = params[i].type();
+        TypeInfo t = params.get(i).type();
         if (t.isPrimitive() && t.dimension().equals("")) {
           String n = t.simpleTypeName();
           if (("byte".equals(n) || "short".equals(n) || "int".equals(n) || "long".equals(n)
@@ -805,8 +804,8 @@ public class Stubs {
       writeConstructorXML(xmlWriter, mi);
     }
 
-    MethodInfo[] methods = cl.allSelfMethods();
-    Arrays.sort(methods, MethodInfo.comparator);
+    List<MethodInfo> methods = cl.allSelfMethods();
+    Collections.sort(methods, MethodInfo.comparator);
     for (MethodInfo mi : methods) {
       if (!methodIsOverride(mi)) {
         writeMethodXML(xmlWriter, mi);
@@ -839,7 +838,7 @@ public class Stubs {
         + ">");
 
     // write parameters in declaration order
-    int numParameters = mi.parameters().length;
+    int numParameters = mi.parameters().size();
     int count = 0;
     for (ParameterInfo pi : mi.parameters()) {
       count++;
@@ -867,7 +866,7 @@ public class Stubs {
         // + " source=\"" + mi.position() + "\"\n"
         + ">");
 
-    int numParameters = mi.parameters().length;
+    int numParameters = mi.parameters().size();
     int count = 0;
     for (ParameterInfo pi : mi.parameters()) {
       count++;

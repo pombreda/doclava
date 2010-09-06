@@ -17,10 +17,12 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-
-import java.io.*;
-import java.util.regex.Pattern;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class DocFile {
@@ -51,7 +53,7 @@ public class DocFile {
     }
   }
 
-  public static void writePage(String docfile, String relative, String outfile) {
+  public static void writePage(String docfile, String outfile) {
     Data hdf = Doclava.makeHDF();
 
     /*
@@ -104,9 +106,8 @@ public class DocFile {
     String commentText = filedata.substring(start);
 
     Comment comment = new Comment(commentText, null, new SourcePositionInfo(docfile, lineno, 1));
-    TagInfo[] tags = comment.tags();
 
-    TagInfo.makeHDF(hdf, "root.descr", tags);
+    TagInfo.makeHDF(hdf, "root.descr", comment.tags());
 
     hdf.setValue("commentText", commentText);
 

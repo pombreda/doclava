@@ -124,25 +124,20 @@ public class Converter {
     return new SourcePositionInfo(sp.file().toString(), sp.line(), sp.column());
   }
 
-  public static TagInfo[] convertTags(Tag[] tags, ContainerInfo base) {
-    int len = tags.length;
-    TagInfo[] out = new TagInfo[len];
-    for (int i = 0; i < len; i++) {
-      Tag t = tags[i];
-      /*
-       * System.out.println("Tag name='" + t.name() + "' kind='" + t.kind() + "'");
-       */
-      if (t instanceof SeeTag) {
-        out[i] = Converter.convertSeeTag((SeeTag) t, base);
-      } else if (t instanceof ThrowsTag) {
-        out[i] = Converter.convertThrowsTag((ThrowsTag) t, base);
-      } else if (t instanceof ParamTag) {
-        out[i] = Converter.convertParamTag((ParamTag) t, base);
+  public static List<TagInfo> convertTags(Tag[] tags, ContainerInfo base) {
+    List<TagInfo> result = new ArrayList<TagInfo>();
+    for (Tag tag : tags) {
+      if (tag instanceof SeeTag) {
+        result.add(Converter.convertSeeTag((SeeTag) tag, base));
+      } else if (tag instanceof ThrowsTag) {
+        result.add(Converter.convertThrowsTag((ThrowsTag) tag, base));
+      } else if (tag instanceof ParamTag) {
+        result.add(Converter.convertParamTag((ParamTag) tag, base));
       } else {
-        out[i] = Converter.convertTag(t);
+        result.add(Converter.convertTag(tag));
       }
     }
-    return out;
+    return result;
   }
   
   public static List<ClassInfo> convertClasses(ClassDoc[] classes) {
@@ -156,33 +151,32 @@ public class Converter {
     return result;
   }
 
-  private static ParameterInfo convertParameter(Parameter p, SourcePosition pos, boolean isVarArg) {
-    if (p == null) return null;
-    ParameterInfo pi =
-        new ParameterInfo(p.name(), p.typeName(), Converter.obtainType(p.type()), isVarArg,
-          Converter.convertSourcePosition(pos));
-    return pi;
+  private static ParameterInfo convertParameter(Parameter p, SourcePosition pos) {
+    if (p == null) {
+      return null;
+    }
+    return new ParameterInfo(p.name(), p.typeName(), Converter.obtainType(p.type()),
+        Converter.convertSourcePosition(pos));
   }
 
-  private static ParameterInfo[] convertParameters(Parameter[] p, ExecutableMemberDoc m) {
+  private static List<ParameterInfo> convertParameters(Parameter[] p, ExecutableMemberDoc m) {
+    List<ParameterInfo> result = new ArrayList<ParameterInfo>();
     SourcePosition pos = m.position();
-    int len = p.length;
-    ParameterInfo[] q = new ParameterInfo[len];
-    for (int i = 0; i < len; i++) {
-      boolean isVarArg = (m.isVarArgs() && i == len - 1);
-      q[i] = Converter.convertParameter(p[i], pos, isVarArg);
+    for (Parameter parameter : p) {
+      result.add(Converter.convertParameter(parameter, pos));
     }
-    return q;
+    return result;
   }
 
-  private static TypeInfo[] convertTypes(Type[] p) {
-    if (p == null) return null;
-    int len = p.length;
-    TypeInfo[] q = new TypeInfo[len];
-    for (int i = 0; i < len; i++) {
-      q[i] = Converter.obtainType(p[i]);
+  private static List<TypeInfo> convertTypes(Type[] p) {
+    if (p == null) {
+      return null;
     }
-    return q;
+    List<TypeInfo> result = new ArrayList<TypeInfo>();
+    for (Type type : p) {
+      result.add(Converter.obtainType(type));
+    }
+    return result;
   }
 
   private Converter() {}
@@ -233,75 +227,63 @@ public class Converter {
   };
 
   private static List<MethodInfo> getHiddenMethods(MethodDoc[] methods) {
-    if (methods == null) return null;
-    ArrayList<MethodInfo> out = new ArrayList<MethodInfo>();
-    int N = methods.length;
-    for (int i = 0; i < N; i++) {
-      MethodInfo m = Converter.obtainMethod(methods[i]);
-      // System.out.println(m.toString() + ": ");
-      // for (TypeInfo ti : m.getTypeParameters()){
-      // if (ti.asClassInfo() != null){
-      // System.out.println(" " +ti.asClassInfo().toString());
-      // } else {
-      // System.out.println(" null");
-      // }
-      // }
-      if (m.isHidden()) {
-        out.add(m);
+    if (methods == null) {
+      return null;
+    }
+    List<MethodInfo> result = new ArrayList<MethodInfo>();
+    for (MethodDoc methodDoc : methods) {
+      MethodInfo methodInfo = Converter.obtainMethod(methodDoc);
+      if (methodInfo.isHidden()) {
+        result.add(methodInfo);
       }
     }
-    return out;
+    return result;
   }
 
   /**
    * Convert MethodDoc[] into MethodInfo[]. Also filters according to the -private, -public option,
    * because the filtering doesn't seem to be working in the ClassDoc.constructors(boolean) call.
    */
-  private static MethodInfo[] convertMethods(MethodDoc[] methods) {
-    if (methods == null) return null;
-    ArrayList<MethodInfo> out = new ArrayList<MethodInfo>();
-    int N = methods.length;
-    for (int i = 0; i < N; i++) {
-      MethodInfo m = Converter.obtainMethod(methods[i]);
-      // System.out.println(m.toString() + ": ");
-      // for (TypeInfo ti : m.getTypeParameters()){
-      // if (ti.asClassInfo() != null){
-      // System.out.println(" " +ti.asClassInfo().toString());
-      // } else {
-      // System.out.println(" null");
-      // }
-      // }
+  private static List<MethodInfo> convertMethods(MethodDoc[] methods) {
+    if (methods == null) {
+      return null;
+    }
+    List<MethodInfo> result = new ArrayList<MethodInfo>();
+    for (MethodDoc methodDoc : methods) {
+      MethodInfo m = Converter.obtainMethod(methodDoc);
       if (m.checkLevel()) {
-        out.add(m);
+        result.add(m);
       }
     }
-    return out.toArray(new MethodInfo[out.size()]);
+    return result;
   }
 
-  private static MethodInfo[] convertMethods(ConstructorDoc[] methods) {
-    if (methods == null) return null;
-    ArrayList<MethodInfo> out = new ArrayList<MethodInfo>();
-    int N = methods.length;
-    for (int i = 0; i < N; i++) {
-      MethodInfo m = Converter.obtainMethod(methods[i]);
-      if (m.checkLevel()) {
-        out.add(m);
+  private static List<MethodInfo> convertMethods(ConstructorDoc[] methods) {
+    if (methods == null) {
+      return null;
+    }
+    List<MethodInfo> result = new ArrayList<MethodInfo>();
+    for (ConstructorDoc constructorDoc : methods) {
+      MethodInfo methodInfo = Converter.obtainMethod(constructorDoc);
+      if (methodInfo.checkLevel()) {
+        result.add(methodInfo);
       }
     }
-    return out.toArray(new MethodInfo[out.size()]);
+    return result;
   }
 
   private static List<MethodInfo> convertNonWrittenConstructors(ConstructorDoc[] methods) {
-    if (methods == null) return null;
-    ArrayList<MethodInfo> out = new ArrayList<MethodInfo>();
-    int N = methods.length;
-    for (int i = 0; i < N; i++) {
-      MethodInfo m = Converter.obtainMethod(methods[i]);
+    if (methods == null) {
+      return null;
+    }
+    List<MethodInfo> result = new ArrayList<MethodInfo>();
+    for (ConstructorDoc constructorDoc : methods) {
+      MethodInfo m = Converter.obtainMethod(constructorDoc);
       if (!m.checkLevel()) {
-        out.add(m);
+        result.add(m);
       }
     }
-    return out;
+    return result;
   }
 
   private static MethodInfo obtainMethod(MethodDoc o) {

@@ -17,6 +17,7 @@
 package com.google.doclava;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ParsedTagInfo extends TagInfo {
   private ContainerInfo mContainer;
@@ -29,7 +30,7 @@ public class ParsedTagInfo extends TagInfo {
     mCommentText = text;
   }
 
-  public TagInfo[] commentTags() {
+  public List<TagInfo> commentTags() {
     if (mComment == null) {
       mComment = new Comment(mCommentText, mContainer, position());
     }
@@ -40,16 +41,13 @@ public class ParsedTagInfo extends TagInfo {
     mCommentText = comment;
   }
 
-  public static <T extends ParsedTagInfo> TagInfo[] joinTags(T[] tags) {
-    ArrayList<TagInfo> list = new ArrayList<TagInfo>();
-    final int N = tags.length;
-    for (int i = 0; i < N; i++) {
-      TagInfo[] t = tags[i].commentTags();
-      final int M = t.length;
-      for (int j = 0; j < M; j++) {
-        list.add(t[j]);
+  public static <T extends ParsedTagInfo> List<TagInfo> joinTags(T[] tags) {
+    ArrayList<TagInfo> result = new ArrayList<TagInfo>();
+    for (T tag : tags) {
+      for (TagInfo tagInfo : tag.commentTags()) {
+        result.add(tagInfo);
       }
     }
-    return list.toArray(new TagInfo[list.size()]);
+    return result;
   }
 }

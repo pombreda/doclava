@@ -18,6 +18,7 @@ package com.google.doclava;
 
 import java.io.IOException;
 import java.io.FileWriter;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -42,7 +43,7 @@ public class Proofread {
     }
   }
 
-  public static void finishProofread(String filename) {
+  public static void finishProofread() {
     if (out == null) {
       return;
     }
@@ -76,7 +77,7 @@ public class Proofread {
     write(" ===\n");
   }
 
-  public static void writeTagList(TagInfo[] tags) {
+  public static void writeTagList(List<TagInfo> tags) {
     if (out == null) {
       return;
     }
@@ -104,7 +105,7 @@ public class Proofread {
     }
   }
 
-  public static void writePackages(String filename, TagInfo[] tags) {
+  public static void writePackages(String filename, List<TagInfo> tags) {
     if (out == null) {
       return;
     }
@@ -113,7 +114,7 @@ public class Proofread {
     writeTagList(tags);
   }
 
-  public static void writePackage(String filename, TagInfo[] tags) {
+  public static void writePackage(String filename, List<TagInfo> tags) {
     if (out == null) {
       return;
     }

@@ -333,7 +333,7 @@ public class Doclava {
       // Index page
       writeIndex();
 
-      Proofread.finishProofread(proofreadFile);
+      Proofread.finishProofread();
 
       if (sdkValuePath != null) {
         writeSdkValues(sdkValuePath);
@@ -636,7 +636,7 @@ public class Doclava {
           ClearPage.write(data, templ, filename, js);
         } else if (len > 3 && ".jd".equals(templ.substring(len - 3))) {
           String filename = templ.substring(0, len - 3) + htmlExtension;
-          DocFile.writePage(f.getAbsolutePath(), relative, filename);
+          DocFile.writePage(f.getAbsolutePath(), filename);
         } else {
           ClearPage.copyFile(f, new File(ensureSlash(ClearPage.outputDir) + templ));
         }
@@ -900,8 +900,8 @@ public class Doclava {
     makeClassListHDF(data, "package.exceptions", ClassInfo.sortByName(pkg.exceptions()));
     makeClassListHDF(data, "package.errors", ClassInfo.sortByName(pkg.errors()));
     
-    TagInfo[] shortDescrTags = pkg.firstSentenceTags();
-    TagInfo[] longDescrTags = pkg.inlineTags();
+    List<TagInfo> shortDescrTags = pkg.firstSentenceTags();
+    List<TagInfo> longDescrTags = pkg.inlineTags();
     TagInfo.makeHDF(data, "package.shortDescr", shortDescrTags);
     TagInfo.makeHDF(data, "package.descr", longDescrTags);
     data.setValue("package.hasLongDescr",

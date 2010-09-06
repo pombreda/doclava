@@ -16,7 +16,6 @@
 
 package com.google.doclava.apicheck;
 
-import com.google.common.collect.ImmutableList;
 import com.google.doclava.AnnotationInstanceInfo;
 import com.google.doclava.ClassInfo;
 import com.google.doclava.ConstructorInfo;
@@ -258,7 +257,7 @@ public class ApiCheck {
         mCurrentClass.setAnnotations(new AnnotationInstanceInfo[] {});
       } else if (qName.equals("method")) {
         String rawCommentText = "";
-        TypeInfo[] typeParameters = new TypeInfo[0];
+        List<TypeInfo> typeParameters = new ArrayList<TypeInfo>();
         String name = attributes.getValue("name");
         String signature = null; // TODO
         ClassInfo containingClass = mCurrentClass;
@@ -279,7 +278,7 @@ public class ApiCheck {
         String flatSignature = null; // TODO
         MethodInfo overriddenMethod = null; // TODO
         TypeInfo returnType = Converter.obtainTypeFromString(attributes.getValue("return"));
-        ParameterInfo[] parameters = new ParameterInfo[0];
+        List<ParameterInfo> parameters = new ArrayList<ParameterInfo>();
         List<ClassInfo> thrownExceptions = new ArrayList<ClassInfo>();
         SourcePositionInfo position = SourcePositionInfo.fromXml(attributes.getValue("source"));
         AnnotationInstanceInfo[] annotations = new AnnotationInstanceInfo[] {}; // TODO
@@ -325,7 +324,7 @@ public class ApiCheck {
         boolean isVarArg = typeName.endsWith("...");
         SourcePositionInfo position = null;
         
-        mCurrentMethod.addParameter(new ParameterInfo(name, typeName, type, isVarArg, position));
+        mCurrentMethod.addParameter(new ParameterInfo(name, typeName, type, position));
         mCurrentMethod.setVarargs(isVarArg);
       } else if (qName.equals("exception")) {
         mCurrentMethod.addException(attributes.getValue("type"));

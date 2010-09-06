@@ -18,6 +18,7 @@ package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
 
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -111,7 +112,7 @@ public class AttrTagInfo extends TagInfo {
     mAttrInfo = info;
   }
 
-  public static void makeReferenceHDF(Data data, String base, AttrTagInfo[] tags) {
+  public static void makeReferenceHDF(Data data, String base, List<AttrTagInfo> tags) {
     int i = 0;
     for (AttrTagInfo t : tags) {
       if (REF_COMMAND.equals(t.mCommand)) {

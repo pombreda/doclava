@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.Vector;
 
 public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<ClassInfo>, Scoped {
   public static final Comparator<ClassInfo> ORDER_BY_NAME = new Comparator<ClassInfo>() {
@@ -80,9 +79,9 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     mNameParts = name.split("\\.");
   }
 
-  public void init(TypeInfo typeInfo, List<ClassInfo> interfaces, TypeInfo[] interfaceTypes,
-      List<ClassInfo> innerClasses, MethodInfo[] constructors, MethodInfo[] methods,
-      MethodInfo[] annotationElements, List<FieldInfo> fields, List<FieldInfo> enumConstants,
+  public void init(TypeInfo typeInfo, List<ClassInfo> interfaces, List<TypeInfo> interfaceTypes,
+      List<ClassInfo> innerClasses, List<MethodInfo> constructors, List<MethodInfo> methods,
+      List<MethodInfo> annotationElements, List<FieldInfo> fields, List<FieldInfo> enumConstants,
       PackageInfo containingPackage, ClassInfo containingClass, ClassInfo superclass,
       TypeInfo superclassType, AnnotationInstanceInfo[] annotations) {
     mTypeInfo = typeInfo;
@@ -255,7 +254,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     return mRealInterfaces;
   }
 
-  TypeInfo[] realInterfaceTypes() {
+  List<TypeInfo> realInterfaceTypes() {
     return mRealInterfaceTypes;
   }
 
@@ -275,22 +274,20 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     return mQualifiedName;
   }
 
-  public MethodInfo[] allConstructors() {
+  public List<MethodInfo> allConstructors() {
     return mAllConstructors;
   }
 
   public List<MethodInfo> constructors() {
     if (mConstructors == null) {
-      MethodInfo[] methods = mAllConstructors;
-      ArrayList<MethodInfo> ctors = new ArrayList<MethodInfo>();
-      for (int i = 0; i < methods.length; i++) {
-        MethodInfo m = methods[i];
+      ArrayList<MethodInfo> result = new ArrayList<MethodInfo>();
+      for (MethodInfo m : mAllConstructors) {
         if (!m.isHidden()) {
-          ctors.add(m);
+          result.add(m);
         }
       }
-      mConstructors = ctors;
-      Collections.sort(mConstructors, MethodInfo.comparator);
+      Collections.sort(result, MethodInfo.comparator);
+      mConstructors = result;
     }
     return mConstructors;
   }
@@ -299,11 +296,11 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     return mInnerClasses;
   }
 
-  public TagInfo[] inlineTags() {
+  public List<TagInfo> inlineTags() {
     return comment().tags();
   }
 
-  public TagInfo[] firstSentenceTags() {
+  public List<TagInfo> firstSentenceTags() {
     return comment().briefTags();
   }
 
@@ -329,7 +326,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     return mIsDeprecated;
   }
 
-  public TagInfo[] deprecatedTags() {
+  public List<TagInfo> deprecatedTags() {
     // Should we also do the interfaces?
     return comment().deprecatedTags();
   }
@@ -365,7 +362,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     return mMethods;
   }
 
-  public MethodInfo[] annotationElements() {
+  public List<MethodInfo> annotationElements() {
     return mAnnotationElements;
   }
 
@@ -477,25 +474,13 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     return mSelfMethods;
   }
 
-  public MethodInfo[] allSelfMethods() {
+  public List<MethodInfo> allSelfMethods() {
     return mAllSelfMethods;
   }
 
   public void addMethod(MethodInfo method) {
     mApiCheckMethods.put(method.getHashableName(), method);
-    
-    if (mAllSelfMethods == null) {
-      mAllSelfMethods = new MethodInfo[] { method };
-      return;
-    }
-    
-    MethodInfo[] methods = new MethodInfo[mAllSelfMethods.length + 1];
-    int i = 0;
-    for (MethodInfo m : mAllSelfMethods) {
-      methods[i++] = m;
-    }
-    methods[i] = method;
-    mAllSelfMethods = methods;
+    mAllSelfMethods.add(method);
   }
   
   public void setContainingPackage(PackageInfo pkg) {
@@ -700,7 +685,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     containingPackage().makeClassLinkListHDF(data, "class.package");
 
     // inheritance hierarchy
-    Vector<ClassInfo> superClasses = new Vector<ClassInfo>();
+    List<ClassInfo> superClasses = new ArrayList<ClassInfo>();
     superClasses.add(this);
     ClassInfo supr = superclass();
     while (supr != null) {
@@ -709,7 +694,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     }
     n = superClasses.size();
     for (i = 0; i < n; i++) {
-      supr = superClasses.elementAt(n - i - 1);
+      supr = superClasses.get(n - i - 1);
 
       supr.asTypeInfo().makeQualifiedHDF(data, "class.inheritance." + i + ".class");
       supr.asTypeInfo().makeHDF(data, "class.inheritance." + i + ".short_class");
@@ -1209,11 +1194,11 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
   // init
   private List<ClassInfo> mRealInterfaces = new ArrayList<ClassInfo>();
   private List<ClassInfo> mInterfaces;
-  private TypeInfo[] mRealInterfaceTypes;
+  private List<TypeInfo> mRealInterfaceTypes;
   private List<ClassInfo> mInnerClasses;
-  private MethodInfo[] mAllConstructors;
-  private MethodInfo[] mAllSelfMethods;
-  private MethodInfo[] mAnnotationElements; // if this class is an annotation
+  private List<MethodInfo> mAllConstructors;
+  private List<MethodInfo> mAllSelfMethods = new ArrayList<MethodInfo>();
+  private List<MethodInfo> mAnnotationElements; // if this class is an annotation
   private List<FieldInfo> mAllSelfFields;
   private List<FieldInfo> mEnumConstants;
   private PackageInfo mContainingPackage;

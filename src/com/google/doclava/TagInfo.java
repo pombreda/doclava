@@ -17,6 +17,7 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
+import java.util.List;
 
 public class TagInfo {
   private String mName;
@@ -57,7 +58,7 @@ public class TagInfo {
     data.setValue(base + ".kind", kind());
   }
 
-  public static void makeHDF(Data data, String base, TagInfo[] tags) {
+  public static void makeHDF(Data data, String base, List<? extends TagInfo> tags) {
     makeHDF(data, base, tags, null, 0, 0);
   }
 
@@ -65,15 +66,14 @@ public class TagInfo {
     makeHDF(data, base, tags.tags(), tags.inherited(), 0, 0);
   }
 
-  private static int makeHDF(Data data, String base, TagInfo[] tags, InheritedTags inherited,
-      int j, int depth) {
+  private static int makeHDF(Data data, String base, List<? extends TagInfo> tags,
+      InheritedTags inherited, int j, int depth) {
     int i;
-    int len = tags.length;
-    if (len == 0 && inherited != null) {
+    if (tags.isEmpty() && inherited != null) {
       j = makeHDF(data, base, inherited.tags(), inherited.inherited(), j, depth + 1);
     } else {
-      for (i = 0; i < len; i++, j++) {
-        TagInfo t = tags[i];
+      for (i = 0; i < tags.size(); i++, j++) {
+        TagInfo t = tags.get(i);
         if (inherited != null && t.name().equals("@inheritDoc")) {
           j = makeHDF(data, base, inherited.tags(), inherited.inherited(), j, depth + 1);
         } else {
@@ -92,18 +92,18 @@ public class TagInfo {
    * Returns true if the given list of tags match. Tags must be ordered
    * equivalently for the lists to be equal.
    */
-  static boolean tagsEqual(TagInfo[] first, TagInfo[] second) {
-    if (first.length != second.length) {
+  static boolean tagsEqual(List<TagInfo> first, List<TagInfo> second) {
+    if (first.size() != second.size()) {
       return false;
     }
-    for (int i = 0; i < first.length; i++) {
-      if (!first[i].mName.equals(second[i].mName)) {
+    for (int i = 0; i < first.size(); i++) {
+      if (!first.get(i).mName.equals(second.get(i).mName)) {
         return false;
       }
-      if (!first[i].mKind.equals(second[i].mKind)) {
+      if (!first.get(i).mKind.equals(second.get(i).mKind)) {
         return false;
       }
-      if (!first[i].mText.equals(second[i].mText)) {
+      if (!first.get(i).mText.equals(second.get(i).mText)) {
         return false;
       }
     }

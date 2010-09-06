@@ -102,11 +102,11 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     return mName;
   }
 
-  public TagInfo[] inlineTags() {
+  public List<TagInfo> inlineTags() {
     return comment().tags();
   }
 
-  public TagInfo[] firstSentenceTags() {
+  public List<TagInfo> firstSentenceTags() {
     return comment().briefTags();
   }
 

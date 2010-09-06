@@ -34,7 +34,7 @@ public class TodoFile {
     return false;
   }
 
-  public static boolean areTagsUseful(TagInfo[] tags) {
+  public static boolean areTagsUseful(List<TagInfo> tags) {
     for (TagInfo t : tags) {
       if ("Text".equals(t.name()) && t.text().trim().length() != 0) {
         return true;

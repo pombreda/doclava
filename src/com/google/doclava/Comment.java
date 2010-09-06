@@ -16,6 +16,7 @@
 
 package com.google.doclava;
 
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class Comment {
     m = TAG_BEGIN.matcher(text);
 
     int start = 0;
-    int end = 0;
+    int end;
     while (m.find()) {
       end = m.start();
 
@@ -82,7 +83,6 @@ public class Comment {
         m = INLINE_TAG.matcher(text);
         start = 0;
         while (m.find()) {
-          String str = m.group(1);
           String tagname = m.group(2);
           String tagvalue = m.group(3);
           tag(null, m.group(1), true, pos);
@@ -192,7 +192,7 @@ public class Comment {
     }
   }
 
-  public TagInfo[] tags() {
+  public List<TagInfo> tags() {
     init();
     return mInlineTags;
   }
@@ -210,42 +210,42 @@ public class Comment {
     return results.toArray(new TagInfo[results.size()]);
   }
 
-  public ParamTagInfo[] paramTags() {
+  public List<ParamTagInfo> paramTags() {
     init();
     return mParamTags;
   }
 
-  public SeeTagInfo[] seeTags() {
+  public List<SeeTagInfo> seeTags() {
     init();
     return mSeeTags;
   }
 
-  public ThrowsTagInfo[] throwsTags() {
+  public List<ThrowsTagInfo> throwsTags() {
     init();
     return mThrowsTags;
   }
 
-  public TagInfo[] returnTags() {
+  public List<TagInfo> returnTags() {
     init();
     return mReturnTags;
   }
 
-  public TagInfo[] deprecatedTags() {
+  public List<TagInfo> deprecatedTags() {
     init();
     return mDeprecatedTags;
   }
 
-  public TagInfo[] undeprecateTags() {
+  public List<TagInfo> undeprecateTags() {
     init();
     return mUndeprecateTags;
   }
 
-  public AttrTagInfo[] attrTags() {
+  public List<AttrTagInfo> attrTags() {
     init();
     return mAttrTags;
   }
 
-  public TagInfo[] briefTags() {
+  public List<TagInfo> briefTags() {
     init();
     return mBriefTags;
   }
@@ -308,18 +308,17 @@ public class Comment {
     mText = null;
     mInitialized = true;
 
-    mInlineTags = mInlineTagsList.toArray(new TagInfo[mInlineTagsList.size()]);
-    mParamTags = mParamTagsList.toArray(new ParamTagInfo[mParamTagsList.size()]);
-    mSeeTags = mSeeTagsList.toArray(new SeeTagInfo[mSeeTagsList.size()]);
-    mThrowsTags = mThrowsTagsList.toArray(new ThrowsTagInfo[mThrowsTagsList.size()]);
-    mReturnTags =
-        ParsedTagInfo.joinTags(mReturnTagsList.toArray(new ParsedTagInfo[mReturnTagsList.size()]));
-    mDeprecatedTags =
-        ParsedTagInfo.joinTags(mDeprecatedTagsList.toArray(new ParsedTagInfo[mDeprecatedTagsList
-            .size()]));
-    mUndeprecateTags = mUndeprecateTagsList.toArray(new TagInfo[mUndeprecateTagsList.size()]);
-    mAttrTags = mAttrTagsList.toArray(new AttrTagInfo[mAttrTagsList.size()]);
-    mBriefTags = mBriefTagsList.toArray(new TagInfo[mBriefTagsList.size()]);
+    mInlineTags = mInlineTagsList;
+    mParamTags = mParamTagsList;
+    mSeeTags = mSeeTagsList;
+    mThrowsTags = mThrowsTagsList;
+    mReturnTags = ParsedTagInfo.joinTags(mReturnTagsList.toArray(
+        new ParsedTagInfo[mReturnTagsList.size()]));
+    mDeprecatedTags = ParsedTagInfo.joinTags(mDeprecatedTagsList.toArray(
+        new ParsedTagInfo[mDeprecatedTagsList.size()]));
+    mUndeprecateTags = mUndeprecateTagsList;
+    mAttrTags = mAttrTagsList;
+    mBriefTags = mBriefTagsList;
 
     mParamTagsList = null;
     mSeeTagsList = null;
@@ -338,18 +337,16 @@ public class Comment {
   String mText;
   ContainerInfo mBase;
   SourcePositionInfo mPosition;
-  int mLine = 1;
 
-  TagInfo[] mInlineTags;
-  TagInfo[] mTags;
-  ParamTagInfo[] mParamTags;
-  SeeTagInfo[] mSeeTags;
-  ThrowsTagInfo[] mThrowsTags;
-  TagInfo[] mBriefTags;
-  TagInfo[] mReturnTags;
-  TagInfo[] mDeprecatedTags;
-  TagInfo[] mUndeprecateTags;
-  AttrTagInfo[] mAttrTags;
+  List<TagInfo> mInlineTags;
+  List<ParamTagInfo> mParamTags;
+  List<SeeTagInfo> mSeeTags;
+  List<ThrowsTagInfo> mThrowsTags;
+  List<TagInfo> mBriefTags;
+  List<TagInfo> mReturnTags;
+  List<TagInfo> mDeprecatedTags;
+  List<TagInfo> mUndeprecateTags;
+  List<AttrTagInfo> mAttrTags;
 
   ArrayList<TagInfo> mInlineTagsList = new ArrayList<TagInfo>();
   ArrayList<TagInfo> mTagsList = new ArrayList<TagInfo>();

@@ -17,12 +17,12 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-
-import java.util.regex.Pattern;
+import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class ThrowsTagInfo extends ParsedTagInfo {
-  static final Pattern PATTERN = Pattern.compile("(\\S+)\\s+(.*)", Pattern.DOTALL);
+public final class ThrowsTagInfo extends ParsedTagInfo {
+  private static final Pattern PATTERN = Pattern.compile("(\\S+)\\s+(.*)", Pattern.DOTALL);
   private ClassInfo mException;
 
   public ThrowsTagInfo(String name, String kind, String text, ContainerInfo base,
@@ -54,21 +54,17 @@ public class ThrowsTagInfo extends ParsedTagInfo {
   }
 
   public TypeInfo exceptionType() {
-    if (mException != null) {
-      return mException.asTypeInfo();
-    } else {
-      return null;
-    }
+    return mException != null ? mException.asTypeInfo() : null;
   }
 
-  public static void makeHDF(Data data, String base, ThrowsTagInfo[] tags) {
-    for (int i = 0; i < tags.length; i++) {
-      TagInfo.makeHDF(data, base + '.' + i + ".comment", tags[i].commentTags());
-      if (tags[i].exceptionType() != null) {
-        tags[i].exceptionType().makeHDF(data, base + "." + i + ".type");
+  public static void makeHDF(Data data, String base, List<ThrowsTagInfo> tags) {
+    int i = 0;
+    for (ThrowsTagInfo info : tags) {
+      TagInfo.makeHDF(data, base + '.' + i + ".comment", info.commentTags());
+      if (info.exceptionType() != null) {
+        info.exceptionType().makeHDF(data, base + "." + i + ".type");
       }
+      i++;
     }
   }
-
-
 }

@@ -17,8 +17,9 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.TreeMap;
 
 public class TodoFile {
 

@@ -22,19 +22,39 @@ import com.google.clearsilver.jsilver.resourceloader.ClassResourceLoader;
 import com.google.clearsilver.jsilver.resourceloader.CompositeResourceLoader;
 import com.google.clearsilver.jsilver.resourceloader.FileSystemResourceLoader;
 import com.google.clearsilver.jsilver.resourceloader.ResourceLoader;
-
-import com.sun.javadoc.*;
-
-import java.util.*;
-import java.util.jar.JarFile;
-import java.io.*;
-import java.lang.reflect.Proxy;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.Doc;
+import com.sun.javadoc.DocErrorReporter;
+import com.sun.javadoc.LanguageVersion;
+import com.sun.javadoc.MemberDoc;
+import com.sun.javadoc.RootDoc;
+import com.sun.javadoc.Type;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.jar.JarFile;
 
 public class Doclava {
   private static final String SDK_CONSTANT_ANNOTATION = "android.annotation.SdkConstant";
@@ -224,6 +244,12 @@ public class Doclava {
     // Set up the data structures
     Converter.makeInfo(r);
 
+    Stubs stubs = new Stubs();
+
+    stubs.initVisible(stubPackages);
+    initVisiblePackages();
+    initVisibleClasses(stubs.getNotStrippable());
+
     // Stubs and xml
     final File currentApiFile;
     if (!generateDocs && apiFile != null) {
@@ -235,7 +261,7 @@ public class Doclava {
       currentApiFile = null;
     }
 
-    Stubs.writeStubsAndXml(stubsDir, currentApiFile, stubPackages);
+    stubs.writeStubsAndXml(stubsDir, currentApiFile);
 
     if (generateDocs && apiFile != null) {
       ClearPage.copyFile(currentApiFile, new File(apiFile));
@@ -347,6 +373,50 @@ public class Doclava {
     Errors.printErrors();
     
     return !Errors.hadError;
+  }
+
+  private static void initVisibleClasses(Set<ClassInfo> notStrippable) {
+    Set<ClassInfo> allTypes = new HashSet<ClassInfo>();
+    for (ClassInfo cl : Iterables.concat(Converter.rootClasses(), notStrippable)) {
+      cl.addAllTypes(allTypes);
+    }
+
+    for (ClassInfo cl : allTypes) {
+      cl.initVisible();
+    }
+  }
+
+  private static void initVisiblePackages() {
+    SortedMap<String, PackageInfo> sorted = new TreeMap<String, PackageInfo>();
+    for (ClassInfo cl : Converter.rootClasses()) {
+      PackageInfo pkg = cl.containingPackage();
+      String name = pkg == null ? "" : pkg.name();
+      sorted.put(name, pkg);
+    }
+
+    ImmutableList.Builder<PackageInfo> result = ImmutableList.builder();
+
+    for (PackageInfo pkg : sorted.values()) {
+      if (pkg.isHidden()) {
+        continue;
+      }
+
+      pkg.initVisible();
+
+      if (pkg.getAnnotations().isEmpty()
+          && pkg.getInterfaces().isEmpty()
+          && pkg.ordinaryClasses().isEmpty()
+          && pkg.enums().isEmpty()
+          && pkg.exceptions().isEmpty()
+          && pkg.errors().isEmpty()
+          && pkg.inlineTags().isEmpty()) {
+        continue;
+      }
+
+      result.add(pkg);
+    }
+
+     sVisiblePackages = result.build();
   }
 
   private static void writeIndex() {
@@ -783,76 +853,13 @@ public class Doclava {
     }
   }
 
-  private static PackageInfo[] sVisiblePackages = null;
+  private static List<PackageInfo> sVisiblePackages = null;
 
-  public static PackageInfo[] choosePackages() {
-    if (sVisiblePackages != null) {
-      return sVisiblePackages;
+  public static List<PackageInfo> getVisiblePackages() {
+    if (sVisiblePackages == null) {
+      throw new IllegalStateException("display packages not yet initialized!");
     }
 
-    SortedMap<String, PackageInfo> sorted = new TreeMap<String, PackageInfo>();
-    for (ClassInfo cl : Converter.rootClasses()) {
-      PackageInfo pkg = cl.containingPackage();
-      String name;
-      if (pkg == null) {
-        name = "";
-      } else {
-        name = pkg.name();
-      }
-      sorted.put(name, pkg);
-    }
-
-    ArrayList<PackageInfo> result = new ArrayList<PackageInfo>();
-
-    for (String s : sorted.keySet()) {
-      PackageInfo pkg = sorted.get(s);
-
-      if (pkg.isHidden()) {
-        continue;
-      }
-      Boolean allHidden = true;
-      int pass = 0;
-      List<ClassInfo> classesToCheck = null;
-      while (pass < 5) {
-        switch (pass) {
-          case 0:
-            classesToCheck = pkg.ordinaryClasses();
-            break;
-          case 1:
-            classesToCheck = pkg.enums();
-            break;
-          case 2:
-            classesToCheck = pkg.errors();
-            break;
-          case 3:
-            classesToCheck = pkg.exceptions();
-            break;
-          case 4:
-            classesToCheck = pkg.getInterfaces();
-            break;
-          default:
-            System.err.println("Error reading package: " + pkg.name());
-            break;
-        }
-        for (ClassInfo cl : classesToCheck) {
-          if (!cl.isHidden()) {
-            allHidden = false;
-            break;
-          }
-        }
-        if (!allHidden) {
-          break;
-        }
-        pass++;
-      }
-      if (allHidden) {
-        continue;
-      }
-
-      result.add(pkg);
-    }
-
-    sVisiblePackages = result.toArray(new PackageInfo[result.size()]);
     return sVisiblePackages;
   }
 
@@ -860,7 +867,7 @@ public class Doclava {
     Data data = makePackageHDF();
 
     int i = 0;
-    for (PackageInfo pkg : choosePackages()) {
+    for (PackageInfo pkg : getVisiblePackages()) {
       writePackage(pkg);
 
       data.setValue("docs.packages." + i + ".name", pkg.name());
@@ -893,12 +900,12 @@ public class Doclava {
     data.setValue("package.descr", "...description...");
     pkg.setFederatedReferences(data, "package");
 
-    makeClassListHDF(data, "package.annotations", ClassInfo.sortByName(pkg.getAnnotations()));
-    makeClassListHDF(data, "package.interfaces", ClassInfo.sortByName(pkg.getInterfaces()));
-    makeClassListHDF(data, "package.classes", ClassInfo.sortByName(pkg.ordinaryClasses()));
-    makeClassListHDF(data, "package.enums", ClassInfo.sortByName(pkg.enums()));
-    makeClassListHDF(data, "package.exceptions", ClassInfo.sortByName(pkg.exceptions()));
-    makeClassListHDF(data, "package.errors", ClassInfo.sortByName(pkg.errors()));
+    makeClassListHDF(data, "package.annotations", pkg.getAnnotations());
+    makeClassListHDF(data, "package.interfaces", pkg.getInterfaces());
+    makeClassListHDF(data, "package.classes", pkg.ordinaryClasses());
+    makeClassListHDF(data, "package.enums", pkg.enums());
+    makeClassListHDF(data, "package.exceptions", pkg.exceptions());
+    makeClassListHDF(data, "package.errors", pkg.errors());
     
     List<TagInfo> shortDescrTags = pkg.firstSentenceTags();
     List<TagInfo> longDescrTags = pkg.inlineTags();
@@ -922,7 +929,7 @@ public class Doclava {
     int i;
     Data data = makePackageHDF();
 
-    List<ClassInfo> classes = PackageInfo.filterHidden(Converter.convertClasses(root.classes()));
+    List<ClassInfo> classes = Visibility.filterHidden(Converter.convertClasses(root.classes()));
     if (classes.isEmpty()) {
       return;
     }

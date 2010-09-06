@@ -18,10 +18,10 @@ package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import com.sun.javadoc.ClassDoc;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +31,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<ClassInfo>, Scoped {
-  public static final Comparator<ClassInfo> ORDER_BY_NAME = new Comparator<ClassInfo>() {
+  public static final Ordering<ClassInfo> ORDER_BY_NAME = new Ordering<ClassInfo>() {
     public int compare(ClassInfo a, ClassInfo b) {
       return a.name().compareTo(b.name());
     }
@@ -115,12 +115,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
 
     Collections.sort(mEnumConstants, FieldInfo.comparator);
     Collections.sort(mInnerClasses, ORDER_BY_NAME);
-  }
-
-  public void init2() {
-    // calling this here forces the AttrTagInfo objects to be linked to the AttribtueInfo
-    // objects
-    selfAttributes();
   }
 
   public void init3(List<ClassInfo> realInnerClasses) {
@@ -230,6 +224,23 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     }
   }
 
+  /**
+   * Adds this type, its supertype, and its interfaces to {@code out}.
+   */
+  public void addAllTypes(Set<ClassInfo> out) {
+    if (!out.add(this)) {
+      return;
+    }
+
+    if (mRealSuperclass != null) {
+      mRealSuperclass.addAllTypes(out);
+    }
+
+    for (ClassInfo i : mRealInterfaces) {
+      i.addAllTypes(out);
+    }
+  }
+
   public List<ClassInfo> getInterfaces() {
     if (mInterfaces == null) {
       if (checkLevel()) {
@@ -278,18 +289,28 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     return mAllConstructors;
   }
 
-  public List<MethodInfo> constructors() {
-    if (mConstructors == null) {
-      ArrayList<MethodInfo> result = new ArrayList<MethodInfo>();
-      for (MethodInfo m : mAllConstructors) {
-        if (!m.isHidden()) {
-          result.add(m);
-        }
+  public void initVisible() {
+    List<MethodInfo> result = new ArrayList<MethodInfo>();
+    for (MethodInfo m : mAllConstructors) {
+      if (!m.isHidden()) {
+        result.add(m);
       }
-      Collections.sort(result, MethodInfo.comparator);
-      mConstructors = result;
     }
+    Collections.sort(result, MethodInfo.ORDER_BY_NAME);
+    mConstructors = ImmutableList.copyOf(result);
+
+    selfAttributes();
+  }
+
+  public List<MethodInfo> constructors() {
+    checkInitVisibleCalled();
     return mConstructors;
+  }
+
+  private void checkInitVisibleCalled() {
+    if (mConstructors == null) {
+      throw new IllegalStateException("Expected initVisible() to be called first; " + qualifiedName());
+    }
   }
 
   public List<ClassInfo> innerClasses() {
@@ -357,7 +378,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
       }
 
       mMethods = new ArrayList<MethodInfo>(all.values());
-      Collections.sort(mMethods, MethodInfo.comparator);
+      Collections.sort(mMethods, MethodInfo.ORDER_BY_NAME);
     }
     return mMethods;
   }
@@ -469,7 +490,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
       
       // combine and return it
       mSelfMethods = new ArrayList<MethodInfo>(methods.values());
-      Collections.sort(mSelfMethods, MethodInfo.comparator);
+      Collections.sort(mSelfMethods, MethodInfo.ORDER_BY_NAME);
     }
     return mSelfMethods;
   }
@@ -1104,11 +1125,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     return null;
   }
 
-  public static List<ClassInfo> sortByName(List<ClassInfo> classes) {
-    Collections.sort(classes, ORDER_BY_NAME);
-    return classes;
-  }
-
   public boolean equals(ClassInfo that) {
     if (that != null) {
       return this.qualifiedName().equals(that.qualifiedName());
@@ -1210,8 +1226,8 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
   private boolean mSuperclassInit;
   private boolean mDeprecatedKnown;
 
-  // lazy
-  private List<MethodInfo> mConstructors;
+  // display
+  private ImmutableList<MethodInfo> mConstructors;
   private List<ClassInfo> mRealInnerClasses;
   private List<MethodInfo> mSelfMethods;
   private List<FieldInfo> mSelfFields;

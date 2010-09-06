@@ -17,8 +17,8 @@
 package com.google.doclava;
 
 import com.google.doclava.apicheck.AbstractMethodInfo;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConstructorInfo implements AbstractMethodInfo {
 

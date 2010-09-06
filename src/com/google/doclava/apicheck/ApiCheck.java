@@ -28,25 +28,20 @@ import com.google.doclava.PackageInfo;
 import com.google.doclava.ParameterInfo;
 import com.google.doclava.SourcePositionInfo;
 import com.google.doclava.TypeInfo;
-
-
-
 import com.sun.javadoc.ClassDoc;
-
-import java.util.List;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 public class ApiCheck {
   // parse out and consume the -whatever command line flags

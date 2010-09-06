@@ -16,11 +16,11 @@
 
 package com.google.doclava;
 
-import java.io.IOException;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Proofread {
   static FileWriter out = null;

@@ -16,10 +16,10 @@
 
 package com.google.doclava;
 
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Comment {
   static final Pattern LEADING_WHITESPACE = Pattern.compile("^[ \t\n\r]*(.*)$", Pattern.DOTALL);

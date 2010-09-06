@@ -16,42 +16,26 @@
 
 package com.google.doclava;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
 
-public class Stubs {
-  private static HashSet<ClassInfo> notStrippable;
+public final class Stubs {
+  private Set<ClassInfo> notStrippable;
 
-  public static void writeStubsAndXml(String stubsDir, File xmlFile,
-      HashSet<String> stubPackages) {
-
-    if (stubsDir == null && xmlFile == null) {
-      // nothing to do.
-      return;
-    }
-
+  public void initVisible(HashSet<String> stubPackages) {
     // figure out which classes we need
-    notStrippable = new HashSet<ClassInfo>();
-    PrintStream xmlWriter = null;
-    if (xmlFile != null) {
-      ClearPage.ensureDirectory(xmlFile);
-      try {
-        xmlWriter = new PrintStream(xmlFile);
-      } catch (FileNotFoundException e) {
-        Errors.error(Errors.IO_ERROR, new SourcePositionInfo(xmlFile.getAbsolutePath(), 0, 0),
-            "Cannot open file for write.");
-      }
-    }
+    notStrippable = new LinkedHashSet<ClassInfo>();
     // If a class is public or protected, not hidden, and marked as included,
     // then we can't strip it
     for (ClassInfo cl : Converter.allClasses()) {
@@ -60,7 +44,7 @@ public class Stubs {
       }
     }
 
-    // complain about anything that looks includeable but is not supposed to
+    // complain about anything that looks includable but is not supposed to
     // be written, e.g. hidden things
     for (ClassInfo cl : notStrippable) {
       if (!cl.isHidden()) {
@@ -130,13 +114,35 @@ public class Stubs {
         }
       }
     }
+  }
+
+  public Set<ClassInfo> getNotStrippable() {
+    return notStrippable;
+  }
+
+  public void writeStubsAndXml(String stubsDir, File xmlFile) {
+
+    if (stubsDir == null && xmlFile == null) {
+      // nothing to do.
+      return;
+    }
+
+    PrintStream xmlWriter = null;
+
+    if (xmlFile != null) {
+      ClearPage.ensureDirectory(xmlFile);
+      try {
+        xmlWriter = new PrintStream(xmlFile);
+      } catch (FileNotFoundException e) {
+        Errors.error(Errors.IO_ERROR, new SourcePositionInfo(xmlFile.getAbsolutePath(), 0, 0),
+            "Cannot open file for write.");
+      }
+    }
 
     writeStubsAndXml(stubsDir, xmlWriter, notStrippable);
   }
 
-  public static void writeStubsAndXml(String stubsDir, PrintStream xmlWriter,
-                                      Set<ClassInfo> classes) {
-
+  private void writeStubsAndXml(String stubsDir, PrintStream xmlWriter, Set<ClassInfo> classes) {
     Map<PackageInfo, List<ClassInfo>> packages = new HashMap<PackageInfo, List<ClassInfo>>();
     for (ClassInfo cl : classes) {
       if (!cl.isDocOnly()) {
@@ -164,7 +170,7 @@ public class Stubs {
     }
   }
 
-  public static void cantStripThis(ClassInfo cl, HashSet<ClassInfo> notStrippable) {
+  private void cantStripThis(ClassInfo cl, Set<ClassInfo> notStrippable) {
 
     if (!notStrippable.add(cl)) {
       // slight optimization: if it already contains cl, it already contains
@@ -234,7 +240,7 @@ public class Stubs {
     }
   }
 
-  private static void cantStripThis(List<MethodInfo> mInfos, HashSet<ClassInfo> notStrippable) {
+  private void cantStripThis(List<MethodInfo> mInfos, Set<ClassInfo> notStrippable) {
     // for each method, blow open the parameters, throws and return types. also blow open their
     // generics
     if (mInfos != null) {
@@ -286,7 +292,7 @@ public class Stubs {
     }
   }
 
-  static String javaFileName(ClassInfo cl) {
+  private static String javaFileName(ClassInfo cl) {
     String dir = "";
     PackageInfo pkg = cl.containingPackage();
     if (pkg != null) {
@@ -296,7 +302,7 @@ public class Stubs {
     return dir + cl.name() + ".java";
   }
 
-  static void writeClassFile(String stubsDir, ClassInfo cl) {
+  private void writeClassFile(String stubsDir, ClassInfo cl) {
     // inner classes are written by their containing class
     if (cl.containingClass() != null) {
       return;
@@ -326,7 +332,7 @@ public class Stubs {
     }
   }
 
-  static void writeClassFile(PrintStream stream, ClassInfo cl) {
+  private void writeClassFile(PrintStream stream, ClassInfo cl) {
     PackageInfo pkg = cl.containingPackage();
     if (pkg != null) {
       stream.println("package " + pkg.name() + ";");
@@ -334,7 +340,7 @@ public class Stubs {
     writeClass(stream, cl);
   }
 
-  static void writeClass(PrintStream stream, ClassInfo cl) {
+  private void writeClass(PrintStream stream, ClassInfo cl) {
     writeAnnotations(stream, cl.annotations());
 
     stream.print(cl.scope() + " ");
@@ -501,7 +507,7 @@ public class Stubs {
   }
 
 
-  static void writeMethod(PrintStream stream, MethodInfo method, boolean isConstructor) {
+  private static void writeMethod(PrintStream stream, MethodInfo method, boolean isConstructor) {
     String comma;
 
     stream.print(method.scope() + " ");
@@ -565,7 +571,7 @@ public class Stubs {
     }
   }
 
-  static void writeField(PrintStream stream, FieldInfo field) {
+  private static void writeField(PrintStream stream, FieldInfo field) {
     stream.print(field.scope() + " ");
     if (field.isStatic()) {
       stream.print("static ");
@@ -591,14 +597,14 @@ public class Stubs {
     stream.println(";");
   }
 
-  static boolean fieldIsInitialized(FieldInfo field) {
+  private static boolean fieldIsInitialized(FieldInfo field) {
     return (field.isFinal() && field.constantValue() != null)
         || !field.type().dimension().equals("") || field.containingClass().isInterface();
   }
 
   // Returns 'true' if the method is an @Override of a visible parent
   // method implementation, and thus does not affect the API.
-  static boolean methodIsOverride(MethodInfo mi) {
+  private boolean methodIsOverride(MethodInfo mi) {
     // Abstract/static/final methods are always listed in the API description
     if (mi.isAbstract() || mi.isStatic() || mi.isFinal()) {
       return false;
@@ -629,7 +635,7 @@ public class Stubs {
     return false;
   }
 
-  static boolean canCallMethod(ClassInfo from, MethodInfo m) {
+  private static boolean canCallMethod(ClassInfo from, MethodInfo m) {
     if (m.isPublic() || m.isProtected()) {
       return true;
     }
@@ -644,7 +650,7 @@ public class Stubs {
   }
 
   // call a constructor, any constructor on this class's superclass.
-  static String superCtorCall(ClassInfo cl, List<ClassInfo> thrownExceptions) {
+  private static String superCtorCall(ClassInfo cl, List<ClassInfo> thrownExceptions) {
     ClassInfo base = cl.realSuperclass();
     if (base == null) {
       return "";
@@ -718,7 +724,7 @@ public class Stubs {
     }
   }
 
-  static void writeAnnotations(PrintStream stream, AnnotationInstanceInfo[] annotations) {
+  private static void writeAnnotations(PrintStream stream, AnnotationInstanceInfo[] annotations) {
     for (AnnotationInstanceInfo ann : annotations) {
       if (!ann.type().isHidden()) {
         stream.println(ann.toString());
@@ -726,7 +732,7 @@ public class Stubs {
     }
   }
 
-  static void writeAnnotationElement(PrintStream stream, MethodInfo ann) {
+  private static void writeAnnotationElement(PrintStream stream, MethodInfo ann) {
     stream.print(ann.returnType().fullName());
     stream.print(" ");
     stream.print(ann.name());
@@ -739,12 +745,12 @@ public class Stubs {
     stream.println(";");
   }
 
-  static void writeXML(PrintStream xmlWriter, Map<PackageInfo, List<ClassInfo>> allClasses,
+  private void writeXML(PrintStream xmlWriter, Map<PackageInfo, List<ClassInfo>> allClasses,
       Set<ClassInfo> notStrippable) {
     // extract the set of packages, sort them by name, and write them out in that order
     Set<PackageInfo> allClassKeys = allClasses.keySet();
     PackageInfo[] allPackages = allClassKeys.toArray(new PackageInfo[allClassKeys.size()]);
-    Arrays.sort(allPackages, PackageInfo.comparator);
+    Arrays.sort(allPackages, PackageInfo.ORDER_BY_NAME);
 
     xmlWriter.println("<api>");
     for (PackageInfo pack : allPackages) {
@@ -753,7 +759,7 @@ public class Stubs {
     xmlWriter.println("</api>");
   }
 
-  static void writePackageXML(PrintStream xmlWriter, PackageInfo pack, List<ClassInfo> classList,
+  private void writePackageXML(PrintStream xmlWriter, PackageInfo pack, List<ClassInfo> classList,
       Set<ClassInfo> notStrippable) {
     ClassInfo[] classes = classList.toArray(new ClassInfo[classList.size()]);
     Arrays.sort(classes, ClassInfo.ORDER_BY_NAME);
@@ -773,7 +779,7 @@ public class Stubs {
 
   }
 
-  static void writeClassXML(PrintStream xmlWriter, ClassInfo cl, Set<ClassInfo> notStrippable) {
+  private void writeClassXML(PrintStream xmlWriter, ClassInfo cl, Set<ClassInfo> notStrippable) {
     String scope = cl.scope();
     String declString = (cl.isInterface()) ? "interface" : "class";
     String deprecatedString = cl.isDeprecated() ? "deprecated" : "not deprecated";
@@ -798,14 +804,12 @@ public class Stubs {
       }
     }
 
-    List<MethodInfo> constructors = cl.constructors();
-    Collections.sort(constructors, MethodInfo.comparator);
-    for (MethodInfo mi : constructors) {
+    for (MethodInfo mi : cl.constructors()) {
       writeConstructorXML(xmlWriter, mi);
     }
 
     List<MethodInfo> methods = cl.allSelfMethods();
-    Collections.sort(methods, MethodInfo.comparator);
+    Collections.sort(methods, MethodInfo.ORDER_BY_NAME);
     for (MethodInfo mi : methods) {
       if (!methodIsOverride(mi)) {
         writeMethodXML(xmlWriter, mi);
@@ -821,7 +825,7 @@ public class Stubs {
 
   }
 
-  static void writeMethodXML(PrintStream xmlWriter, MethodInfo mi) {
+  private static void writeMethodXML(PrintStream xmlWriter, MethodInfo mi) {
     String scope = mi.scope();
 
     String deprecatedString = mi.isDeprecated() ? "deprecated" : "not deprecated";
@@ -856,7 +860,7 @@ public class Stubs {
     xmlWriter.println("</method>");
   }
 
-  static void writeConstructorXML(PrintStream xmlWriter, MethodInfo mi) {
+  private static void writeConstructorXML(PrintStream xmlWriter, MethodInfo mi) {
     String scope = mi.scope();
     String deprecatedString = mi.isDeprecated() ? "deprecated" : "not deprecated";
     xmlWriter.println("<constructor name=\"" + mi.name() + "\"\n" + " type=\""
@@ -883,14 +887,14 @@ public class Stubs {
     xmlWriter.println("</constructor>");
   }
 
-  static void writeParameterXML(PrintStream xmlWriter, MethodInfo method, ParameterInfo pi,
+  private static void writeParameterXML(PrintStream xmlWriter, MethodInfo method, ParameterInfo pi,
       boolean isLast) {
     xmlWriter.println("<parameter name=\"" + pi.name() + "\" type=\""
         + makeXMLcompliant(fullParameterTypeName(method, pi.type(), isLast)) + "\">");
     xmlWriter.println("</parameter>");
   }
 
-  static void writeFieldXML(PrintStream xmlWriter, FieldInfo fi) {
+  private static void writeFieldXML(PrintStream xmlWriter, FieldInfo fi) {
     String scope = fi.scope();
     String deprecatedString = fi.isDeprecated() ? "deprecated" : "not deprecated";
     // need to make sure value is valid XML
@@ -908,7 +912,7 @@ public class Stubs {
     xmlWriter.println("</field>");
   }
 
-  static String makeXMLcompliant(String s) {
+  private static String makeXMLcompliant(String s) {
     String returnString = s.replaceAll("&", "&amp;");
     returnString = returnString.replaceAll("<", "&lt;");
     returnString = returnString.replaceAll(">", "&gt;");
@@ -917,7 +921,7 @@ public class Stubs {
     return returnString;
   }
 
-  static String fullParameterTypeName(MethodInfo method, TypeInfo type, boolean isLast) {
+  private static String fullParameterTypeName(MethodInfo method, TypeInfo type, boolean isLast) {
     String fullTypeName = type.fullName(method.typeVariables());
     if (isLast && method.isVarArgs()) {
       // TODO: note that this does not attempt to handle hypothetical

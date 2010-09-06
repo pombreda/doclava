@@ -17,10 +17,9 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AttrTagInfo extends TagInfo {
   private static final String REF_COMMAND = "ref";

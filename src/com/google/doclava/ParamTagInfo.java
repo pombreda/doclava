@@ -17,9 +17,8 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ParamTagInfo extends ParsedTagInfo {
   static final Pattern PATTERN = Pattern.compile("([^ \t\r\n]+)[ \t\r\n]+(.*)", Pattern.DOTALL);

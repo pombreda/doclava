@@ -16,8 +16,6 @@
 
 package com.google.doclava;
 
-import com.google.doclava.ErrorCode;
-
 public final class ErrorMessage implements Comparable<ErrorMessage> {
     private ErrorCode error;
     private SourcePositionInfo pos;

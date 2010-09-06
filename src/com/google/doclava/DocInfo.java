@@ -17,7 +17,6 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 

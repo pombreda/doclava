@@ -17,14 +17,16 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
+import com.google.common.collect.ImmutableList;
+import com.sun.javadoc.PackageDoc;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
-import com.sun.javadoc.*;
-import java.util.*;
-
-public class PackageInfo extends DocInfo implements ContainerInfo {
+public final class PackageInfo extends DocInfo implements ContainerInfo {
   public static final String DEFAULT_PACKAGE = "default package";
   
-  public static final Comparator<PackageInfo> comparator = new Comparator<PackageInfo>() {
+  public static final Comparator<PackageInfo> ORDER_BY_NAME = new Comparator<PackageInfo>() {
     public int compare(PackageInfo a, PackageInfo b) {
       return a.name().compareTo(b.name());
     }
@@ -32,12 +34,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
 
   public PackageInfo(PackageDoc pkg, String name, SourcePositionInfo position) {
     super(pkg.getRawCommentText(), position);
-    if (name.isEmpty()) {
-      mName = DEFAULT_PACKAGE;
-    } else {
-      mName = name;
-    }
-
+    mName = name.isEmpty() ? DEFAULT_PACKAGE : name;
     mPackage = pkg;
   }
   
@@ -48,12 +45,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
   
   public PackageInfo(String name, SourcePositionInfo position) {
     super("", position);
-    
-    if (name.isEmpty()) {
-      mName = "default package";
-    } else {
-      mName = name;
-    }
+    mName = name.isEmpty() ? DEFAULT_PACKAGE : name;
   }
 
   public boolean isDefinedLocally() {
@@ -110,18 +102,6 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     return comment().briefTags();
   }
 
-  public static List<ClassInfo> filterHidden(List<ClassInfo> classes) {
-    List<ClassInfo> result = new ArrayList<ClassInfo>();
-
-    for (ClassInfo cl : classes) {
-      if (!cl.isHidden()) {
-        result.add(cl);
-      }
-    }
-
-    return result;
-  }
-
   public void makeLink(Data data, String base) {
     if (checkLevel()) {
       data.setValue(base + ".link", htmlPage());
@@ -143,74 +123,69 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     data.setValue(base + ".since.name", getSince());
   }
 
-  /**
-   * Returns the list of annotations defined in this package.
-   * @return
-   */
-  public List<ClassInfo> getAnnotations() {
-    if (mAnnotations == null) {
-    	mAnnotations = ClassInfo.sortByName(
-    	    filterHidden(Converter.convertClasses(mPackage.annotationTypes())));
+  private void checkInitVisibleCalled() {
+    if (mAnnotations == null || mInterfaces == null || mOrdinaryClasses == null || mEnums == null
+        || mExceptions == null || mErrors == null) {
+      throw new IllegalStateException("Call initVisible() first!");
     }
+  }
+
+  public List<ClassInfo> getAnnotations() {
+    checkInitVisibleCalled();
     return mAnnotations;
   }
   
   public List<ClassInfo> getInterfaces() {
-    if (mInterfaces == null) {
-      mInterfaces =
-          ClassInfo.sortByName(filterHidden(Converter.convertClasses(mPackage.interfaces())));
-    }
+    checkInitVisibleCalled();
     return mInterfaces;
   }
 
   public List<ClassInfo> ordinaryClasses() {
-    if (mOrdinaryClasses == null) {
-      mOrdinaryClasses =
-          ClassInfo.sortByName(filterHidden(Converter.convertClasses(mPackage.ordinaryClasses())));
-    }
+    checkInitVisibleCalled();
     return mOrdinaryClasses;
   }
 
   public List<ClassInfo> enums() {
-    if (mEnums == null) {
-      mEnums = ClassInfo.sortByName(filterHidden(Converter.convertClasses(mPackage.enums())));
-    }
+    checkInitVisibleCalled();
     return mEnums;
   }
 
   public List<ClassInfo> exceptions() {
-    if (mExceptions == null) {
-      mExceptions =
-          ClassInfo.sortByName(filterHidden(Converter.convertClasses(mPackage.exceptions())));
-    }
+    checkInitVisibleCalled();
     return mExceptions;
   }
 
   public List<ClassInfo> errors() {
-    if (mErrors == null) {
-      mErrors = ClassInfo.sortByName(filterHidden(Converter.convertClasses(mPackage.errors())));
-    }
+    checkInitVisibleCalled();
     return mErrors;
   }
 
   // in hashed containers, treat the name as the key
-  @Override
-  public int hashCode() {
+  @Override public int hashCode() {
     return mName.hashCode();
   }
 
   private String mName;
   private PackageDoc mPackage;
-  private List<ClassInfo> mAnnotations;
-  private List<ClassInfo> mInterfaces;
-  private List<ClassInfo> mOrdinaryClasses;
-  private List<ClassInfo> mEnums;
-  private List<ClassInfo> mExceptions;
-  private List<ClassInfo> mErrors;
+  private ImmutableList<ClassInfo> mAnnotations;
+  private ImmutableList<ClassInfo> mInterfaces;
+  private ImmutableList<ClassInfo> mOrdinaryClasses;
+  private ImmutableList<ClassInfo> mEnums;
+  private ImmutableList<ClassInfo> mExceptions;
+  private ImmutableList<ClassInfo> mErrors;
   
   // TODO: Leftovers from ApiCheck that should be better merged.
   private HashMap<String, ClassInfo> mClasses = new HashMap<String, ClassInfo>();
-  
+
+  public void initVisible() {
+    mAnnotations = Visibility.displayClasses(Converter.convertClasses(mPackage.annotationTypes()));
+    mInterfaces = Visibility.displayClasses(Converter.convertClasses(mPackage.interfaces()));
+    mOrdinaryClasses = Visibility.displayClasses(Converter.convertClasses(mPackage.ordinaryClasses()));
+    mEnums = Visibility.displayClasses(Converter.convertClasses(mPackage.enums()));
+    mExceptions = Visibility.displayClasses(Converter.convertClasses(mPackage.exceptions()));
+    mErrors = Visibility.displayClasses(Converter.convertClasses(mPackage.errors()));
+  }
+
   public void addClass(ClassInfo cl) {
     mClasses.put(cl.name(), cl);
   }
@@ -218,7 +193,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
   public HashMap<String, ClassInfo> allClasses() {
     return mClasses;
   }
-  
+
   public boolean isConsistent(PackageInfo pInfo) {
     boolean consistent = true;
     for (ClassInfo cInfo : mClasses.values()) {

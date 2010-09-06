@@ -17,7 +17,6 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class NavTree {
 
   public static void writeNavTree(String dir) {
     List<Node> children = new ArrayList<Node>();
-    for (PackageInfo pkg : Doclava.choosePackages()) {
+    for (PackageInfo pkg : Doclava.getVisiblePackages()) {
       children.add(makePackageNode(pkg));
     }
     Node node = new Node("Reference", Doclava.ensureSlash(dir) + "packages.html", children, null);

@@ -17,12 +17,19 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
+import com.google.common.collect.Ordering;
 import com.google.doclava.apicheck.AbstractMethodInfo;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
-import java.util.*;
-
-public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
-  public static final Comparator<MethodInfo> comparator = new Comparator<MethodInfo>() {
+/**
+ * A method or constructor.
+ */
+public final class MethodInfo extends MemberInfo implements AbstractMethodInfo {
+  public static final Ordering<MethodInfo> ORDER_BY_NAME = new Ordering<MethodInfo>() {
     public int compare(MethodInfo a, MethodInfo b) {
       return a.name().compareTo(b.name());
     }
@@ -76,10 +83,10 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     return null;
   }
 
-  public MethodInfo findRealOverriddenMethod(MethodInfo other, HashSet<ClassInfo> notStrippable) {
-	String name = other.name();
-	String signature = other.signature();
-	
+  public MethodInfo findRealOverriddenMethod(MethodInfo other, Set<ClassInfo> notStrippable) {
+    String name = other.name();
+    String signature = other.signature();
+
     if (mReturnType == null) {
       // ctor
       return null;
@@ -106,7 +113,7 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     return null;
   }
 
-  public MethodInfo findSuperclassImplementation(HashSet notStrippable) {
+  public MethodInfo findSuperclassImplementation(Set<ClassInfo> notStrippable) {
     if (mReturnType == null) {
       // ctor
       return null;

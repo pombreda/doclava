@@ -17,9 +17,13 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-
 import com.google.common.collect.ImmutableList;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TypeInfo {
   public static final Set<String> PRIMITIVE_TYPES = Collections.unmodifiableSet(

@@ -17,10 +17,9 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-
 import java.util.HashMap;
-import java.util.TreeSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class Hierarchy {
   public static void makeHierarchy(Data hdf, ClassInfo[] classes) {

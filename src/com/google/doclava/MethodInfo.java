@@ -29,9 +29,14 @@ import java.util.Set;
  * A method or constructor.
  */
 public final class MethodInfo extends MemberInfo implements AbstractMethodInfo {
-  public static final Ordering<MethodInfo> ORDER_BY_NAME = new Ordering<MethodInfo>() {
+  public static final Ordering<MethodInfo> ORDER_BY_NAME_AND_SIGNATURE
+      = new Ordering<MethodInfo>() {
     public int compare(MethodInfo a, MethodInfo b) {
-      return a.name().compareTo(b.name());
+      int result = a.name().compareTo(b.name());
+      if (result != 0) {
+        return result;
+      }
+      return a.signature().compareTo(b.signature());
     }
   };
 
@@ -73,7 +78,7 @@ public final class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     ArrayList<ClassInfo> queue = new ArrayList<ClassInfo>();
     addInterfaces(containingClass().getInterfaces(), queue);
     for (ClassInfo iface : queue) {
-      for (MethodInfo me : iface.methods()) {
+      for (MethodInfo me : iface.getMethods()) {
         if (me.name().equals(name) && me.signature().equals(signature)
             && me.inlineTags().tags() != null && !me.inlineTags().tags().isEmpty()) {
           return me;
@@ -102,7 +107,7 @@ public final class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     }
     addInterfaces(containingClass().realInterfaces(), queue);
     for (ClassInfo iface : queue) {
-      for (MethodInfo me : iface.methods()) {
+      for (MethodInfo me : iface.getMethods()) {
         if (me.name().equals(name) && me.signature().equals(signature)
             && me.inlineTags().tags() != null && !me.inlineTags().tags().isEmpty()
             && notStrippable.contains(me.containingClass())) {
@@ -135,7 +140,7 @@ public final class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     }
     addInterfaces(containingClass().realInterfaces(), queue);
     for (ClassInfo iface : queue) {
-      for (MethodInfo me : iface.methods()) {
+      for (MethodInfo me : iface.getMethods()) {
         if (me.name().equals(this.name()) && me.signature().equals(this.signature())
             && notStrippable.contains(me.containingClass())) {
           return me;
@@ -215,6 +220,7 @@ public final class MethodInfo extends MemberInfo implements AbstractMethodInfo {
             mIsSynchronized, mIsNative, mIsAnnotationElement, kind(), mFlatSignature,
             mOverriddenMethod, mReturnType, mParameters, mThrownExceptions, position(),
             annotations());
+    result.setVarargs(mIsVarargs);
     result.init(mDefaultAnnotationElementValue);
     return result;
   }

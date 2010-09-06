@@ -91,7 +91,7 @@ public class TodoFile {
       }
 
 
-      for (MethodInfo m : cl.constructors()) {
+      for (MethodInfo m : cl.getConstructors()) {
         boolean good = true;
         total++;
         if (m.checkLevel()) {
@@ -105,7 +105,7 @@ public class TodoFile {
         }
       }
 
-      for (MethodInfo m : cl.selfMethods()) {
+      for (MethodInfo m : cl.getMethods()) {
         boolean good = true;
         total++;
         if (m.checkLevel()) {
@@ -134,7 +134,7 @@ public class TodoFile {
         }
       }
 
-      for (FieldInfo f : cl.selfFields()) {
+      for (FieldInfo f : cl.getFields()) {
         boolean good = true;
         total++;
         if (f.checkLevel()) {

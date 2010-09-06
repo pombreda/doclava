@@ -49,11 +49,11 @@ public final class Stubs {
     // be written, e.g. hidden things
     for (ClassInfo cl : notStrippable) {
       if (!cl.isHidden()) {
-        for (MethodInfo m : cl.selfMethods()) {
+        for (MethodInfo m : cl.allSelfMethods()) {
           if (m.isHidden()) {
-            Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Reference to hidden method "
-                + m.name());
-          } else if (m.isDeprecated()) {
+            continue;
+          }
+          if (m.isDeprecated()) {
             // don't bother reporting deprecated methods
             // unless they are public
             Errors.error(Errors.DEPRECATED, m.position(), "Method " + cl.qualifiedName() + "."
@@ -172,7 +172,6 @@ public final class Stubs {
   }
 
   private void cantStripThis(ClassInfo cl, Set<ClassInfo> notStrippable) {
-
     if (!notStrippable.add(cl)) {
       // slight optimization: if it already contains cl, it already contains
       // all of cl's parents
@@ -232,8 +231,7 @@ public final class Stubs {
         cl.init(cl.asTypeInfo(), cl.realInterfaces(), cl.realInterfaceTypes(), cl.innerClasses(),
             cl.allConstructors(), cl.allSelfMethods(), cl.annotationElements(), cl.allSelfFields(),
             cl.enumConstants(), cl.containingPackage(), cl.containingClass(), null, null,
-            cl.annotations(), ImmutableList.<MethodInfo>of(), ImmutableList.<MethodInfo>of(),
-            ImmutableList.<ClassInfo>of());
+            cl.annotations(), ImmutableList.<ClassInfo>of());
         Errors.error(Errors.HIDDEN_SUPERCLASS, cl.position(), "Public class " + cl.qualifiedName()
             + " stripped of unavailable superclass " + supr.qualifiedName());
       } else {
@@ -245,48 +243,53 @@ public final class Stubs {
   private void cantStripThis(List<MethodInfo> mInfos, Set<ClassInfo> notStrippable) {
     // for each method, blow open the parameters, throws and return types. also blow open their
     // generics
-    if (mInfos != null) {
-      for (MethodInfo mInfo : mInfos) {
-        if (mInfo.getTypeParameters() != null) {
-          for (TypeInfo tInfo : mInfo.getTypeParameters()) {
-            if (tInfo.asClassInfo() != null) {
-              cantStripThis(tInfo.asClassInfo(), notStrippable);
-            }
+    if (mInfos == null) {
+      return;
+    }
+
+    for (MethodInfo mInfo : mInfos) {
+      if (mInfo.isHidden()) {
+        continue;
+      }
+
+      if (mInfo.getTypeParameters() != null) {
+        for (TypeInfo tInfo : mInfo.getTypeParameters()) {
+          if (tInfo.asClassInfo() != null) {
+            cantStripThis(tInfo.asClassInfo(), notStrippable);
           }
         }
-        if (mInfo.parameters() != null) {
-          for (ParameterInfo pInfo : mInfo.parameters()) {
-            if (pInfo.type() != null && pInfo.type().asClassInfo() != null) {
-              cantStripThis(pInfo.type().asClassInfo(), notStrippable);
-              if (pInfo.type().typeArguments() != null) {
-                for (TypeInfo tInfoType : pInfo.type().typeArguments()) {
-                  if (tInfoType.asClassInfo() != null) {
-                    ClassInfo tcl = tInfoType.asClassInfo();
-                    if (tcl.isHidden()) {
-                      Errors
-                          .error(Errors.UNAVAILABLE_SYMBOL, mInfo.position(),
-                              "Parameter of hidden type " + tInfoType.fullName() + " in "
-                                  + mInfo.containingClass().qualifiedName() + '.' + mInfo.name()
-                                  + "()");
-                    } else {
-                      cantStripThis(tcl, notStrippable);
-                    }
+      }
+      if (mInfo.parameters() != null) {
+        for (ParameterInfo pInfo : mInfo.parameters()) {
+          if (pInfo.type() != null && pInfo.type().asClassInfo() != null) {
+            cantStripThis(pInfo.type().asClassInfo(), notStrippable);
+            if (pInfo.type().typeArguments() != null) {
+              for (TypeInfo tInfoType : pInfo.type().typeArguments()) {
+                if (tInfoType.asClassInfo() != null) {
+                  ClassInfo tcl = tInfoType.asClassInfo();
+                  if (tcl.isHidden()) {
+                    Errors.error(Errors.UNAVAILABLE_SYMBOL, mInfo.position(),
+                        "Parameter of hidden type " + tInfoType.fullName() + " in "
+                            + mInfo.containingClass().qualifiedName() + '.' + mInfo.name()
+                            + "()");
+                  } else {
+                    cantStripThis(tcl, notStrippable);
                   }
                 }
               }
             }
           }
         }
-        for (ClassInfo thrown : mInfo.thrownExceptions()) {
-            cantStripThis(thrown, notStrippable);
-        }
-        if (mInfo.returnType() != null && mInfo.returnType().asClassInfo() != null) {
-          cantStripThis(mInfo.returnType().asClassInfo(), notStrippable);
-          if (mInfo.returnType().typeArguments() != null) {
-            for (TypeInfo tyInfo : mInfo.returnType().typeArguments()) {
-              if (tyInfo.asClassInfo() != null) {
-                cantStripThis(tyInfo.asClassInfo(), notStrippable);
-              }
+      }
+      for (ClassInfo thrown : mInfo.thrownExceptions()) {
+          cantStripThis(thrown, notStrippable);
+      }
+      if (mInfo.returnType() != null && mInfo.returnType().asClassInfo() != null) {
+        cantStripThis(mInfo.returnType().asClassInfo(), notStrippable);
+        if (mInfo.returnType().typeArguments() != null) {
+          for (TypeInfo tyInfo : mInfo.returnType().typeArguments()) {
+            if (tyInfo.asClassInfo() != null) {
+              cantStripThis(tyInfo.asClassInfo(), notStrippable);
             }
           }
         }
@@ -419,7 +422,7 @@ public final class Stubs {
     }
 
 
-    for (MethodInfo method : cl.constructors()) {
+    for (MethodInfo method : cl.getConstructors()) {
       if (!method.isDocOnly()) {
         writeMethod(stream, method, true);
       }
@@ -445,7 +448,7 @@ public final class Stubs {
     // and the super class doesn't have a default constructor, write in a private constructor
     // that works. TODO -- we generate this as protected, but we really should generate
     // it as private unless it also exists in the real code.
-    if ((cl.constructors().isEmpty() && (!cl.getNonWrittenConstructors().isEmpty() || fieldNeedsInitialization))
+    if ((cl.getConstructors().isEmpty() && (!cl.getNonWrittenConstructors().isEmpty() || fieldNeedsInitialization))
         && !cl.isAnnotation() && !cl.isInterface() && !cl.isEnum()) {
       // Errors.error(Errors.HIDDEN_CONSTRUCTOR,
       // cl.position(), "No constructors " +
@@ -456,7 +459,7 @@ public final class Stubs {
           + " RuntimeException(\"Stub!\"); }");
     }
 
-    for (MethodInfo method : cl.allSelfMethods()) {
+    for (MethodInfo method : cl.getMethods()) {
       if (cl.isEnum()) {
         if (("values".equals(method.name()) && "()".equals(method.signature()))
             || ("valueOf".equals(method.name()) && "(java.lang.String)".equals(method.signature()))) {
@@ -667,7 +670,7 @@ public final class Stubs {
     // bad exception indicates that the exceptions thrown by the super constructor
     // are incompatible with the constructor we're using for the sub class.
     Boolean badException = false;
-    for (MethodInfo m : base.constructors()) {
+    for (MethodInfo m : base.getConstructors()) {
       if (canCallMethod(cl, m)) {
         if (m.thrownExceptions() != null) {
           for (ClassInfo thrown : m.thrownExceptions()) {
@@ -806,21 +809,17 @@ public final class Stubs {
       }
     }
 
-    for (MethodInfo mi : cl.constructors()) {
+    for (MethodInfo mi : cl.getConstructors()) {
       writeConstructorXML(xmlWriter, mi);
     }
 
-    List<MethodInfo> methods = cl.allSelfMethods();
-    Collections.sort(methods, MethodInfo.ORDER_BY_NAME);
-    for (MethodInfo mi : methods) {
+    for (MethodInfo mi : cl.getMethods()) {
       if (!methodIsOverride(mi)) {
         writeMethodXML(xmlWriter, mi);
       }
     }
 
-    List<FieldInfo> fields = cl.allSelfFields();
-    Collections.sort(fields, FieldInfo.comparator);
-    for (FieldInfo fi : fields) {
+    for (FieldInfo fi : cl.getFields()) {
       writeFieldXML(xmlWriter, fi);
     }
     xmlWriter.println("</" + declString + ">");

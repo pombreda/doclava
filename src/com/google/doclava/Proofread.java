@@ -138,19 +138,19 @@ public class Proofread {
     }
 
     // fields
-    for (FieldInfo f : cl.selfFields()) {
+    for (FieldInfo f : cl.getFields()) {
       write("FIELD: " + f.name() + "\n");
       writeTagList(f.inlineTags());
     }
 
     // constructors
-    for (MethodInfo m : cl.constructors()) {
+    for (MethodInfo m : cl.getConstructors()) {
       write("CONSTRUCTOR: " + m.name() + "\n");
       writeTagList(m.inlineTags().tags());
     }
 
     // methods
-    for (MethodInfo m : cl.selfMethods()) {
+    for (MethodInfo m : cl.getMethods()) {
       write("METHOD: " + m.name() + "\n");
       writeTagList(m.inlineTags().tags());
     }

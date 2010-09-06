@@ -107,7 +107,7 @@ public final class FederationTagger {
   }
 
   private void federateMethods(FederatedSite site, ClassInfo federatedClass, ClassInfo localClass) {
-    for (MethodInfo method : localClass.methods()) {
+    for (MethodInfo method : localClass.getMethods()) {
       for (ClassInfo superclass : federatedClass.hierarchy()) {
         if (superclass.allMethods().containsKey(method.getHashableName())) {
           method.addFederatedReference(site);
@@ -119,7 +119,7 @@ public final class FederationTagger {
   
   private void federateConstructors(FederatedSite site, ClassInfo federatedClass,
       ClassInfo localClass) {
-    for (MethodInfo constructor : localClass.constructors()) {
+    for (MethodInfo constructor : localClass.getConstructors()) {
       if (federatedClass.hasConstructor(constructor)) {
         constructor.addFederatedReference(site);
       }
@@ -127,7 +127,7 @@ public final class FederationTagger {
   }
   
   private void federateFields(FederatedSite site, ClassInfo federatedClass, ClassInfo localClass) {
-    for (FieldInfo field : localClass.fields()) {
+    for (FieldInfo field : localClass.getFields()) {
       if (federatedClass.allFields().containsKey(field.name())) {
         field.addFederatedReference(site);
       }

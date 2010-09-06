@@ -17,11 +17,12 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
+import com.google.common.collect.Ordering;
 import java.util.Comparator;
 import java.util.List;
 
 public class FieldInfo extends MemberInfo {
-  public static final Comparator<FieldInfo> comparator = new Comparator<FieldInfo>() {
+  public static final Ordering<FieldInfo> ORDER_BY_NAME = new Ordering<FieldInfo>() {
     public int compare(FieldInfo a, FieldInfo b) {
       return a.name().compareTo(b.name());
     }

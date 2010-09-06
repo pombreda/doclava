@@ -72,6 +72,10 @@ public class ParameterInfo {
     return mType.dimension().equals(dimension);
   }
 
+  @Override public String toString() {
+    return mTypeName;
+  }
+
   private String mName;
   private String mTypeName;
   private TypeInfo mType;

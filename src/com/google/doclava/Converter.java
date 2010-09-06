@@ -89,14 +89,12 @@ public class Converter {
       annotationElements = new MethodDoc[0];
     }
     cl.init(Converter.obtainType(c), Converter.convertClasses(c.interfaces()), Converter
-        .convertTypes(c.interfaceTypes()), Converter.convertClasses(c.innerClasses()), Converter
-        .convertMethods(c.constructors(false)), Converter.convertMethods(c.methods(false)),
+        .convertTypes(c.interfaceTypes()), Converter.convertClasses(c.innerClasses()),
+        Converter.convertMethods(c.constructors(false)), Converter.convertMethods(c.methods(false)),
         Converter.convertMethods(annotationElements), Converter.convertFields(c.fields(false)),
         Converter.convertFields(c.enumConstants()), Converter.obtainPackage(c.containingPackage()),
         Converter.obtainClass(c.containingClass()), Converter.obtainClass(c.superclass()),
-        Converter.obtainType(c.superclassType()), Converter.convertAnnotationInstances(c
-            .annotations()), Converter.getHiddenMethods(c.methods(false)),
-        Converter.convertNonWrittenConstructors(c.constructors(false)),
+        Converter.obtainType(c.superclassType()), Converter.convertAnnotationInstances(c.annotations()),
         Converter.convertClasses(c.innerClasses(false)));
   }
 
@@ -238,71 +236,21 @@ public class Converter {
     }
   };
 
-  private static List<MethodInfo> getHiddenMethods(MethodDoc[] methods) {
-    if (methods == null) {
-      return null;
-    }
-    List<MethodInfo> result = new ArrayList<MethodInfo>();
-    for (MethodDoc methodDoc : methods) {
-      MethodInfo methodInfo = Converter.obtainMethod(methodDoc);
-      if (methodInfo.isHidden()) {
-        result.add(methodInfo);
-      }
-    }
-    return result;
-  }
-
   /**
-   * Convert MethodDoc[] into MethodInfo[]. Also filters according to the -private, -public option,
-   * because the filtering doesn't seem to be working in the ClassDoc.constructors(boolean) call.
+   * Returns the MethodInfos for the given MethodDocs  or ConstructorDocs.
    */
-  private static List<MethodInfo> convertMethods(MethodDoc[] methods) {
+  private static <T extends ExecutableMemberDoc> List<MethodInfo> convertMethods(T[] methods) {
     if (methods == null) {
       return null;
     }
     List<MethodInfo> result = new ArrayList<MethodInfo>();
-    for (MethodDoc methodDoc : methods) {
-      MethodInfo m = Converter.obtainMethod(methodDoc);
-      if (m.checkLevel()) {
-        result.add(m);
-      }
+    for (T methodDoc : methods) {
+      result.add(Converter.obtainMethod(methodDoc));
     }
     return result;
   }
 
-  private static List<MethodInfo> convertMethods(ConstructorDoc[] methods) {
-    if (methods == null) {
-      return null;
-    }
-    List<MethodInfo> result = new ArrayList<MethodInfo>();
-    for (ConstructorDoc constructorDoc : methods) {
-      MethodInfo methodInfo = Converter.obtainMethod(constructorDoc);
-      if (methodInfo.checkLevel()) {
-        result.add(methodInfo);
-      }
-    }
-    return result;
-  }
-
-  private static List<MethodInfo> convertNonWrittenConstructors(ConstructorDoc[] methods) {
-    if (methods == null) {
-      return null;
-    }
-    List<MethodInfo> result = new ArrayList<MethodInfo>();
-    for (ConstructorDoc constructorDoc : methods) {
-      MethodInfo m = Converter.obtainMethod(constructorDoc);
-      if (!m.checkLevel()) {
-        result.add(m);
-      }
-    }
-    return result;
-  }
-
-  private static MethodInfo obtainMethod(MethodDoc o) {
-    return mMethods.obtain(o);
-  }
-
-  private static MethodInfo obtainMethod(ConstructorDoc o) {
+  private static MethodInfo obtainMethod(ExecutableMemberDoc o) {
     return mMethods.obtain(o);
   }
 
@@ -360,16 +308,14 @@ public class Converter {
 
 
   private static List<FieldInfo> convertFields(FieldDoc[] fields) {
-    if (fields == null) return null;
-    ArrayList<FieldInfo> out = new ArrayList<FieldInfo>();
-    int N = fields.length;
-    for (int i = 0; i < N; i++) {
-      FieldInfo f = Converter.obtainField(fields[i]);
-      if (f.checkLevel()) {
-        out.add(f);
-      }
+    if (fields == null) {
+      return null;
     }
-    return out;
+    List<FieldInfo> result = new ArrayList<FieldInfo>();
+    for (FieldDoc fieldDoc : fields) {
+      result.add(Converter.obtainField(fieldDoc));
+    }
+    return result;
   }
 
   private static FieldInfo obtainField(FieldDoc o) {

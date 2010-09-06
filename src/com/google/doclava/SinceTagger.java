@@ -150,7 +150,7 @@ public class SinceTagger {
    * Applies version information from {@code spec} to {@code doc} where not already present.
    */
   private void versionConstructors(String versionName, ClassInfo spec, ClassInfo doc) {
-    for (MethodInfo constructor : doc.constructors()) {
+    for (MethodInfo constructor : doc.getConstructors()) {
       if (constructor.getSince() == null
           && spec.hasConstructor(constructor)) {
         constructor.setSince(versionName);
@@ -162,7 +162,7 @@ public class SinceTagger {
    * Applies version information from {@code spec} to {@code doc} where not already present.
    */
   private void versionFields(String versionName, ClassInfo spec, ClassInfo doc) {
-    for (FieldInfo field : doc.fields()) {
+    for (FieldInfo field : doc.getFields()) {
       if (field.getSince() == null && spec.allFields().containsKey(field.name())) {
         field.setSince(versionName);
       }
@@ -173,7 +173,7 @@ public class SinceTagger {
    * Applies version information from {@code spec} to {@code doc} where not already present.
    */
   private void versionMethods(String versionName, ClassInfo spec, ClassInfo doc) {
-    for (MethodInfo method : doc.methods()) {
+    for (MethodInfo method : doc.getMethods()) {
       if (method.getSince() != null) {
         continue;
       }
@@ -203,17 +203,17 @@ public class SinceTagger {
             + claz.qualifiedName());
       }
 
-      for (FieldInfo field : missingVersions(claz.fields())) {
+      for (FieldInfo field : missingVersions(claz.getFields())) {
         Errors.error(Errors.NO_SINCE_DATA, field.position(), "XML missing field "
             + claz.qualifiedName() + "#" + field.name());
       }
 
-      for (MethodInfo constructor : missingVersions(claz.constructors())) {
+      for (MethodInfo constructor : missingVersions(claz.getConstructors())) {
         Errors.error(Errors.NO_SINCE_DATA, constructor.position(), "XML missing constructor "
             + claz.qualifiedName() + "#" + constructor.getHashableName());
       }
 
-      for (MethodInfo method : missingVersions(claz.methods())) {
+      for (MethodInfo method : missingVersions(claz.getMethods())) {
         Errors.error(Errors.NO_SINCE_DATA, method.position(), "XML missing method "
             + claz.qualifiedName() + "#" + method.getHashableName());
       }

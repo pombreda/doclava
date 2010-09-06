@@ -180,6 +180,7 @@ public class ApiCheck {
       ApiInfo apiInfo = handler.getApi();
       apiInfo.resolveSuperclasses();
       apiInfo.resolveInterfaces();
+      apiInfo.initVisible();
       return apiInfo;
     } catch (Exception e) {
       throw new ApiParseException("Error parsing API", e);
@@ -223,6 +224,7 @@ public class ApiCheck {
         boolean isInterface = qName.equals("interface");
         boolean isAbstract = Boolean.valueOf(attributes.getValue("abstract"));
         boolean isOrdinaryClass = qName.equals("class");
+        // TODO: classes can be deprecated
         boolean isException = false; // TODO: check hierarchy for java.lang.Exception
         boolean isError = false; // TODO: not sure.
         boolean isEnum = false; // TODO: not sure.

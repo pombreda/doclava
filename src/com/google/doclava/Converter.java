@@ -64,8 +64,6 @@ public class Converter {
       classesNeedingInit2.add(clni.cl);
     }
     mClassesNeedingInit = null;
-    for (ClassInfo cl : classesNeedingInit2) {
-    }
 
     finishAnnotationValueInit();
 
@@ -97,10 +95,9 @@ public class Converter {
         Converter.convertFields(c.enumConstants()), Converter.obtainPackage(c.containingPackage()),
         Converter.obtainClass(c.containingClass()), Converter.obtainClass(c.superclass()),
         Converter.obtainType(c.superclassType()), Converter.convertAnnotationInstances(c
-            .annotations()));
-    cl.setHiddenMethods(Converter.getHiddenMethods(c.methods(false)));
-    cl.setNonWrittenConstructors(Converter.convertNonWrittenConstructors(c.constructors(false)));
-    cl.init3(Converter.convertClasses(c.innerClasses(false)));
+            .annotations()), Converter.getHiddenMethods(c.methods(false)),
+        Converter.convertNonWrittenConstructors(c.constructors(false)),
+        Converter.convertClasses(c.innerClasses(false)));
   }
 
   public static ClassInfo obtainClass(String className) {

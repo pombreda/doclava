@@ -23,7 +23,6 @@ import com.sun.javadoc.ClassDoc;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,12 +82,10 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
       List<ClassInfo> innerClasses, List<MethodInfo> constructors, List<MethodInfo> methods,
       List<MethodInfo> annotationElements, List<FieldInfo> fields, List<FieldInfo> enumConstants,
       PackageInfo containingPackage, ClassInfo containingClass, ClassInfo superclass,
-      TypeInfo superclassType, AnnotationInstanceInfo[] annotations) {
+      TypeInfo superclassType, AnnotationInstanceInfo[] annotations, List<MethodInfo> hiddenMethods,
+      List<MethodInfo> nonWritten, List<ClassInfo> realInnerClasses) {
     mTypeInfo = typeInfo;
-    mRealInterfaces = new ArrayList<ClassInfo>();
-    for (ClassInfo cl : interfaces) {
-      mRealInterfaces.add(cl);
-    }
+    mRealInterfaces.addAll(interfaces);
     mRealInterfaceTypes = interfaceTypes;
     mInnerClasses = innerClasses;
     mAllConstructors = constructors;
@@ -101,6 +98,9 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     mRealSuperclass = superclass;
     mRealSuperclassType = superclassType;
     mAnnotations = annotations;
+    mHiddenMethods = hiddenMethods;
+    mNonWrittenConstructors = nonWritten;
+    mRealInnerClasses = realInnerClasses;
 
     // after providing new methods and new superclass info,clear any cached
     // lists of self + superclass methods, ctors, etc.
@@ -111,14 +111,10 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     mFields = null;
     mSelfFields = null;
     mSelfAttributes = null;
-    mDeprecatedKnown = false;
+    mIsDeprecated = false;
 
     Collections.sort(mEnumConstants, FieldInfo.comparator);
     Collections.sort(mInnerClasses, ORDER_BY_NAME);
-  }
-
-  public void init3(List<ClassInfo> realInnerClasses) {
-    mRealInnerClasses = realInnerClasses;
   }
 
   public List<ClassInfo> getRealInnerClasses() {
@@ -214,16 +210,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     return mIsIncluded;
   }
 
-  private static void gatherHiddenInterfaces(ClassInfo cl, HashSet<ClassInfo> interfaces) {
-    for (ClassInfo iface : cl.mRealInterfaces) {
-      if (iface.checkLevel()) {
-        interfaces.add(iface);
-      } else {
-        gatherHiddenInterfaces(iface, interfaces);
-      }
-    }
-  }
-
   /**
    * Adds this type, its supertype, and its interfaces to {@code out}.
    */
@@ -236,28 +222,17 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
       mRealSuperclass.addAllTypes(out);
     }
 
+    if (mSuperclass != null) {
+      mSuperclass.addAllTypes(out);
+    }
+
     for (ClassInfo i : mRealInterfaces) {
       i.addAllTypes(out);
     }
   }
 
   public List<ClassInfo> getInterfaces() {
-    if (mInterfaces == null) {
-      if (checkLevel()) {
-        HashSet<ClassInfo> interfaces = new HashSet<ClassInfo>();
-        ClassInfo superclass = mRealSuperclass;
-        while (superclass != null && !superclass.checkLevel()) {
-          gatherHiddenInterfaces(superclass, interfaces);
-          superclass = superclass.mRealSuperclass;
-        }
-        gatherHiddenInterfaces(this, interfaces);
-        mInterfaces = new ArrayList<ClassInfo>(interfaces);
-      } else {
-        // put something here in case someone uses it
-        mInterfaces = new ArrayList<ClassInfo>(mRealInterfaces);
-      }
-      Collections.sort(mInterfaces);
-    }
+    checkInitVisibleCalled();
     return mInterfaces;
   }
 
@@ -290,16 +265,49 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
   }
 
   public void initVisible() {
-    List<MethodInfo> result = new ArrayList<MethodInfo>();
-    for (MethodInfo m : mAllConstructors) {
-      if (!m.isHidden()) {
-        result.add(m);
+    // constructors
+    // TODO: eliminate this condition; it's necessary for apicheck only
+    if (mAllConstructors != null) {
+      List<MethodInfo> nonHiddenConstructors = new ArrayList<MethodInfo>();
+      for (MethodInfo m : mAllConstructors) {
+        if (!m.isHidden()) {
+          nonHiddenConstructors.add(m);
+        }
+      }
+      Collections.sort(nonHiddenConstructors, MethodInfo.ORDER_BY_NAME);
+      mConstructors = ImmutableList.copyOf(nonHiddenConstructors);
+    }
+
+    // interfaces
+    List<ClassInfo> nonHiddenInterfaces = new ArrayList<ClassInfo>();
+    for (ClassInfo classInfo : mRealInterfaces) {
+      if (classInfo.checkLevel()) {
+        nonHiddenInterfaces.add(classInfo);
       }
     }
-    Collections.sort(result, MethodInfo.ORDER_BY_NAME);
-    mConstructors = ImmutableList.copyOf(result);
+    Collections.sort(nonHiddenInterfaces);
+    mInterfaces = ImmutableList.copyOf(nonHiddenInterfaces);
 
-    selfAttributes();
+    // deprecation
+    boolean commentDeprecated = comment().isDeprecated();
+    boolean annotationDeprecated = false;
+    if (annotations() != null) {
+      for (AnnotationInstanceInfo annotation : annotations()) {
+        if (annotation.type().qualifiedName().equals("java.lang.Deprecated")) {
+          annotationDeprecated = true;
+          break;
+        }
+      }
+      if (commentDeprecated != annotationDeprecated) {
+        Errors.error(Errors.DEPRECATION_MISMATCH, position(), "Class " + qualifiedName()
+            + ": @Deprecated annotation and @deprecated comment do not match");
+      }
+    }
+    mIsDeprecated = commentDeprecated | annotationDeprecated;
+
+    if (mAllConstructors != null) { // TODO api check only
+      selfAttributes();
+    }
   }
 
   public List<MethodInfo> constructors() {
@@ -308,8 +316,9 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
   }
 
   private void checkInitVisibleCalled() {
-    if (mConstructors == null) {
-      throw new IllegalStateException("Expected initVisible() to be called first; " + qualifiedName());
+    if (mInterfaces == null) {
+      throw new IllegalStateException(
+          "Expected initVisible() to be called first; " + qualifiedName());
     }
   }
 
@@ -326,24 +335,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
   }
 
   public boolean isDeprecated() {
-    if (!mDeprecatedKnown) {
-      boolean commentDeprecated = comment().isDeprecated();
-      boolean annotationDeprecated = false;
-      for (AnnotationInstanceInfo annotation : annotations()) {
-        if (annotation.type().qualifiedName().equals("java.lang.Deprecated")) {
-          annotationDeprecated = true;
-          break;
-        }
-      }
-
-      if (commentDeprecated != annotationDeprecated) {
-        Errors.error(Errors.DEPRECATION_MISMATCH, position(), "Class " + qualifiedName()
-            + ": @Deprecated annotation and @deprecated comment do not match");
-      }
-
-      mIsDeprecated = commentDeprecated | annotationDeprecated;
-      mDeprecatedKnown = true;
-    }
     return mIsDeprecated;
   }
 
@@ -1133,10 +1124,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     }
   }
 
-  public void setNonWrittenConstructors(List<MethodInfo> nonWritten) {
-    mNonWrittenConstructors = nonWritten;
-  }
-
   public List<MethodInfo> getNonWrittenConstructors() {
     return mNonWrittenConstructors;
   }
@@ -1170,10 +1157,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     } else {
       throw new RuntimeException("invalid scope for object " + this);
     }
-  }
-
-  public void setHiddenMethods(List<MethodInfo> mInfo) {
-    mHiddenMethods = mInfo;
   }
 
   public List<MethodInfo> getHiddenMethods() {
@@ -1224,7 +1207,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
   private ClassInfo mSuperclass;
   private AnnotationInstanceInfo[] mAnnotations;
   private boolean mSuperclassInit;
-  private boolean mDeprecatedKnown;
 
   // display
   private ImmutableList<MethodInfo> mConstructors;

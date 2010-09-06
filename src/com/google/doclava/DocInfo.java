@@ -106,8 +106,8 @@ public abstract class DocInfo {
   }
 
   private String mRawCommentText;
-  Comment mComment;
-  SourcePositionInfo mPosition;
+  private Comment mComment;
+  private SourcePositionInfo mPosition;
   private String mSince;
   private Set<FederatedSite> mFederatedReferences = new LinkedHashSet<FederatedSite>();
 }

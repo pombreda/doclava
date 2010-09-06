@@ -16,6 +16,7 @@
 
 package com.google.doclava;
 
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -230,8 +231,9 @@ public final class Stubs {
         // generating the doc & stub information, and proceeding normally.
         cl.init(cl.asTypeInfo(), cl.realInterfaces(), cl.realInterfaceTypes(), cl.innerClasses(),
             cl.allConstructors(), cl.allSelfMethods(), cl.annotationElements(), cl.allSelfFields(),
-            cl.enumConstants(), cl.containingPackage(), cl.containingClass(), null, null, cl
-                .annotations());
+            cl.enumConstants(), cl.containingPackage(), cl.containingClass(), null, null,
+            cl.annotations(), ImmutableList.<MethodInfo>of(), ImmutableList.<MethodInfo>of(),
+            ImmutableList.<ClassInfo>of());
         Errors.error(Errors.HIDDEN_SUPERCLASS, cl.position(), "Public class " + cl.qualifiedName()
             + " stripped of unavailable superclass " + supr.qualifiedName());
       } else {

@@ -43,7 +43,7 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     }
   }
 
-  private static void addInterfaces(ClassInfo[] ifaces, ArrayList<ClassInfo> queue) {
+  private static void addInterfaces(List<ClassInfo> ifaces, ArrayList<ClassInfo> queue) {
     for (ClassInfo i : ifaces) {
       queue.add(i);
     }
@@ -74,18 +74,6 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
       }
     }
     return null;
-  }
-
-  private static void addRealInterfaces(ClassInfo[] ifaces, ArrayList<ClassInfo> queue) {
-    for (ClassInfo i : ifaces) {
-      queue.add(i);
-      if (i.realSuperclass() != null && i.realSuperclass().isAbstract()) {
-        queue.add(i.superclass());
-      }
-    }
-    for (ClassInfo i : ifaces) {
-      addInterfaces(i.realInterfaces(), queue);
-    }
   }
 
   public MethodInfo findRealOverriddenMethod(MethodInfo other, HashSet<ClassInfo> notStrippable) {
@@ -150,32 +138,6 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     return null;
   }
 
-  public ClassInfo findRealOverriddenClass(String name, String signature) {
-    if (mReturnType == null) {
-      // ctor
-      return null;
-    }
-    if (mOverriddenMethod != null) {
-      return mOverriddenMethod.mRealContainingClass;
-    }
-
-    ArrayList<ClassInfo> queue = new ArrayList<ClassInfo>();
-    if (containingClass().realSuperclass() != null
-        && containingClass().realSuperclass().isAbstract()) {
-      queue.add(containingClass());
-    }
-    addInterfaces(containingClass().realInterfaces(), queue);
-    for (ClassInfo iface : queue) {
-      for (MethodInfo me : iface.methods()) {
-        if (me.name().equals(name) && me.signature().equals(signature)
-            && me.inlineTags().tags() != null && me.inlineTags().tags().length > 0) {
-          return iface;
-        }
-      }
-    }
-    return null;
-  }
-
   private class FirstSentenceTags implements InheritedTags {
     public TagInfo[] tags() {
       return comment().briefTags();
@@ -207,7 +169,6 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
   }
 
   public boolean isDeprecated() {
-    boolean deprecated = false;
     if (!mDeprecatedKnown) {
       boolean commentDeprecated = comment().isDeprecated();
       boolean annotationDeprecated = false;
@@ -257,7 +218,7 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
       boolean isStatic, boolean isSynthetic, boolean isAbstract, boolean isSynchronized,
       boolean isNative, boolean isAnnotationElement, String kind, String flatSignature,
       MethodInfo overriddenMethod, TypeInfo returnType, ParameterInfo[] parameters,
-      ClassInfo[] thrownExceptions, SourcePositionInfo position,
+      List<ClassInfo> thrownExceptions, SourcePositionInfo position,
       AnnotationInstanceInfo[] annotations) {
     // Explicitly coerce 'final' state of Java6-compiled enum values() method, to match
     // the Java5-emitted base API description.
@@ -272,7 +233,6 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
       isAbstract = true;
     }
 
-    mReasonOpened = "0:0";
     mIsAnnotationElement = isAnnotationElement;
     mTypeParameters = typeParameters;
     mIsAbstract = isAbstract;
@@ -378,16 +338,12 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
       ThrowsTagInfo[] documented = comment().throwsTags();
       ArrayList<ThrowsTagInfo> rv = new ArrayList<ThrowsTagInfo>();
 
-      int len = documented.length;
-      for (int i = 0; i < len; i++) {
-        rv.add(documented[i]);
+      for (ThrowsTagInfo throwsTagInfo : documented) {
+        rv.add(throwsTagInfo);
       }
 
-      ClassInfo[] all = mThrownExceptions;
-      len = all.length;
-      for (int i = 0; i < len; i++) {
-        ClassInfo cl = all[i];
-        if (documented == null || !inList(cl, documented)) {
+      for (ClassInfo cl : mThrownExceptions) {
+        if (!inList(cl, documented)) {
           rv.add(new ThrowsTagInfo("@throws", "@throws", cl.qualifiedName(), cl, "",
               containingClass(), position()));
         }
@@ -495,27 +451,23 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
 
 
   public boolean matchesParams(String[] params, String[] dimensions, boolean varargs) {
-    if (mParamStrings == null) {
-      ParameterInfo[] mine = mParameters;
-      int len = mine.length;
-      if (len != params.length) {
+    ParameterInfo[] mine = mParameters;
+    int len = mine.length;
+    if (len != params.length) {
+      return false;
+    }
+    for (int i = 0; i < len; i++) {
+      if (!mine[i].matchesDimension(dimensions[i], varargs)) {
         return false;
       }
-      for (int i = 0; i < len; i++) {
-        if (!mine[i].matchesDimension(dimensions[i], varargs)) {
-          return false;
-        }
-        TypeInfo myType = mine[i].type();
-        String qualifiedName = myType.qualifiedTypeName();
-        String realType = myType.isPrimitive() ? "" : myType.asClassInfo().qualifiedName();
-        String s = params[i];
-        int slen = s.length();
-        int qnlen = qualifiedName.length();
-        
-        // Check for a matching generic name or best known type
-        if (!matchesType(qualifiedName, s) && !matchesType(realType, s)) {
-          return false;
-        }
+      TypeInfo myType = mine[i].type();
+      String qualifiedName = myType.qualifiedTypeName();
+      String realType = myType.isPrimitive() ? "" : myType.asClassInfo().qualifiedName();
+      String s = params[i];
+
+      // Check for a matching generic name or best known type
+      if (!matchesType(qualifiedName, s) && !matchesType(realType, s)) {
+        return false;
       }
     }
     return true;
@@ -590,7 +542,7 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     return true;
   }
 
-  public ClassInfo[] thrownExceptions() {
+  public List<ClassInfo> thrownExceptions() {
     return mThrownExceptions;
   }
 
@@ -600,10 +552,6 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     } else {
       return TypeInfo.typeArgumentsName(mTypeParameters, typeVars);
     }
-  }
-
-  public boolean isAnnotationElement() {
-    return mIsAnnotationElement;
   }
 
   public AnnotationValueInfo defaultAnnotationElementValue() {
@@ -623,21 +571,8 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
     return this.name();
   }
 
-  public void setReason(String reason) {
-    mReasonOpened = reason;
-  }
-
-  public String getReason() {
-    return mReasonOpened;
-  }
-  
   public void addException(String exec) {
-    ClassInfo exceptionClass = new ClassInfo(exec);
-    List<ClassInfo> exceptions = new ArrayList<ClassInfo>(mThrownExceptions.length + 1);
-    exceptions.addAll(Arrays.asList(mThrownExceptions));
-    exceptions.add(exceptionClass);
-    mThrownExceptions = new ClassInfo[exceptions.size()];
-    exceptions.toArray(mThrownExceptions);
+    mThrownExceptions.add(new ClassInfo(exec));
   }
   
   public void addParameter(ParameterInfo p) {
@@ -683,14 +618,12 @@ public class MethodInfo extends MemberInfo implements AbstractMethodInfo {
   private boolean mDeprecatedKnown;
   private boolean mIsDeprecated;
   private ParameterInfo[] mParameters;
-  private ClassInfo[] mThrownExceptions;
-  private String[] mParamStrings;
+  private List<ClassInfo> mThrownExceptions;
   ThrowsTagInfo[] mThrowsTags;
   private ParamTagInfo[] mParamTags;
   private TypeInfo[] mTypeParameters;
   private AnnotationValueInfo mDefaultAnnotationElementValue;
-  private String mReasonOpened;
-  
+
   // TODO: merge with droiddoc version (above)  
   public String qualifiedName() {
     String parentQName = (containingClass() != null)

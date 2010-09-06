@@ -45,7 +45,7 @@ public final class FederationTagger {
     federatedXmls.put(name, file);
   }
   
-  public void tagAll(ClassInfo[] classDocs) {
+  public void tagAll(List<ClassInfo> classDocs) {
     initialize();
     for (FederatedSite site : federatedSites) {
       applyFederation(site, classDocs);
@@ -83,7 +83,7 @@ public final class FederationTagger {
     initialized = true;
   }
   
-  private void applyFederation(FederatedSite federationSource, ClassInfo[] classDocs) {
+  private void applyFederation(FederatedSite federationSource, List<ClassInfo> classDocs) {
     for (ClassInfo classDoc : classDocs) {
       PackageInfo packageSpec
           = federationSource.apiInfo().getPackages().get(classDoc.containingPackage().name());

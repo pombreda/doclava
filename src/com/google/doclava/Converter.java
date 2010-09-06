@@ -20,6 +20,7 @@ import com.sun.javadoc.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 public class Converter {
   private static RootDoc root;
@@ -56,14 +57,14 @@ public class Converter {
     mRootClasses = Converter.convertClasses(r.classes());
   }
 
-  private static ClassInfo[] mRootClasses;
+  private static List<ClassInfo> mRootClasses;
 
-  public static ClassInfo[] rootClasses() {
+  public static List<ClassInfo> rootClasses() {
     return mRootClasses;
   }
 
-  public static ClassInfo[] allClasses() {
-    return (ClassInfo[]) mClasses.all();
+  public static List<ClassInfo> allClasses() {
+    return new ArrayList<ClassInfo>(mClasses.mCache.values());
   }
 
   private static void initClass(ClassDoc c, ClassInfo cl) {
@@ -83,8 +84,7 @@ public class Converter {
             .annotations()));
     cl.setHiddenMethods(Converter.getHiddenMethods(c.methods(false)));
     cl.setNonWrittenConstructors(Converter.convertNonWrittenConstructors(c.constructors(false)));
-    cl.init3(Converter.convertTypes(c.typeParameters()), Converter.convertClasses(c
-        .innerClasses(false)));
+    cl.init3(Converter.convertClasses(c.innerClasses(false)));
   }
 
   public static ClassInfo obtainClass(String className) {
@@ -145,14 +145,13 @@ public class Converter {
     return out;
   }
   
-  public static ClassInfo[] convertClasses(ClassDoc[] classes) {
+  public static List<ClassInfo> convertClasses(ClassDoc[] classes) {
     if (classes == null) {
       return null;
     }
-    int N = classes.length;
-    ClassInfo[] result = new ClassInfo[N];
-    for (int i = 0; i < N; i++) {
-      result[i] = Converter.obtainClass(classes[i]);
+    List<ClassInfo> result = new ArrayList<ClassInfo>();
+    for (ClassDoc classDoc : classes) {
+      result.add(Converter.obtainClass(classDoc));
     }
     return result;
   }
@@ -217,7 +216,7 @@ public class Converter {
               .isPublic(), input.isProtected(), input.isPackagePrivate(), input.isPrivate(), input.isStatic(), input
               .isInterface(), input.isAbstract(), input.isOrdinaryClass(), input.isException(), input.isError(), input
               .isEnum(), (input instanceof AnnotationTypeDoc), input.isFinal(), input.isIncluded(), input.name(), input
-              .qualifiedName(), input.qualifiedTypeName(), input.isPrimitive());
+              .qualifiedName());
       if (mClassesNeedingInit != null) {
         mClassesNeedingInit.add(new ClassNeedingInit(input, cl));
       }
@@ -231,14 +230,9 @@ public class Converter {
         output.init2();
       }
     }
-
-    @Override
-    ClassInfo[] all() {
-      return mCache.values().toArray(new ClassInfo[mCache.size()]);
-    }
   };
 
-  private static MethodInfo[] getHiddenMethods(MethodDoc[] methods) {
+  private static List<MethodInfo> getHiddenMethods(MethodDoc[] methods) {
     if (methods == null) return null;
     ArrayList<MethodInfo> out = new ArrayList<MethodInfo>();
     int N = methods.length;
@@ -256,7 +250,7 @@ public class Converter {
         out.add(m);
       }
     }
-    return out.toArray(new MethodInfo[out.size()]);
+    return out;
   }
 
   /**
@@ -297,7 +291,7 @@ public class Converter {
     return out.toArray(new MethodInfo[out.size()]);
   }
 
-  private static MethodInfo[] convertNonWrittenConstructors(ConstructorDoc[] methods) {
+  private static List<MethodInfo> convertNonWrittenConstructors(ConstructorDoc[] methods) {
     if (methods == null) return null;
     ArrayList<MethodInfo> out = new ArrayList<MethodInfo>();
     int N = methods.length;
@@ -307,7 +301,7 @@ public class Converter {
         out.add(m);
       }
     }
-    return out.toArray(new MethodInfo[out.size()]);
+    return out;
   }
 
   private static MethodInfo obtainMethod(MethodDoc o) {
@@ -371,7 +365,7 @@ public class Converter {
   };
 
 
-  private static FieldInfo[] convertFields(FieldDoc[] fields) {
+  private static List<FieldInfo> convertFields(FieldDoc[] fields) {
     if (fields == null) return null;
     ArrayList<FieldInfo> out = new ArrayList<FieldInfo>();
     int N = fields.length;
@@ -381,7 +375,7 @@ public class Converter {
         out.add(f);
       }
     }
-    return out.toArray(new FieldInfo[out.size()]);
+    return out;
   }
 
   private static FieldInfo obtainField(FieldDoc o) {
@@ -556,10 +550,6 @@ public class Converter {
 
     protected Object keyFor(K key) {
       return key;
-    }
-
-    Object[] all() {
-      return null;
     }
   }
 

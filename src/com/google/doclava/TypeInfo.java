@@ -18,6 +18,7 @@ package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
 
+import com.google.common.collect.ImmutableList;
 import java.util.*;
 
 public class TypeInfo {
@@ -145,7 +146,7 @@ public class TypeInfo {
   }
 
   public String fullNameNoDimension(HashSet<String> typeVars) {
-    String fullName = null;
+    String fullName;
     if (mIsTypeVariable) {
       if (typeVars.contains(mQualifiedTypeName)) {
         // don't recurse forever with the parameters. This handles
@@ -208,7 +209,7 @@ public class TypeInfo {
         data.setValue(base + ".since.key", SinceTagger.keyForName(mClass.getSince()));
         data.setValue(base + ".since.name", mClass.getSince());
       } else {
-        Doclava.federationTagger.tagAll(new ClassInfo[] {mClass});
+        Doclava.federationTagger.tagAll(ImmutableList.of(mClass));
         if (!mClass.getFederatedReferences().isEmpty()) {
           FederatedSite site = mClass.getFederatedReferences().iterator().next();
           data.setValue(base + ".link", site.linkFor(mClass.relativePath()));

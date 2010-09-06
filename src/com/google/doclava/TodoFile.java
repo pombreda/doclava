@@ -68,8 +68,8 @@ public class TodoFile {
     Doclava.setPageTitle(data, "Missing Documentation");
     TreeMap<String, PackageStats> packageStats = new TreeMap<String, PackageStats>();
 
-    ClassInfo[] classes = Converter.rootClasses();
-    Arrays.sort(classes);
+    List<ClassInfo> classes = Converter.rootClasses();
+    Collections.sort(classes);
 
     int classIndex = 0;
 

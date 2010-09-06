@@ -61,7 +61,7 @@ public class NavTree {
     return new Node(pkg.name(), pkg.htmlPage(), children, pkg.getSince());
   }
 
-  private static void addClassNodes(List<Node> parent, String label, ClassInfo[] classes) {
+  private static void addClassNodes(List<Node> parent, String label, List<ClassInfo> classes) {
     List<Node> children = new ArrayList<Node>();
 
     for (ClassInfo cl : classes) {
@@ -100,7 +100,7 @@ public class NavTree {
             buf.append(c);
           } else {
             buf.append("\\u");
-            for (int j = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
               char x = (char) (c & 0x000f);
               if (x > 10) {
                 x = (char) (x - 10 + 'a');

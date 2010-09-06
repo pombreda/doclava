@@ -110,16 +110,16 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     return comment().briefTags();
   }
 
-  public static ClassInfo[] filterHidden(ClassInfo[] classes) {
-    ArrayList<ClassInfo> out = new ArrayList<ClassInfo>();
+  public static List<ClassInfo> filterHidden(List<ClassInfo> classes) {
+    List<ClassInfo> result = new ArrayList<ClassInfo>();
 
     for (ClassInfo cl : classes) {
       if (!cl.isHidden()) {
-        out.add(cl);
+        result.add(cl);
       }
     }
 
-    return out.toArray(new ClassInfo[0]);
+    return result;
   }
 
   public void makeLink(Data data, String base) {
@@ -147,7 +147,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
    * Returns the list of annotations defined in this package.
    * @return
    */
-  public ClassInfo[] getAnnotations() {
+  public List<ClassInfo> getAnnotations() {
     if (mAnnotations == null) {
     	mAnnotations = ClassInfo.sortByName(
     	    filterHidden(Converter.convertClasses(mPackage.annotationTypes())));
@@ -155,7 +155,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     return mAnnotations;
   }
   
-  public ClassInfo[] getInterfaces() {
+  public List<ClassInfo> getInterfaces() {
     if (mInterfaces == null) {
       mInterfaces =
           ClassInfo.sortByName(filterHidden(Converter.convertClasses(mPackage.interfaces())));
@@ -163,7 +163,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     return mInterfaces;
   }
 
-  public ClassInfo[] ordinaryClasses() {
+  public List<ClassInfo> ordinaryClasses() {
     if (mOrdinaryClasses == null) {
       mOrdinaryClasses =
           ClassInfo.sortByName(filterHidden(Converter.convertClasses(mPackage.ordinaryClasses())));
@@ -171,14 +171,14 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     return mOrdinaryClasses;
   }
 
-  public ClassInfo[] enums() {
+  public List<ClassInfo> enums() {
     if (mEnums == null) {
       mEnums = ClassInfo.sortByName(filterHidden(Converter.convertClasses(mPackage.enums())));
     }
     return mEnums;
   }
 
-  public ClassInfo[] exceptions() {
+  public List<ClassInfo> exceptions() {
     if (mExceptions == null) {
       mExceptions =
           ClassInfo.sortByName(filterHidden(Converter.convertClasses(mPackage.exceptions())));
@@ -186,7 +186,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
     return mExceptions;
   }
 
-  public ClassInfo[] errors() {
+  public List<ClassInfo> errors() {
     if (mErrors == null) {
       mErrors = ClassInfo.sortByName(filterHidden(Converter.convertClasses(mPackage.errors())));
     }
@@ -201,12 +201,12 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
 
   private String mName;
   private PackageDoc mPackage;
-  private ClassInfo[] mAnnotations;
-  private ClassInfo[] mInterfaces;
-  private ClassInfo[] mOrdinaryClasses;
-  private ClassInfo[] mEnums;
-  private ClassInfo[] mExceptions;
-  private ClassInfo[] mErrors;
+  private List<ClassInfo> mAnnotations;
+  private List<ClassInfo> mInterfaces;
+  private List<ClassInfo> mOrdinaryClasses;
+  private List<ClassInfo> mEnums;
+  private List<ClassInfo> mExceptions;
+  private List<ClassInfo> mErrors;
   
   // TODO: Leftovers from ApiCheck that should be better merged.
   private HashMap<String, ClassInfo> mClasses = new HashMap<String, ClassInfo>();

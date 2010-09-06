@@ -16,6 +16,7 @@
 
 package com.google.doclava.apicheck;
 
+import com.google.common.collect.ImmutableList;
 import com.google.doclava.AnnotationInstanceInfo;
 import com.google.doclava.ClassInfo;
 import com.google.doclava.ConstructorInfo;
@@ -33,6 +34,7 @@ import com.google.doclava.TypeInfo;
 
 import com.sun.javadoc.ClassDoc;
 
+import java.util.List;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -235,14 +237,12 @@ public class ApiCheck {
         boolean isIncluded = false;
         String name = attributes.getValue("name");
         String qualifiedName = qualifiedName(mCurrentPackage.name(), name, mCurrentClass);
-        String qualifiedTypeName = null; // TODO: not sure
-        boolean isPrimitive = false;
         
         mCurrentClass =
             new ClassInfo(classDoc, rawCommentText, position, isPublic, isProtected, 
             isPackagePrivate, isPrivate, isStatic, isInterface, isAbstract, isOrdinaryClass, 
-            isException, isError, isEnum, isAnnotation, isFinal, isIncluded, name, qualifiedName,
-            qualifiedTypeName, isPrimitive);
+            isException, isError, isEnum, isAnnotation, isFinal, isIncluded, name, qualifiedName
+            );
         
         mCurrentClass.setContainingPackage(mCurrentPackage);
         String superclass = attributes.getValue("extends");
@@ -280,7 +280,7 @@ public class ApiCheck {
         MethodInfo overriddenMethod = null; // TODO
         TypeInfo returnType = Converter.obtainTypeFromString(attributes.getValue("return"));
         ParameterInfo[] parameters = new ParameterInfo[0];
-        ClassInfo[] thrownExceptions = new ClassInfo[0];
+        List<ClassInfo> thrownExceptions = new ArrayList<ClassInfo>();
         SourcePositionInfo position = SourcePositionInfo.fromXml(attributes.getValue("source"));
         AnnotationInstanceInfo[] annotations = new AnnotationInstanceInfo[] {}; // TODO
         

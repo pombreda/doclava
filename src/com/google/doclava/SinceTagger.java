@@ -53,7 +53,7 @@ public class SinceTagger {
     xmlToName.put(file, name);
   }
 
-  public void tagAll(ClassInfo[] classDocs) {
+  public void tagAll(List<ClassInfo> classDocs) {
     // read through the XML files in order, applying their since information
     // to the Javadoc models
     for (Map.Entry<String, String> versionSpec : xmlToName.entrySet()) {
@@ -107,7 +107,7 @@ public class SinceTagger {
    *        named version
    * @param classDocs the doc model to update
    */
-  private void applyVersionsFromSpec(String versionName, ApiInfo specApi, ClassInfo[] classDocs) {
+  private void applyVersionsFromSpec(String versionName, ApiInfo specApi, List<ClassInfo> classDocs) {
     for (ClassInfo classDoc : classDocs) {
       PackageInfo packageSpec
           = specApi.getPackages().get(classDoc.containingPackage().name());
@@ -194,7 +194,7 @@ public class SinceTagger {
    * zero warnings because {@code apicheck} guarantees that all symbols are present in the most
    * recent API.
    */
-  private void warnForMissingVersions(ClassInfo[] classDocs) {
+  private void warnForMissingVersions(List<ClassInfo> classDocs) {
     for (ClassInfo claz : classDocs) {
       if (!checkLevelRecursive(claz)) {
         continue;
@@ -225,7 +225,7 @@ public class SinceTagger {
   /**
    * Returns the DocInfos in {@code all} that are documented but do not have since tags.
    */
-  private <T extends MemberInfo> Iterable<T> missingVersions(T[] all) {
+  private <T extends MemberInfo> Iterable<T> missingVersions(Iterable<T> all) {
     List<T> result = Collections.emptyList();
     for (T t : all) {
       // if this member has version info or isn't documented, skip it

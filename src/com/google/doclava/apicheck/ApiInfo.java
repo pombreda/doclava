@@ -19,6 +19,7 @@ package com.google.doclava.apicheck;
 import com.google.doclava.ClassInfo;
 import com.google.doclava.Errors;
 import com.google.doclava.PackageInfo;
+import com.google.doclava.Project;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -124,7 +125,7 @@ public class ApiInfo {
     }
   }
 
-  public void initVisible() {
+  public void initVisible(Project project) {
     Set<ClassInfo> allTypes = new HashSet<ClassInfo>();
     for (ClassInfo cl : mAllClasses.values()) {
       cl.addAllTypes(allTypes);
@@ -136,7 +137,7 @@ public class ApiInfo {
     }
 
     for (ClassInfo cl : allTypes) {
-      cl.initVisible();
+      cl.initVisible(project);
     }
   }
 }

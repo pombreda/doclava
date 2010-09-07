@@ -34,12 +34,12 @@ import java.util.Set;
 public final class Stubs {
   private Set<ClassInfo> notStrippable;
 
-  public void initVisible(HashSet<String> stubPackages) {
+  public void initVisible(HashSet<String> stubPackages, Project project) {
     // figure out which classes we need
     notStrippable = new LinkedHashSet<ClassInfo>();
     // If a class is public or protected, not hidden, and marked as included,
     // then we can't strip it
-    for (ClassInfo cl : Converter.allClasses()) {
+    for (ClassInfo cl : project.allClasses()) {
       if (cl.checkLevel() && cl.isDefinedLocally()) {
         cantStripThis(cl, notStrippable);
       }

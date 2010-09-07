@@ -28,16 +28,22 @@ public final class ThrowsTagInfo extends ParsedTagInfo {
   public ThrowsTagInfo(String name, String kind, String text, ContainerInfo base,
       SourcePositionInfo sp) {
     super(name, kind, text, base, sp);
+  }
 
+  @Override public void initVisible(Project project) {
+    super.initVisible(project);
+
+    String text = text();
+    ContainerInfo base = getContainer();
     Matcher m = PATTERN.matcher(text);
     if (m.matches()) {
       setCommentText(m.group(2));
       String className = m.group(1);
       if (base instanceof ClassInfo) {
-        mException = ((ClassInfo) base).findClass(className);
+        mException = ((ClassInfo) base).findClass(className, project);
       }
       if (mException == null) {
-        mException = Converter.obtainClass(className);
+        mException = project.obtainClass(className);
       }
     }
   }

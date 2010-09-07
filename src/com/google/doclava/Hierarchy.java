@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class Hierarchy {
-  public static void makeHierarchy(Data hdf, ClassInfo[] classes) {
+  public static void makeHierarchy(Data hdf, ClassInfo[] classes, Project project) {
     HashMap<String, TreeSet<String>> nodes = new HashMap<String, TreeSet<String>>();
 
     for (ClassInfo cl : classes) {
@@ -58,7 +58,7 @@ public class Hierarchy {
     hdf.setValue("classes.0", "");
     hdf.setValue("colspan", "" + depth);
 
-    recurse(nodes, "java.lang.Object", hdf.getChild("classes.0"), depth, depth);
+    recurse(nodes, "java.lang.Object", hdf.getChild("classes.0"), depth, depth, project);
 
     if (false) {
       Set<String> keys = nodes.keySet();
@@ -91,13 +91,13 @@ public class Hierarchy {
   }
 
   private static void recurse(HashMap<String, TreeSet<String>> nodes, String name, Data hdf,
-      int totalDepth, int remainingDepth) {
+      int totalDepth, int remainingDepth, Project project) {
     int i;
 
     hdf.setValue("indent", "" + (totalDepth - remainingDepth - 1));
     hdf.setValue("colspan", "" + remainingDepth);
 
-    ClassInfo cl = Converter.obtainClass(name);
+    ClassInfo cl = project.obtainClass(name);
 
     hdf.setValue("class.label", cl.name());
     hdf.setValue("class.qualified", cl.qualifiedName());
@@ -131,7 +131,7 @@ public class Hierarchy {
       for (String s : derived) {
         String index = "" + i;
         children.setValue(index, "");
-        recurse(nodes, s, children.getChild(index), totalDepth, remainingDepth);
+        recurse(nodes, s, children.getChild(index), totalDepth, remainingDepth, project);
         i++;
       }
     }

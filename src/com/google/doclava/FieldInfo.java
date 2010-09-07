@@ -18,10 +18,9 @@ package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
 import com.google.common.collect.Ordering;
-import java.util.Comparator;
 import java.util.List;
 
-public class FieldInfo extends MemberInfo {
+public class FieldInfo extends MemberInfo implements Cloneable {
   public static final Ordering<FieldInfo> ORDER_BY_NAME = new Ordering<FieldInfo>() {
     public int compare(FieldInfo a, FieldInfo b) {
       return a.name().compareTo(b.name());
@@ -43,10 +42,9 @@ public class FieldInfo extends MemberInfo {
   }
 
   public FieldInfo cloneForClass(ClassInfo newContainingClass) {
-    return new FieldInfo(name(), newContainingClass, realContainingClass(), isPublic(),
-        isProtected(), isPackagePrivate(), isPrivate(), isFinal(), isStatic(), isTransient(),
-        isVolatile(), isSynthetic(), mType, getRawCommentText(), mConstantValue, position(),
-        annotations());
+    FieldInfo result = clone();
+    result.setContainingClass(newContainingClass);
+    return result;
   }
 
   static String chooseKind(boolean isFinal, boolean isStatic) {
@@ -357,10 +355,18 @@ public class FieldInfo extends MemberInfo {
     return consistent;
   }
 
-  boolean mIsTransient;
-  boolean mIsVolatile;
-  boolean mDeprecatedKnown;
-  boolean mIsDeprecated;
-  TypeInfo mType;
-  Object mConstantValue;
+  @Override protected FieldInfo clone() {
+    try {
+      return (FieldInfo) super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError(e);
+    }
+  }
+
+  private boolean mIsTransient;
+  private boolean mIsVolatile;
+  private boolean mDeprecatedKnown;
+  private boolean mIsDeprecated;
+  private TypeInfo mType;
+  private Object mConstantValue;
 }

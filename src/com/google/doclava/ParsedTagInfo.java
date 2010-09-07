@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParsedTagInfo extends TagInfo {
-  private ContainerInfo mContainer;
+  private final ContainerInfo mContainer;
   private String mCommentText;
   private Comment mComment;
 
@@ -30,9 +30,19 @@ public class ParsedTagInfo extends TagInfo {
     mCommentText = text;
   }
 
+  public ContainerInfo getContainer() {
+    return mContainer;
+  }
+
+  @Override public void initVisible(Project project) {
+    super.initVisible(project);
+    mComment = new Comment(mCommentText, mContainer, position());
+    mComment.initVisible(project);
+  }
+
   public List<TagInfo> commentTags() {
     if (mComment == null) {
-      mComment = new Comment(mCommentText, mContainer, position());
+      throw new IllegalStateException("Expected initVisible() to be called first");
     }
     return mComment.tags();
   }

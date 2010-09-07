@@ -44,6 +44,8 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 public class ApiCheck {
+  private final Converter converter = new Converter();
+
   // parse out and consume the -whatever command line flags
   private static ArrayList<String[]> parseFlags(ArrayList<String> allArgs) {
     ArrayList<String[]> ret = new ArrayList<String[]>();
@@ -180,7 +182,7 @@ public class ApiCheck {
       ApiInfo apiInfo = handler.getApi();
       apiInfo.resolveSuperclasses();
       apiInfo.resolveInterfaces();
-      apiInfo.initVisible();
+      apiInfo.initVisible(converter);
       return apiInfo;
     } catch (Exception e) {
       throw new ApiParseException("Error parsing API", e);
@@ -194,7 +196,7 @@ public class ApiCheck {
     private ClassInfo mCurrentClass;
     private AbstractMethodInfo mCurrentMethod;
     private Stack<ClassInfo> mClassScope = new Stack<ClassInfo>();
-    
+
 
     public MakeHandler() {
       super();
@@ -249,7 +251,7 @@ public class ApiCheck {
         // Resolve superclass after .xml completely parsed.
         mApi.mapClassToSuper(mCurrentClass, superclass);
         
-        TypeInfo typeInfo = Converter.obtainTypeFromString(qualifiedName) ;
+        TypeInfo typeInfo = converter.obtainTypeFromString(qualifiedName) ;
         mCurrentClass.setTypeInfo(typeInfo);
         mCurrentClass.setAnnotations(new AnnotationInstanceInfo[] {});
       } else if (qName.equals("method")) {
@@ -274,7 +276,7 @@ public class ApiCheck {
         String kind = qName;
         String flatSignature = null; // TODO
         MethodInfo overriddenMethod = null; // TODO
-        TypeInfo returnType = Converter.obtainTypeFromString(attributes.getValue("return"));
+        TypeInfo returnType = converter.obtainTypeFromString(attributes.getValue("return"));
         List<ParameterInfo> parameters = new ArrayList<ParameterInfo>();
         List<ClassInfo> thrownExceptions = new ArrayList<ClassInfo>();
         SourcePositionInfo position = SourcePositionInfo.fromXml(attributes.getValue("source"));
@@ -283,7 +285,7 @@ public class ApiCheck {
         mCurrentMethod = 
             new MethodInfo(rawCommentText, typeParameters, name, signature, containingClass,
             realContainingClass, isPublic, isProtected, isPackagePrivate, isPrivate, isFinal,
-            isStatic, isSynthetic, isAbstract, isSynchronized, isNative, isAnnotationElement, kind,
+            isStatic, isSynthetic, isAbstract, isSynchronized, isNative, kind,
             flatSignature, overriddenMethod, returnType, parameters, thrownExceptions, position,
             annotations);
         
@@ -302,7 +304,7 @@ public class ApiCheck {
         boolean isPrivate = visibility.equals("private");
         boolean isPackagePrivate = visibility.equals("");
         String typeName = attributes.getValue("type");
-        TypeInfo type = Converter.obtainTypeFromString(typeName);
+        TypeInfo type = converter.obtainTypeFromString(typeName);
         
         FieldInfo fInfo =
             new FieldInfo(attributes.getValue("name"), mCurrentClass, mCurrentClass, isPublic,
@@ -317,7 +319,7 @@ public class ApiCheck {
       } else if (qName.equals("parameter")) {
         String name = attributes.getValue("name");
         String typeName = attributes.getValue("type");
-        TypeInfo type = Converter.obtainTypeFromString(typeName);
+        TypeInfo type = converter.obtainTypeFromString(typeName);
         boolean isVarArg = typeName.endsWith("...");
         SourcePositionInfo position = null;
         

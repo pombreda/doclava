@@ -77,7 +77,7 @@ public class LinkReference {
    *         and fills in href and label with error text.
    */
   public static LinkReference parse(String text, ContainerInfo base, SourcePositionInfo pos,
-      boolean printOnErrors) {
+      boolean printOnErrors, Project project) {
     LinkReference result = new LinkReference();
     result.text = text;
 
@@ -247,17 +247,17 @@ public class LinkReference {
       if (cl != null) {
         result.classInfo = cl.extendedFindClass(ref);
         if (result.classInfo == null) {
-          result.classInfo = cl.findClass(ref);
+          result.classInfo = cl.findClass(ref, project);
         }
         if (result.classInfo == null) {
-          result.classInfo = cl.findInnerClass(ref);
+          result.classInfo = cl.findInnerClass(ref, project);
         }
       }
       if (result.classInfo == null) {
-        result.classInfo = Converter.obtainClass(ref);
+        result.classInfo = project.obtainClass(ref);
       }
       if (result.classInfo == null) {
-        result.packageInfo = Converter.obtainPackage(ref);
+        result.packageInfo = project.obtainPackage(ref);
       }
     }
 

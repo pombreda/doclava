@@ -16,6 +16,7 @@
 
 package com.google.doclava;
 
+import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -193,12 +194,12 @@ public class Comment {
   }
 
   public List<TagInfo> tags() {
-    init();
+    checkInitVisibleCalled();
     return mInlineTags;
   }
 
   public TagInfo[] tags(String name) {
-    init();
+    checkInitVisibleCalled();
     ArrayList<TagInfo> results = new ArrayList<TagInfo>();
     int N = mInlineTagsList.size();
     for (int i = 0; i < N; i++) {
@@ -211,42 +212,42 @@ public class Comment {
   }
 
   public List<ParamTagInfo> paramTags() {
-    init();
+    checkInitVisibleCalled();
     return mParamTags;
   }
 
   public List<SeeTagInfo> seeTags() {
-    init();
+    checkInitVisibleCalled();
     return mSeeTags;
   }
 
   public List<ThrowsTagInfo> throwsTags() {
-    init();
+    checkInitVisibleCalled();
     return mThrowsTags;
   }
 
   public List<TagInfo> returnTags() {
-    init();
+    checkInitVisibleCalled();
     return mReturnTags;
   }
 
   public List<TagInfo> deprecatedTags() {
-    init();
+    checkInitVisibleCalled();
     return mDeprecatedTags;
   }
 
   public List<TagInfo> undeprecateTags() {
-    init();
+    checkInitVisibleCalled();
     return mUndeprecateTags;
   }
 
   public List<AttrTagInfo> attrTags() {
-    init();
+    checkInitVisibleCalled();
     return mAttrTags;
   }
 
   public List<TagInfo> briefTags() {
-    init();
+    checkInitVisibleCalled();
     return mBriefTags;
   }
 
@@ -284,13 +285,13 @@ public class Comment {
     }
   }
 
-  private void init() {
+  private void checkInitVisibleCalled() {
     if (!mInitialized) {
-      initImpl();
+      throw new IllegalStateException("Expected initVisible() to have already been called");
     }
   }
 
-  private void initImpl() {
+  public void initVisible(Project project) {
     isHidden();
     isDocOnly();
     isDeprecated();
@@ -308,14 +309,20 @@ public class Comment {
     mText = null;
     mInitialized = true;
 
+    for (TagInfo tagInfo : Iterables.concat(mSeeTagsList, mInlineTagsList, mReturnTagsList,
+        mParamTagsList, mThrowsTagsList, mDeprecatedTagsList, mUndeprecateTagsList, mAttrTagsList,
+        mBriefTagsList, mTagsList)) {
+      tagInfo.initVisible(project);
+    }
+
     mInlineTags = mInlineTagsList;
     mParamTags = mParamTagsList;
     mSeeTags = mSeeTagsList;
     mThrowsTags = mThrowsTagsList;
-    mReturnTags = ParsedTagInfo.joinTags(mReturnTagsList.toArray(
-        new ParsedTagInfo[mReturnTagsList.size()]));
-    mDeprecatedTags = ParsedTagInfo.joinTags(mDeprecatedTagsList.toArray(
-        new ParsedTagInfo[mDeprecatedTagsList.size()]));
+    mReturnTags = ParsedTagInfo.joinTags(
+        mReturnTagsList.toArray(new ParsedTagInfo[mReturnTagsList.size()]));
+    mDeprecatedTags = ParsedTagInfo.joinTags(
+        mDeprecatedTagsList.toArray(new ParsedTagInfo[mDeprecatedTagsList.size()]));
     mUndeprecateTags = mUndeprecateTagsList;
     mAttrTags = mAttrTagsList;
     mBriefTags = mBriefTagsList;

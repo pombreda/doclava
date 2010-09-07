@@ -64,12 +64,12 @@ public class TodoFile {
     return "" + Math.round((((b - a) / (float) b)) * 100) + "%";
   }
 
-  public static void writeTodoFile(String filename) {
+  public static void writeTodoFile(String filename, Project project) {
     Data data = Doclava.makeHDF();
     Doclava.setPageTitle(data, "Missing Documentation");
     TreeMap<String, PackageStats> packageStats = new TreeMap<String, PackageStats>();
 
-    List<ClassInfo> classes = Converter.rootClasses();
+    List<ClassInfo> classes = project.rootClasses();
     Collections.sort(classes);
 
     int classIndex = 0;

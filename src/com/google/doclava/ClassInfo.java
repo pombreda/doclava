@@ -259,7 +259,9 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     return mAllConstructors;
   }
 
-  public void initVisible() {
+  @Override public void initVisible(Project project) {
+    super.initVisible(project);
+
     // interfaces
     List<ClassInfo> nonHiddenInterfaces = new ArrayList<ClassInfo>();
     for (ClassInfo classInfo : mRealInterfaces) {
@@ -592,7 +594,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
   /**
    * Turns into the main class page
    */
-  public void makeHDF(Data data) {
+  public void makeHDF(Data data, Iterable<ClassInfo> rootClasses) {
     int i, j, n;
     String name = name();
     String qualified = qualifiedName();
@@ -659,7 +661,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     // known subclasses
     TreeMap<String, ClassInfo> direct = new TreeMap<String, ClassInfo>();
     TreeMap<String, ClassInfo> indirect = new TreeMap<String, ClassInfo>();
-    for (ClassInfo cl : Converter.rootClasses()) {
+    for (ClassInfo cl : rootClasses) {
       if (cl.superclass() != null && cl.superclass().equals(this)) {
         direct.put(cl.name(), cl);
       } else if (cl.isDerivedFrom(this)) {
@@ -947,15 +949,13 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     // first look on our class, and our superclasses
 
     // for methods
-    MethodInfo rv;
-    rv = matchMethod(getMethods(), name, params, dimensions, varargs);
-
+    MethodInfo rv = matchMethod(mAllSelfMethods, name, params, dimensions, varargs);
     if (rv != null) {
       return rv;
     }
 
     // for constructors
-    rv = matchMethod(getConstructors(), name, params, dimensions, varargs);
+    rv = matchMethod(mAllConstructors, name, params, dimensions, varargs);
     if (rv != null) {
       return rv;
     }
@@ -1005,11 +1005,11 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     return searchInnerClasses(className.split("\\."), 0);
   }
 
-  public ClassInfo findClass(String className) {
-    return Converter.obtainClass(mClass.findClass(className));
+  public ClassInfo findClass(String className, Project project) {
+    return project.obtainClassReference(mClass.findClass(className));
   }
 
-  public ClassInfo findInnerClass(String className) {
+  public ClassInfo findInnerClass(String className, Project project) {
     // ClassDoc.findClass won't find inner classes. To deal with that,
     // we try what they gave us first, but if that didn't work, then
     // we see if there are any periods in className, and start searching
@@ -1022,12 +1022,12 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
         return null;
       }
     }
-    return Converter.obtainClass(cl);
+    return project.obtainClassReference(cl);
   }
 
   public FieldInfo findField(String name) {
     // first look on our class, and our superclasses
-    for (FieldInfo f : getFields()) {
+    for (FieldInfo f : mAllSelfFields) {
       if (f.name().equals(name)) {
         return f;
       }
@@ -1035,7 +1035,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
 
     // then look at our enum constants (these are really fields, maybe
     // they should be mixed into fields(). not sure)
-    for (FieldInfo f : enumConstants()) {
+    for (FieldInfo f : mEnumConstants) {
       if (f.name().equals(name)) {
         return f;
       }

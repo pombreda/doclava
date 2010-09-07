@@ -35,14 +35,15 @@ import com.sun.javadoc.Tag;
 import com.sun.javadoc.ThrowsTag;
 import com.sun.javadoc.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-public class Converter {
-  private static RootDoc root;
+public final class Converter implements Project {
+  private RootDoc root;
 
-  public static void makeInfo(RootDoc r) {
+  public void makeInfo(RootDoc r) {
     root = r;
 
     int N, i;
@@ -51,7 +52,7 @@ public class Converter {
     ClassDoc[] classDocs = r.classes();
     N = classDocs.length;
     for (i = 0; i < N; i++) {
-      Converter.obtainClass(classDocs[i]);
+      obtainClass(classDocs[i]);
     }
     ArrayList<ClassInfo> classesNeedingInit2 = new ArrayList<ClassInfo>();
     // fill in the fields that reference other classes
@@ -68,131 +69,137 @@ public class Converter {
     finishAnnotationValueInit();
 
     // fill in the "root" stuff
-    mRootClasses = Converter.convertClasses(r.classes());
+    mRootClasses = convertClasses(r.classes());
   }
 
-  private static List<ClassInfo> mRootClasses;
+  private List<ClassInfo> mRootClasses;
 
-  public static List<ClassInfo> rootClasses() {
+  public List<ClassInfo> rootClasses() {
     return mRootClasses;
   }
 
-  public static List<ClassInfo> allClasses() {
+  public List<ClassInfo> allClasses() {
     return new ArrayList<ClassInfo>(mClasses.mCache.values());
   }
 
-  private static void initClass(ClassDoc c, ClassInfo cl) {
+  public Collection<MethodInfo> allMethods() {
+    return mMethods.mCache.values();
+  }
+
+  public Collection<FieldInfo> allFields() {
+    return mFields.mCache.values();
+  }
+
+  private void initClass(ClassDoc c, ClassInfo cl) {
     MethodDoc[] annotationElements;
     if (c instanceof AnnotationTypeDoc) {
       annotationElements = ((AnnotationTypeDoc) c).elements();
     } else {
       annotationElements = new MethodDoc[0];
     }
-    cl.init(Converter.obtainType(c), Converter.convertClasses(c.interfaces()), Converter
-        .convertTypes(c.interfaceTypes()), Converter.convertClasses(c.innerClasses()),
-        Converter.convertMethods(c.constructors(false)), Converter.convertMethods(c.methods(false)),
-        Converter.convertMethods(annotationElements), Converter.convertFields(c.fields(false)),
-        Converter.convertFields(c.enumConstants()), Converter.obtainPackage(c.containingPackage()),
-        Converter.obtainClass(c.containingClass()), Converter.obtainClass(c.superclass()),
-        Converter.obtainType(c.superclassType()), Converter.convertAnnotationInstances(c.annotations()),
-        Converter.convertClasses(c.innerClasses(false)));
+    cl.init(obtainType(c), convertClasses(c.interfaces()),
+        convertTypes(c.interfaceTypes()), convertClasses(c.innerClasses()),
+        convertMethods(c.constructors(false)), convertMethods(c.methods(false)),
+        convertMethods(annotationElements), convertFields(c.fields(false)),
+        convertFields(c.enumConstants()), obtainPackage(c.containingPackage()),
+        obtainClass(c.containingClass()), obtainClass(c.superclass()),
+        obtainType(c.superclassType()), convertAnnotationInstances(c.annotations()),
+        convertClasses(c.innerClasses(false)));
   }
 
-  public static ClassInfo obtainClass(String className) {
-    return Converter.obtainClass(root.classNamed(className));
+  public ClassInfo obtainClass(String className) {
+    return obtainClass(root.classNamed(className));
   }
 
-  public static PackageInfo obtainPackage(String packageName) {
-    return Converter.obtainPackage(root.packageNamed(packageName));
+  public PackageInfo obtainPackage(String packageName) {
+    return obtainPackage(root.packageNamed(packageName));
   }
 
-  private static TagInfo convertTag(Tag tag) {
-    return new TextTagInfo(tag.name(), tag.kind(), tag.text(), Converter.convertSourcePosition(tag
+  private TagInfo convertTag(Tag tag) {
+    return new TextTagInfo(tag.name(), tag.kind(), tag.text(), convertSourcePosition(tag
         .position()));
   }
 
-  private static ThrowsTagInfo convertThrowsTag(ThrowsTag tag, ContainerInfo base) {
-    return new ThrowsTagInfo(tag.name(), tag.text(), tag.kind(), Converter.obtainClass(tag
-        .exception()), tag.exceptionComment(), base, Converter
-        .convertSourcePosition(tag.position()));
+  private ThrowsTagInfo convertThrowsTag(ThrowsTag tag, ContainerInfo base) {
+    return new ThrowsTagInfo(tag.name(), tag.text(), tag.kind(), obtainClass(tag
+        .exception()), tag.exceptionComment(), base,
+        convertSourcePosition(tag.position()));
   }
 
-  private static ParamTagInfo convertParamTag(ParamTag tag, ContainerInfo base) {
+  private ParamTagInfo convertParamTag(ParamTag tag, ContainerInfo base) {
     return new ParamTagInfo(tag.name(), tag.kind(), tag.text(), tag.isTypeParameter(), tag
-        .parameterComment(), tag.parameterName(), base, Converter.convertSourcePosition(tag
+        .parameterComment(), tag.parameterName(), base, convertSourcePosition(tag
         .position()));
   }
 
-  private static SeeTagInfo convertSeeTag(SeeTag tag, ContainerInfo base) {
-    return new SeeTagInfo(tag.name(), tag.kind(), tag.text(), base, Converter
-        .convertSourcePosition(tag.position()));
+  private SeeTagInfo convertSeeTag(SeeTag tag, ContainerInfo base) {
+    return new SeeTagInfo(tag.name(), tag.kind(), tag.text(), base,
+        convertSourcePosition(tag.position()));
   }
 
-  private static SourcePositionInfo convertSourcePosition(SourcePosition sp) {
+  private SourcePositionInfo convertSourcePosition(SourcePosition sp) {
     if (sp == null) {
       return null;
     }
     return new SourcePositionInfo(sp.file().toString(), sp.line(), sp.column());
   }
 
-  public static List<TagInfo> convertTags(Tag[] tags, ContainerInfo base) {
+  public List<TagInfo> convertTags(Tag[] tags, ContainerInfo base) {
     List<TagInfo> result = new ArrayList<TagInfo>();
     for (Tag tag : tags) {
       if (tag instanceof SeeTag) {
-        result.add(Converter.convertSeeTag((SeeTag) tag, base));
+        result.add(convertSeeTag((SeeTag) tag, base));
       } else if (tag instanceof ThrowsTag) {
-        result.add(Converter.convertThrowsTag((ThrowsTag) tag, base));
+        result.add(convertThrowsTag((ThrowsTag) tag, base));
       } else if (tag instanceof ParamTag) {
-        result.add(Converter.convertParamTag((ParamTag) tag, base));
+        result.add(convertParamTag((ParamTag) tag, base));
       } else {
-        result.add(Converter.convertTag(tag));
+        result.add(convertTag(tag));
       }
     }
     return result;
   }
   
-  public static List<ClassInfo> convertClasses(ClassDoc[] classes) {
+  public List<ClassInfo> convertClasses(ClassDoc[] classes) {
     if (classes == null) {
       return null;
     }
     List<ClassInfo> result = new ArrayList<ClassInfo>();
     for (ClassDoc classDoc : classes) {
-      result.add(Converter.obtainClass(classDoc));
+      result.add(obtainClass(classDoc));
     }
     return result;
   }
 
-  private static ParameterInfo convertParameter(Parameter p, SourcePosition pos) {
+  private ParameterInfo convertParameter(Parameter p, SourcePosition pos) {
     if (p == null) {
       return null;
     }
-    return new ParameterInfo(p.name(), p.typeName(), Converter.obtainType(p.type()),
-        Converter.convertSourcePosition(pos));
+    return new ParameterInfo(p.name(), p.typeName(), obtainType(p.type()),
+        convertSourcePosition(pos));
   }
 
-  private static List<ParameterInfo> convertParameters(Parameter[] p, ExecutableMemberDoc m) {
+  private List<ParameterInfo> convertParameters(Parameter[] p, ExecutableMemberDoc m) {
     List<ParameterInfo> result = new ArrayList<ParameterInfo>();
     SourcePosition pos = m.position();
     for (Parameter parameter : p) {
-      result.add(Converter.convertParameter(parameter, pos));
+      result.add(convertParameter(parameter, pos));
     }
     return result;
   }
 
-  private static List<TypeInfo> convertTypes(Type[] p) {
+  private List<TypeInfo> convertTypes(Type[] p) {
     if (p == null) {
       return null;
     }
     List<TypeInfo> result = new ArrayList<TypeInfo>();
     for (Type type : p) {
-      result.add(Converter.obtainType(type));
+      result.add(obtainType(type));
     }
     return result;
   }
 
-  private Converter() {}
-
-  private static class ClassNeedingInit {
+  private class ClassNeedingInit {
     ClassNeedingInit(ClassDoc c, ClassInfo cl) {
       this.c = c;
       this.cl = cl;
@@ -202,103 +209,120 @@ public class Converter {
     ClassInfo cl;
   }
 
-  private static ArrayList<ClassNeedingInit> mClassesNeedingInit =
-      new ArrayList<ClassNeedingInit>();
+  private List<ClassNeedingInit> mClassesNeedingInit = new ArrayList<ClassNeedingInit>();
 
-  static ClassInfo obtainClass(ClassDoc o) {
+  public ClassInfo obtainClass(ClassDoc o) {
     return mClasses.obtain(o);
   }
 
-  private static Cache<ClassDoc, ClassInfo> mClasses = new Cache<ClassDoc, ClassInfo>() {
+  public ClassInfo obtainClassReference(ClassDoc o) {
+    if (o == null) {
+      return null;
+    }
+
+    ClassInfo classInfo = mClasses.mCache.get(o);
+    if (classInfo != null) {
+      return classInfo;
+    }
+
+    classInfo = docToInfo(o);
+    classInfo.setTypeInfo(typeToTypeInfo(o, classInfo)); // TODO: proper init
+    return classInfo;
+  }
+
+  private Cache<ClassDoc, ClassInfo> mClasses = new Cache<ClassDoc, ClassInfo>() {
     @Override
     protected ClassInfo make(ClassDoc input) {
       // A bug while generating OpenJDK documentation reports some classes with no name.
       if (input.name() == null || input.name().equals("")) {
          return null;
       }
-      ClassInfo cl =
-          new ClassInfo(input, input.getRawCommentText(), Converter.convertSourcePosition(input.position()), input
-              .isPublic(), input.isProtected(), input.isPackagePrivate(), input.isPrivate(), input.isStatic(), input
-              .isInterface(), input.isAbstract(), input.isOrdinaryClass(), input.isException(), input.isError(), input
-              .isEnum(), (input instanceof AnnotationTypeDoc), input.isFinal(), input.isIncluded(), input.name(), input
-              .qualifiedName());
-      if (mClassesNeedingInit != null) {
-        mClassesNeedingInit.add(new ClassNeedingInit(input, cl));
-      }
-      return cl;
+      return docToInfo(input);
     }
 
-    @Override
-    protected void made(ClassDoc input, ClassInfo output) {
+    @Override protected void made(ClassDoc input, ClassInfo output) {
       if (mClassesNeedingInit == null) {
         initClass(input, output);
       }
     }
   };
 
+  private ClassInfo docToInfo(ClassDoc input) {
+    ClassInfo cl = new ClassInfo(input, input.getRawCommentText(),
+        convertSourcePosition(input.position()), input.isPublic(), input.isProtected(),
+        input.isPackagePrivate(), input.isPrivate(), input.isStatic(), input.isInterface(),
+        input.isAbstract(), input.isOrdinaryClass(), input.isException(), input.isError(),
+        input.isEnum(), (input instanceof AnnotationTypeDoc), input.isFinal(), input.isIncluded(),
+        input.name(), input.qualifiedName());
+    if (mClassesNeedingInit != null) {
+      mClassesNeedingInit.add(new ClassNeedingInit(input, cl));
+    }
+    return cl;
+  }
+
   /**
    * Returns the MethodInfos for the given MethodDocs  or ConstructorDocs.
    */
-  private static <T extends ExecutableMemberDoc> List<MethodInfo> convertMethods(T[] methods) {
+  private <T extends ExecutableMemberDoc> List<MethodInfo> convertMethods(T[] methods) {
     if (methods == null) {
       return null;
     }
     List<MethodInfo> result = new ArrayList<MethodInfo>();
     for (T methodDoc : methods) {
-      result.add(Converter.obtainMethod(methodDoc));
+      result.add(obtainMethod(methodDoc));
     }
     return result;
   }
 
-  private static MethodInfo obtainMethod(ExecutableMemberDoc o) {
+  private MethodInfo obtainMethod(ExecutableMemberDoc o) {
     return mMethods.obtain(o);
   }
 
-  private static Cache<ExecutableMemberDoc, MethodInfo> mMethods
+  private Cache<ExecutableMemberDoc, MethodInfo> mMethods
       = new Cache<ExecutableMemberDoc, MethodInfo>() {
     @Override
     protected MethodInfo make(ExecutableMemberDoc o) {
       if (o instanceof AnnotationTypeElementDoc) {
         AnnotationTypeElementDoc m = (AnnotationTypeElementDoc) o;
         MethodInfo result =
-            new MethodInfo(m.getRawCommentText(), Converter.convertTypes(m.typeParameters()), m
-                .name(), m.signature(), Converter.obtainClass(m.containingClass()), Converter
-                .obtainClass(m.containingClass()), m.isPublic(), m.isProtected(), m
+            new MethodInfo(m.getRawCommentText(), convertTypes(m.typeParameters()), m
+                .name(), m.signature(), obtainClass(m.containingClass()),
+                obtainClass(m.containingClass()), m.isPublic(), m.isProtected(), m
                 .isPackagePrivate(), m.isPrivate(), m.isFinal(), m.isStatic(), m.isSynthetic(), m
-                .isAbstract(), m.isSynchronized(), m.isNative(), true, "annotationElement", m
-                .flatSignature(), Converter.obtainMethod(m.overriddenMethod()), Converter
-                .obtainType(m.returnType()), Converter.convertParameters(m.parameters(), m),
-                Converter.convertClasses(m.thrownExceptions()), Converter.convertSourcePosition(m
-                    .position()), Converter.convertAnnotationInstances(m.annotations()));
+                .isAbstract(), m.isSynchronized(), m.isNative(), "annotationElement", m
+                .flatSignature(), obtainMethod(m.overriddenMethod()),
+                obtainType(m.returnType()), convertParameters(m.parameters(), m),
+                convertClasses(m.thrownExceptions()), convertSourcePosition(m
+                    .position()), convertAnnotationInstances(m.annotations()));
         result.setVarargs(m.isVarArgs());
-        result.init(Converter.obtainAnnotationValue(m.defaultValue(), result));
+        result.init(obtainAnnotationValue(m.defaultValue(), result));
         return result;
       } else if (o instanceof MethodDoc) {
         MethodDoc m = (MethodDoc) o;
         MethodInfo result =
-            new MethodInfo(m.getRawCommentText(), Converter.convertTypes(m.typeParameters()), m
-                .name(), m.signature(), Converter.obtainClass(m.containingClass()), Converter
-                .obtainClass(m.containingClass()), m.isPublic(), m.isProtected(), m
+            new MethodInfo(m.getRawCommentText(), convertTypes(m.typeParameters()), m
+                .name(), m.signature(), obtainClass(m.containingClass()),
+                obtainClass(m.containingClass()), m.isPublic(), m.isProtected(), m
                 .isPackagePrivate(), m.isPrivate(), m.isFinal(), m.isStatic(), m.isSynthetic(), m
-                .isAbstract(), m.isSynchronized(), m.isNative(), false, "method",
-                m.flatSignature(), Converter.obtainMethod(m.overriddenMethod()), Converter
-                    .obtainType(m.returnType()), Converter.convertParameters(m.parameters(), m),
-                Converter.convertClasses(m.thrownExceptions()), Converter.convertSourcePosition(m
-                    .position()), Converter.convertAnnotationInstances(m.annotations()));
+                .isAbstract(), m.isSynchronized(), m.isNative(), "method",
+                m.flatSignature(), obtainMethod(m.overriddenMethod()),
+                    obtainType(m.returnType()), convertParameters(m.parameters(), m),
+                convertClasses(m.thrownExceptions()), convertSourcePosition(m
+                    .position()), convertAnnotationInstances(m.annotations()));
         result.setVarargs(m.isVarArgs());
         result.init(null);
         return result;
       } else {
         ConstructorDoc m = (ConstructorDoc) o;
         MethodInfo result =
-            new MethodInfo(m.getRawCommentText(), Converter.convertTypes(m.typeParameters()), m
-                .name(), m.signature(), Converter.obtainClass(m.containingClass()), Converter
-                .obtainClass(m.containingClass()), m.isPublic(), m.isProtected(), m
+            new MethodInfo(m.getRawCommentText(), convertTypes(m.typeParameters()), m
+                .name(), m.signature(), obtainClass(m.containingClass()),
+                obtainClass(m.containingClass()), m.isPublic(), m.isProtected(), m
                 .isPackagePrivate(), m.isPrivate(), m.isFinal(), m.isStatic(), m.isSynthetic(),
-                false, m.isSynchronized(), m.isNative(), false, "constructor", m.flatSignature(),
-                null, null, Converter.convertParameters(m.parameters(), m), Converter
-                    .convertClasses(m.thrownExceptions()), Converter.convertSourcePosition(m
-                    .position()), Converter.convertAnnotationInstances(m.annotations()));
+                false, m.isSynchronized(), m.isNative(), "constructor", m.flatSignature(),
+                null, null, convertParameters(m.parameters(), m),
+                    convertClasses(m.thrownExceptions()), convertSourcePosition(m
+                    .position()), convertAnnotationInstances(m.annotations()));
         result.setVarargs(m.isVarArgs());
         result.init(null);
         return result;
@@ -307,76 +331,66 @@ public class Converter {
   };
 
 
-  private static List<FieldInfo> convertFields(FieldDoc[] fields) {
+  private List<FieldInfo> convertFields(FieldDoc[] fields) {
     if (fields == null) {
       return null;
     }
     List<FieldInfo> result = new ArrayList<FieldInfo>();
     for (FieldDoc fieldDoc : fields) {
-      result.add(Converter.obtainField(fieldDoc));
+      result.add(obtainField(fieldDoc));
     }
     return result;
   }
 
-  private static FieldInfo obtainField(FieldDoc o) {
+  private FieldInfo obtainField(FieldDoc o) {
     return mFields.obtain(o);
   }
 
-  private static Cache<FieldDoc, FieldInfo> mFields = new Cache<FieldDoc, FieldInfo>() {
+  private Cache<FieldDoc, FieldInfo> mFields = new Cache<FieldDoc, FieldInfo>() {
     @Override
     protected FieldInfo make(FieldDoc f) {
-      return new FieldInfo(f.name(), Converter.obtainClass(f.containingClass()), Converter
-          .obtainClass(f.containingClass()), f.isPublic(), f.isProtected(), f.isPackagePrivate(), f
+      return new FieldInfo(f.name(), obtainClass(f.containingClass()),
+          obtainClass(f.containingClass()), f.isPublic(), f.isProtected(), f.isPackagePrivate(), f
           .isPrivate(), f.isFinal(), f.isStatic(), f.isTransient(), f.isVolatile(),
-          f.isSynthetic(), Converter.obtainType(f.type()), f.getRawCommentText(),
-          f.constantValue(), Converter.convertSourcePosition(f.position()), Converter
-              .convertAnnotationInstances(f.annotations()));
+          f.isSynthetic(), obtainType(f.type()), f.getRawCommentText(),
+          f.constantValue(), convertSourcePosition(f.position()), convertAnnotationInstances(f.annotations()));
     }
   };
 
-  private static PackageInfo obtainPackage(PackageDoc o) {
+  private PackageInfo obtainPackage(PackageDoc o) {
     return mPackages.obtain(o);
   }
 
-  private static Cache<PackageDoc, PackageInfo> mPackages = new Cache<PackageDoc, PackageInfo>() {
+  private Cache<PackageDoc, PackageInfo> mPackages = new Cache<PackageDoc, PackageInfo>() {
     @Override
     protected PackageInfo make(PackageDoc p) {
-      return new PackageInfo(p, p.name(), Converter.convertSourcePosition(p.position()));
+      return new PackageInfo(p, p.name(), convertSourcePosition(p.position()));
     }
   };
 
-  private static TypeInfo obtainType(Type o) {
+  private TypeInfo obtainType(Type o) {
     return mTypes.obtain(o);
   }
 
-  private static Cache<Type, TypeInfo> mTypes = new Cache<Type, TypeInfo>() {
+  private Cache<Type, TypeInfo> mTypes = new Cache<Type, TypeInfo>() {
     @Override
     protected TypeInfo make(Type t) {
-      String simpleTypeName;
-      if (t instanceof ClassDoc) {
-        simpleTypeName = ((ClassDoc) t).name();
-      } else {
-        simpleTypeName = t.simpleTypeName();
-      }
-      TypeInfo ti =
-          new TypeInfo(t.isPrimitive(), t.dimension(), simpleTypeName, t.qualifiedTypeName(),
-              Converter.obtainClass(t.asClassDoc()));
-      return ti;
+      return typeToTypeInfo(t, obtainClass(t.asClassDoc()));
     }
 
     @Override
     protected void made(Type t, TypeInfo ti) {
       if (t.asParameterizedType() != null) {
-        ti.setTypeArguments(Converter.convertTypes(t.asParameterizedType().typeArguments()));
+        ti.setTypeArguments(convertTypes(t.asParameterizedType().typeArguments()));
       } else if (t instanceof ClassDoc) {
-        ti.setTypeArguments(Converter.convertTypes(((ClassDoc) t).typeParameters()));
+        ti.setTypeArguments(convertTypes(((ClassDoc) t).typeParameters()));
       } else if (t.asTypeVariable() != null) {
-        ti.setBounds(null, Converter.convertTypes((t.asTypeVariable().bounds())));
+        ti.setBounds(null, convertTypes((t.asTypeVariable().bounds())));
         ti.setIsTypeVariable(true);
       } else if (t.asWildcardType() != null) {
         ti.setIsWildcard(true);
-        ti.setBounds(Converter.convertTypes(t.asWildcardType().superBounds()), Converter
-            .convertTypes(t.asWildcardType().extendsBounds()));
+        ti.setBounds(convertTypes(t.asWildcardType().superBounds()),
+            convertTypes(t.asWildcardType().extendsBounds()));
       }
     }
 
@@ -423,42 +437,53 @@ public class Converter {
       return result.toString();
     }
   };
-  
-  public static TypeInfo obtainTypeFromString(String type) {
+
+  private TypeInfo typeToTypeInfo(Type t, ClassInfo classInfo) {
+    String simpleTypeName;
+    if (t instanceof ClassDoc) {
+      simpleTypeName = ((ClassDoc) t).name();
+    } else {
+      simpleTypeName = t.simpleTypeName();
+    }
+    return new TypeInfo(t.isPrimitive(), t.dimension(), simpleTypeName,
+        t.qualifiedTypeName(), classInfo);
+  }
+
+  public TypeInfo obtainTypeFromString(String type) {
     return mTypesFromString.obtain(type);
   }
   
-  private static final Cache<String, TypeInfo> mTypesFromString = new Cache<String, TypeInfo>() {
+  private final Cache<String, TypeInfo> mTypesFromString = new Cache<String, TypeInfo>() {
     @Override
     protected TypeInfo make(String name) {
       return new TypeInfo(name);
     }
   };
 
-  private static AnnotationInstanceInfo[] convertAnnotationInstances(AnnotationDesc[] orig) {
+  private AnnotationInstanceInfo[] convertAnnotationInstances(AnnotationDesc[] orig) {
     int len = orig.length;
     AnnotationInstanceInfo[] out = new AnnotationInstanceInfo[len];
     for (int i = 0; i < len; i++) {
-      out[i] = Converter.obtainAnnotationInstance(orig[i]);
+      out[i] = obtainAnnotationInstance(orig[i]);
     }
     return out;
   }
 
 
-  private static AnnotationInstanceInfo obtainAnnotationInstance(AnnotationDesc o) {
+  private AnnotationInstanceInfo obtainAnnotationInstance(AnnotationDesc o) {
     return mAnnotationInstances.obtain(o);
   }
 
-  private static Cache<AnnotationDesc, AnnotationInstanceInfo> mAnnotationInstances
+  private Cache<AnnotationDesc, AnnotationInstanceInfo> mAnnotationInstances
       = new Cache<AnnotationDesc, AnnotationInstanceInfo>() {
     @Override
     protected AnnotationInstanceInfo make(AnnotationDesc a) {
-      ClassInfo annotationType = Converter.obtainClass(a.annotationType());
+      ClassInfo annotationType = obtainClass(a.annotationType());
       AnnotationDesc.ElementValuePair[] ev = a.elementValues();
       AnnotationValueInfo[] elementValues = new AnnotationValueInfo[ev.length];
       for (int i = 0; i < ev.length; i++) {
         elementValues[i] =
-            obtainAnnotationValue(ev[i].value(), Converter.obtainMethod(ev[i].element()));
+            obtainAnnotationValue(ev[i].value(), obtainMethod(ev[i].element()));
       }
       return new AnnotationInstanceInfo(annotationType, elementValues);
     }
@@ -494,12 +519,12 @@ public class Converter {
   }
 
   // annotation values
-  private static HashMap<AnnotationValue, AnnotationValueInfo> mAnnotationValues =
+  private HashMap<AnnotationValue, AnnotationValueInfo> mAnnotationValues =
       new HashMap<AnnotationValue, AnnotationValueInfo>();
-  private static HashSet<AnnotationValue> mAnnotationValuesNeedingInit =
+  private HashSet<AnnotationValue> mAnnotationValuesNeedingInit =
       new HashSet<AnnotationValue>();
 
-  private static AnnotationValueInfo obtainAnnotationValue(AnnotationValue o, MethodInfo element) {
+  private AnnotationValueInfo obtainAnnotationValue(AnnotationValue o, MethodInfo element) {
     if (o == null) {
       return null;
     }
@@ -515,23 +540,23 @@ public class Converter {
     return v;
   }
 
-  private static void initAnnotationValue(AnnotationValue o, AnnotationValueInfo v) {
+  private void initAnnotationValue(AnnotationValue o, AnnotationValueInfo v) {
     Object orig = o.value();
     Object converted;
     if (orig instanceof Type) {
       // class literal
-      converted = Converter.obtainType((Type) orig);
+      converted = obtainType((Type) orig);
     } else if (orig instanceof FieldDoc) {
       // enum constant
-      converted = Converter.obtainField((FieldDoc) orig);
+      converted = obtainField((FieldDoc) orig);
     } else if (orig instanceof AnnotationDesc) {
       // annotation instance
-      converted = Converter.obtainAnnotationInstance((AnnotationDesc) orig);
+      converted = obtainAnnotationInstance((AnnotationDesc) orig);
     } else if (orig instanceof AnnotationValue[]) {
       AnnotationValue[] old = (AnnotationValue[]) orig;
       AnnotationValueInfo[] array = new AnnotationValueInfo[old.length];
       for (int i = 0; i < array.length; i++) {
-        array[i] = Converter.obtainAnnotationValue(old[i], null);
+        array[i] = obtainAnnotationValue(old[i], null);
       }
       converted = array;
     } else {
@@ -540,7 +565,7 @@ public class Converter {
     v.init(converted);
   }
 
-  private static void finishAnnotationValueInit() {
+  private void finishAnnotationValueInit() {
     while (mAnnotationValuesNeedingInit.size() > 0) {
       HashSet<AnnotationValue> set = mAnnotationValuesNeedingInit;
       mAnnotationValuesNeedingInit = new HashSet<AnnotationValue>();

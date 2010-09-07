@@ -27,11 +27,15 @@ public class SeeTagInfo extends TagInfo {
     mBase = base;
   }
 
+  public void initVisible(Project project) {
+    super.initVisible(project);
+    mLink = LinkReference.parse(text(), mBase, position(), (!"@see".equals(name()))
+        && (mBase != null ? mBase.checkLevel() : true), project);
+  }
+
   protected LinkReference linkReference() {
     if (mLink == null) {
-      mLink =
-          LinkReference.parse(text(), mBase, position(), (!"@see".equals(name()))
-              && (mBase != null ? mBase.checkLevel() : true));
+      throw new IllegalStateException("call initVisible() first!");
     }
     return mLink;
   }

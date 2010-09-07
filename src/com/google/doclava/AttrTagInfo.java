@@ -41,14 +41,18 @@ public class AttrTagInfo extends TagInfo {
   // if mCommand == "description"
   private Comment mDescrComment;
 
-  AttrTagInfo(String name, String kind, String text, ContainerInfo base, SourcePositionInfo position) {
+  AttrTagInfo(String name, String kind, String text, ContainerInfo base,
+      SourcePositionInfo position) {
     super(name, kind, text, position);
     mBase = base;
-
-    parse(text, base, position);
   }
 
-  void parse(String text, ContainerInfo base, SourcePositionInfo position) {
+  @Override public void initVisible(Project project) {
+    super.initVisible(project);
+    parse(text(), mBase, position(), project);
+  }
+
+  void parse(String text, ContainerInfo base, SourcePositionInfo position, Project project) {
     Matcher m;
 
     m = TEXT.matcher(text);
@@ -62,7 +66,7 @@ public class AttrTagInfo extends TagInfo {
 
     if (REF_COMMAND.equals(command)) {
       String ref = more.trim();
-      LinkReference linkRef = LinkReference.parse(ref, mBase, position, false);
+      LinkReference linkRef = LinkReference.parse(ref, mBase, position, false, project);
       if (!linkRef.good) {
         Errors.error(Errors.BAD_ATTR_TAG, position, "Unresolved @attr ref: " + ref);
         return;

@@ -76,6 +76,10 @@ public abstract class MemberInfo extends DocInfo implements Comparable, Scoped {
     return mContainingClass;
   }
 
+  protected void setContainingClass(ClassInfo containingClass) {
+    this.mContainingClass = containingClass;
+  }
+
   public boolean isPublic() {
     return mIsPublic;
   }

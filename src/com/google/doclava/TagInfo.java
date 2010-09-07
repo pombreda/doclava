@@ -20,17 +20,19 @@ import com.google.clearsilver.jsilver.data.Data;
 import java.util.List;
 
 public class TagInfo {
-  private String mName;
-  private String mText;
+  private final String mName;
+  private final String mText;
+  private final SourcePositionInfo mPosition;
   private String mKind;
-  private SourcePositionInfo mPosition;
 
   TagInfo(String n, String k, String t, SourcePositionInfo sp) {
     mName = n;
     mText = t;
-    mKind = k;
     mPosition = sp;
+    mKind = k;
   }
+
+  public void initVisible(Project project) {}
 
   String name() {
     return mName;
@@ -108,5 +110,9 @@ public class TagInfo {
       }
     }
     return true;
+  }
+
+  @Override public String toString() {
+    return mName + ":" + mText;
   }
 }

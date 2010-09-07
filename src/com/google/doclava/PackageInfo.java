@@ -177,13 +177,14 @@ public final class PackageInfo extends DocInfo implements ContainerInfo {
   // TODO: Leftovers from ApiCheck that should be better merged.
   private HashMap<String, ClassInfo> mClasses = new HashMap<String, ClassInfo>();
 
-  public void initVisible() {
-    mAnnotations = Visibility.displayClasses(Converter.convertClasses(mPackage.annotationTypes()));
-    mInterfaces = Visibility.displayClasses(Converter.convertClasses(mPackage.interfaces()));
-    mOrdinaryClasses = Visibility.displayClasses(Converter.convertClasses(mPackage.ordinaryClasses()));
-    mEnums = Visibility.displayClasses(Converter.convertClasses(mPackage.enums()));
-    mExceptions = Visibility.displayClasses(Converter.convertClasses(mPackage.exceptions()));
-    mErrors = Visibility.displayClasses(Converter.convertClasses(mPackage.errors()));
+  public void initVisible(Project project) {
+    super.initVisible(project);
+    mAnnotations = Visibility.displayClasses(project.convertClasses(mPackage.annotationTypes()));
+    mInterfaces = Visibility.displayClasses(project.convertClasses(mPackage.interfaces()));
+    mOrdinaryClasses = Visibility.displayClasses(project.convertClasses(mPackage.ordinaryClasses()));
+    mEnums = Visibility.displayClasses(project.convertClasses(mPackage.enums()));
+    mExceptions = Visibility.displayClasses(project.convertClasses(mPackage.exceptions()));
+    mErrors = Visibility.displayClasses(project.convertClasses(mPackage.errors()));
   }
 
   public void addClass(ClassInfo cl) {

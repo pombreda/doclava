@@ -26,6 +26,9 @@ public abstract class DocInfo {
     mPosition = sp;
   }
 
+  public void initVisible(Project project) {
+  }
+
   /**
    * Returns true if the class represented by this object is defined
    * locally, and thus will be included in local documentation.
@@ -61,10 +64,6 @@ public abstract class DocInfo {
 
   public boolean isDocOnly() {
     return comment().isDocOnly();
-  }
-
-  public String getRawCommentText() {
-    return mRawCommentText;
   }
 
   public Comment comment() {

@@ -99,6 +99,7 @@ public class Doclava {
   public static String apiVersion = null;
   
   public static JSilver jSilver = null;
+  public static Converter converter = new Converter();
 
   public static boolean checkLevel(int level) {
     return (showLevel & level) == level;
@@ -242,11 +243,11 @@ public class Doclava {
 
 
     // Set up the data structures
-    Converter.makeInfo(r);
+    converter.makeInfo(r);
 
     Stubs stubs = new Stubs();
 
-    stubs.initVisible(stubPackages);
+    stubs.initVisible(stubPackages, converter);
     initVisiblePackages();
     initVisibleClasses(stubs.getNotStrippable());
 
@@ -297,17 +298,17 @@ public class Doclava {
       }
 
       // Apply @since tags from the XML file
-      sinceTagger.tagAll(Converter.rootClasses());
+      sinceTagger.tagAll(converter.rootClasses());
       
       // Apply details of federated documentation
-      federationTagger.tagAll(Converter.rootClasses());
+      federationTagger.tagAll(converter.rootClasses());
 
       // Files for proofreading
       if (proofreadFile != null) {
         Proofread.initProofread(proofreadFile);
       }
       if (todoFile != null) {
-        TodoFile.writeTodoFile(todoFile);
+        TodoFile.writeTodoFile(todoFile, converter);
       }
 
       // HTML Pages
@@ -377,18 +378,25 @@ public class Doclava {
 
   private static void initVisibleClasses(Set<ClassInfo> notStrippable) {
     Set<ClassInfo> allTypes = new HashSet<ClassInfo>();
-    for (ClassInfo cl : Iterables.concat(Converter.rootClasses(), notStrippable)) {
+
+    for (ClassInfo cl : Iterables.concat(converter.rootClasses(), notStrippable)) {
       cl.addAllTypes(allTypes);
     }
 
-    for (ClassInfo cl : allTypes) {
-      cl.initVisible();
+    for (DocInfo docInfo : Iterables.concat(
+        converter.allMethods(), converter.allFields(), allTypes)) {
+      docInfo.comment().initVisible(converter);
+    }
+
+    for (DocInfo docInfo : Iterables.concat(
+        converter.allMethods(), converter.allFields(), allTypes)) {
+      docInfo.initVisible(converter);
     }
   }
 
   private static void initVisiblePackages() {
     SortedMap<String, PackageInfo> sorted = new TreeMap<String, PackageInfo>();
-    for (ClassInfo cl : Converter.rootClasses()) {
+    for (ClassInfo cl : converter.rootClasses()) {
       PackageInfo pkg = cl.containingPackage();
       String name = pkg == null ? "" : pkg.name();
       sorted.put(name, pkg);
@@ -397,11 +405,15 @@ public class Doclava {
     ImmutableList.Builder<PackageInfo> result = ImmutableList.builder();
 
     for (PackageInfo pkg : sorted.values()) {
+      pkg.comment().initVisible(converter);
+    }
+
+    for (PackageInfo pkg : sorted.values()) {
       if (pkg.isHidden()) {
         continue;
       }
 
-      pkg.initVisible();
+      pkg.initVisible(converter);
 
       if (pkg.getAnnotations().isEmpty()
           && pkg.getInterfaces().isEmpty()
@@ -621,7 +633,7 @@ public class Doclava {
     Data data = makeHDF();
 
     SortedMap<String, PackageInfo> sorted = new TreeMap<String, PackageInfo>();
-    for (ClassInfo cl : Converter.rootClasses()) {
+    for (ClassInfo cl : converter.rootClasses()) {
       PackageInfo pkg = cl.containingPackage();
       String name;
       if (pkg == null) {
@@ -755,7 +767,7 @@ public class Doclava {
   public static void writeLists() {
     Data data = makeHDF();
 
-    List<ClassInfo> classes = Converter.rootClasses();
+    List<ClassInfo> classes = converter.rootClasses();
 
     SortedMap<String, Object> sorted = new TreeMap<String, Object>();
     for (ClassInfo cl : classes) {
@@ -828,7 +840,7 @@ public class Doclava {
    */
   public static void writeKeepList(String filename) {
     HashSet<ClassInfo> notStrippable = new HashSet<ClassInfo>();
-    List<ClassInfo> all = Converter.allClasses();
+    List<ClassInfo> all = converter.allClasses();
     Collections.sort(all); // just to make the file a little more readable
 
     // If a class is public and not hidden, then it and everything it derives
@@ -879,12 +891,12 @@ public class Doclava {
 
     setPageTitle(data, "Package Index");
 
-    TagInfo.makeHDF(data, "root.descr", Converter.convertTags(root.inlineTags(), null));
+    TagInfo.makeHDF(data, "root.descr", converter.convertTags(root.inlineTags(), null));
 
     ClearPage.write(data, "packages.cs", filename);
     ClearPage.write(data, "package-list.cs", javadocDir + "package-list");
 
-    Proofread.writePackages(filename, Converter.convertTags(root.inlineTags(), null));
+    Proofread.writePackages(filename, converter.convertTags(root.inlineTags(), null));
   }
 
   public static void writePackage(PackageInfo pkg) {
@@ -929,7 +941,7 @@ public class Doclava {
     int i;
     Data data = makePackageHDF();
 
-    List<ClassInfo> classes = Visibility.filterHidden(Converter.convertClasses(root.classes()));
+    List<ClassInfo> classes = Visibility.filterHidden(converter.convertClasses(root.classes()));
     if (classes.isEmpty()) {
       return;
     }
@@ -1000,19 +1012,19 @@ public class Doclava {
 
   public static void writeHierarchy() {
     ArrayList<ClassInfo> info = new ArrayList<ClassInfo>();
-    for (ClassInfo cl : Converter.rootClasses()) {
+    for (ClassInfo cl : converter.rootClasses()) {
       if (!cl.isHidden()) {
         info.add(cl);
       }
     }
     Data data = makePackageHDF();
-    Hierarchy.makeHierarchy(data, info.toArray(new ClassInfo[info.size()]));
+    Hierarchy.makeHierarchy(data, info.toArray(new ClassInfo[info.size()]), converter);
     setPageTitle(data, "Class Hierarchy");
     ClearPage.write(data, "hierarchy.cs", javadocDir + "hierarchy" + htmlExtension);
   }
 
   public static void writeClasses() {
-    for (ClassInfo cl : Converter.rootClasses()) {
+    for (ClassInfo cl : converter.rootClasses()) {
       Data data = makePackageHDF();
       if (!cl.isHidden()) {
         writeClass(cl, data);
@@ -1021,7 +1033,7 @@ public class Doclava {
   }
 
   public static void writeClass(ClassInfo cl, Data data) {
-    cl.makeHDF(data);
+    cl.makeHDF(data, converter.rootClasses());
 
     setPageTitle(data, cl.name());
     ClearPage.write(data, "class.cs", Doclava.javadocDir + cl.relativePath());
@@ -1183,7 +1195,7 @@ public class Doclava {
     ArrayList<ClassInfo> layoutParams = new ArrayList<ClassInfo>();
 
     // Go through all the fields of all the classes, looking SDK stuff.
-    for (ClassInfo clazz : Converter.allClasses()) {
+    for (ClassInfo clazz : converter.allClasses()) {
 
       // first check constant fields for the SdkConstant annotation.
       for (FieldInfo field : clazz.allSelfFields()) {

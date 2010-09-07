@@ -19,21 +19,29 @@ package com.google.doclava;
 import com.sun.javadoc.ClassDoc;
 import java.util.List;
 
+/**
+ * A project is a collection of classes to be documented. This class contains
+ * the full set of target classes all wired together. A project's Javadoc
+ * contents are not necessarily parsed, it's necessary to initialize values
+ * for display before dependent APIs can be used.
+ */
 public interface Project {
 
-  TypeInfo obtainTypeFromString(String name);
+  ClassInfo getClassByName(String name);
 
-  ClassInfo obtainClass(String name);
+  ClassInfo getClassReference(ClassDoc classDoc);
 
-  ClassInfo obtainClass(ClassDoc classDoc);
-
-  ClassInfo obtainClassReference(ClassDoc classDoc);
-
-  PackageInfo obtainPackage(String name);
+  PackageInfo getPackage(String name);
 
   List<ClassInfo> rootClasses();
 
   List<ClassInfo> allClasses();
 
-  List<ClassInfo> convertClasses(ClassDoc[] classes);
+  List<ClassInfo> getClasses(ClassDoc[] classes);
+
+  List<FieldInfo> getAllFields();
+
+  List<MethodInfo> getAllMethods();
+
+  List<TagInfo> getRootTags();
 }

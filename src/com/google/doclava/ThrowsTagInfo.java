@@ -43,7 +43,7 @@ public final class ThrowsTagInfo extends ParsedTagInfo {
         mException = ((ClassInfo) base).findClass(className, project);
       }
       if (mException == null) {
-        mException = project.obtainClass(className);
+        mException = project.getClassByName(className);
       }
     }
   }

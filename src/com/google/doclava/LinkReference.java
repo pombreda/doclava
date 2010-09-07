@@ -254,10 +254,10 @@ public class LinkReference {
         }
       }
       if (result.classInfo == null) {
-        result.classInfo = project.obtainClass(ref);
+        result.classInfo = project.getClassByName(ref);
       }
       if (result.classInfo == null) {
-        result.packageInfo = project.obtainPackage(ref);
+        result.packageInfo = project.getPackage(ref);
       }
     }
 

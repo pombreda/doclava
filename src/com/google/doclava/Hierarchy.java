@@ -97,7 +97,7 @@ public class Hierarchy {
     hdf.setValue("indent", "" + (totalDepth - remainingDepth - 1));
     hdf.setValue("colspan", "" + remainingDepth);
 
-    ClassInfo cl = project.obtainClass(name);
+    ClassInfo cl = project.getClassByName(name);
 
     hdf.setValue("class.label", cl.name());
     hdf.setValue("class.qualified", cl.qualifiedName());

@@ -1006,7 +1006,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
   }
 
   public ClassInfo findClass(String className, Project project) {
-    return project.obtainClassReference(mClass.findClass(className));
+    return project.getClassReference(mClass.findClass(className));
   }
 
   public ClassInfo findInnerClass(String className, Project project) {
@@ -1022,7 +1022,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
         return null;
       }
     }
-    return project.obtainClassReference(cl);
+    return project.getClassReference(cl);
   }
 
   public FieldInfo findField(String name) {

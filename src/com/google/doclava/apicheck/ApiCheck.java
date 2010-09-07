@@ -19,7 +19,6 @@ package com.google.doclava.apicheck;
 import com.google.doclava.AnnotationInstanceInfo;
 import com.google.doclava.ClassInfo;
 import com.google.doclava.ConstructorInfo;
-import com.google.doclava.Converter;
 import com.google.doclava.ErrorReport;
 import com.google.doclava.Errors;
 import com.google.doclava.FieldInfo;
@@ -44,7 +43,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 public class ApiCheck {
-  private final Converter converter = new Converter();
+  private final ApiProject apiProject = new ApiProject();
 
   // parse out and consume the -whatever command line flags
   private static ArrayList<String[]> parseFlags(ArrayList<String> allArgs) {
@@ -182,7 +181,7 @@ public class ApiCheck {
       ApiInfo apiInfo = handler.getApi();
       apiInfo.resolveSuperclasses();
       apiInfo.resolveInterfaces();
-      apiInfo.initVisible(converter);
+      apiInfo.initVisible();
       return apiInfo;
     } catch (Exception e) {
       throw new ApiParseException("Error parsing API", e);
@@ -251,7 +250,7 @@ public class ApiCheck {
         // Resolve superclass after .xml completely parsed.
         mApi.mapClassToSuper(mCurrentClass, superclass);
         
-        TypeInfo typeInfo = converter.obtainTypeFromString(qualifiedName) ;
+        TypeInfo typeInfo = apiProject.obtainTypeFromString(qualifiedName) ;
         mCurrentClass.setTypeInfo(typeInfo);
         mCurrentClass.setAnnotations(new AnnotationInstanceInfo[] {});
       } else if (qName.equals("method")) {
@@ -276,7 +275,7 @@ public class ApiCheck {
         String kind = qName;
         String flatSignature = null; // TODO
         MethodInfo overriddenMethod = null; // TODO
-        TypeInfo returnType = converter.obtainTypeFromString(attributes.getValue("return"));
+        TypeInfo returnType = apiProject.obtainTypeFromString(attributes.getValue("return"));
         List<ParameterInfo> parameters = new ArrayList<ParameterInfo>();
         List<ClassInfo> thrownExceptions = new ArrayList<ClassInfo>();
         SourcePositionInfo position = SourcePositionInfo.fromXml(attributes.getValue("source"));
@@ -304,7 +303,7 @@ public class ApiCheck {
         boolean isPrivate = visibility.equals("private");
         boolean isPackagePrivate = visibility.equals("");
         String typeName = attributes.getValue("type");
-        TypeInfo type = converter.obtainTypeFromString(typeName);
+        TypeInfo type = apiProject.obtainTypeFromString(typeName);
         
         FieldInfo fInfo =
             new FieldInfo(attributes.getValue("name"), mCurrentClass, mCurrentClass, isPublic,
@@ -319,7 +318,7 @@ public class ApiCheck {
       } else if (qName.equals("parameter")) {
         String name = attributes.getValue("name");
         String typeName = attributes.getValue("type");
-        TypeInfo type = converter.obtainTypeFromString(typeName);
+        TypeInfo type = apiProject.obtainTypeFromString(typeName);
         boolean isVarArg = typeName.endsWith("...");
         SourcePositionInfo position = null;
         

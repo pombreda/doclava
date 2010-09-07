@@ -179,12 +179,12 @@ public final class PackageInfo extends DocInfo implements ContainerInfo {
 
   public void initVisible(Project project) {
     super.initVisible(project);
-    mAnnotations = Visibility.displayClasses(project.convertClasses(mPackage.annotationTypes()));
-    mInterfaces = Visibility.displayClasses(project.convertClasses(mPackage.interfaces()));
-    mOrdinaryClasses = Visibility.displayClasses(project.convertClasses(mPackage.ordinaryClasses()));
-    mEnums = Visibility.displayClasses(project.convertClasses(mPackage.enums()));
-    mExceptions = Visibility.displayClasses(project.convertClasses(mPackage.exceptions()));
-    mErrors = Visibility.displayClasses(project.convertClasses(mPackage.errors()));
+    mAnnotations = Visibility.displayClasses(project.getClasses(mPackage.annotationTypes()));
+    mInterfaces = Visibility.displayClasses(project.getClasses(mPackage.interfaces()));
+    mOrdinaryClasses = Visibility.displayClasses(project.getClasses(mPackage.ordinaryClasses()));
+    mEnums = Visibility.displayClasses(project.getClasses(mPackage.enums()));
+    mExceptions = Visibility.displayClasses(project.getClasses(mPackage.exceptions()));
+    mErrors = Visibility.displayClasses(project.getClasses(mPackage.errors()));
   }
 
   public void addClass(ClassInfo cl) {

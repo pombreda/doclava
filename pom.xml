@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (C) 2010 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.google</groupId>
+    <artifactId>doclava</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>Doclava</name>
+    <description>Doclava is a Javadoc Doclet that generates documentation for Java projects</description>
+    <url>http://code.google.com/p/doclava/</url>
+    <inceptionYear>2010</inceptionYear>
+
+    <organization>
+        <name>Google</name>
+        <url>http://www.google.com/</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>Google-Code Issue Management</system>
+        <url>http://code.google.com/p/doclava/issues/</url>
+    </issueManagement>
+
+    <scm>
+        <url>scm:svn:http://doclava.googlecode.com/svn/trunk</url>
+        <connection>scm:svn:https://doclava.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://doclava.googlecode.com/svn/trunk</developerConnection>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Nexus Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <javac.src.version>1.5</javac.src.version>
+        <javac.target.version>1.5</javac.target.version>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssZ</maven.build.timestamp.format>
+        <implementation.build>r${buildNumber}; ${maven.build.timestamp}</implementation.build>
+    </properties>
+
+    <build>
+        <directory>build</directory>
+        <sourceDirectory>${basedir}/src</sourceDirectory>
+        <outputDirectory>${project.build.directory}/classes</outputDirectory>
+        <testSourceDirectory>${basedir}/test</testSourceDirectory>
+        <testOutputDirectory>${project.build.directory}/test</testOutputDirectory>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>${javac.src.version}</source>
+                    <target>${javac.target.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>find</executable>
+                            <arguments>
+                                <argument>${basedir}/test/doclava/sample</argument>
+                                <argument>-name</argument>
+                                <argument>'*.java'</argument>
+                                <argument>&gt;</argument>
+                                <argument>${project.build.directory}/test/src-list</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.6</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Implementation-Build>${implementation.build}</Implementation-Build>
+                            <X-Compile-Source-JDK>${javac.src.version}</X-Compile-Source-JDK>
+                            <X-Compile-Target-JDK>${javac.target.version}</X-Compile-Target-JDK>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>jarjar-maven-plugin</artifactId>
+                <version>1.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jarjar</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>com.google:jsilver</include>
+                            </includes>
+                            <rules>
+                                <keep>
+                                    <pattern>com.google.**</pattern>
+                                </keep>
+                                <keep>
+                                    <pattern>org.clearsilver.**</pattern>
+                                </keep>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.1</version>
+                    <configuration>
+                        <mavenExecutorId>forked-path</mavenExecutorId>
+                        <arguments>-Prelease</arguments>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <resources>
+            <resource>
+                <directory>${basedir}</directory>
+                <targetPath>META-INF</targetPath>
+                <includes>
+                    <include>LICENSE</include>
+                    <include>NOTICE</include>
+                </includes>
+            </resource>
+
+            <resource>
+                <directory>${basedir}/res</directory>
+            </resource>
+        </resources>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>buildnumber-maven-plugin</artifactId>
+                        <version>1.0-beta-4</version>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>create</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <doCheck>true</doCheck>
+                            <doUpdate>true</doUpdate>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.1.2</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                                <configuration>
+                                    <archive>
+                                        <manifest>
+                                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                                        </manifest>
+                                        <manifestEntries>
+                                            <Implementation-Build>${implementation.build}</Implementation-Build>
+                                            <X-Compile-Source-JDK>${javac.src.version}</X-Compile-Source-JDK>
+                                            <X-Compile-Target-JDK>${javac.target.version}</X-Compile-Target-JDK>
+                                        </manifestEntries>
+                                    </archive>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.7</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <archive>
+                                        <manifest>
+                                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                                        </manifest>
+                                        <manifestEntries>
+                                            <Implementation-Build>${implementation.build}</Implementation-Build>
+                                            <X-Compile-Source-JDK>${javac.src.version}</X-Compile-Source-JDK>
+                                            <X-Compile-Target-JDK>${javac.target.version}</X-Compile-Target-JDK>
+                                        </manifestEntries>
+                                    </archive>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <doclet>com.google.doclava.Doclava</doclet>
+                            <docletPath>${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}</docletPath>
+                            <additionalparam>
+                                -stubs ${project.build.directory}/stubs
+                                -hdf project.name "${project.name}"
+                            </additionalparam>
+                            <useStandardDocletOptions>false</useStandardDocletOptions>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.1</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google</groupId>
+            <artifactId>jsilver</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/jsilver.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.google.doclava</groupId>
     <artifactId>doclava</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Doclava</name>
     <description>Doclava is a Javadoc Doclet that generates documentation for Java projects</description>
@@ -182,6 +182,7 @@
                     <configuration>
                         <mavenExecutorId>forked-path</mavenExecutorId>
                         <arguments>-Prelease</arguments>
+                        <remoteTagging>false</remoteTagging>
                     </configuration>
                 </plugin>
             </plugins>

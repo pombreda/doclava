@@ -14,7 +14,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.google.doclava</groupId>
@@ -45,9 +45,9 @@
     </issueManagement>
 
     <scm>
-        <url>scm:svn:http://doclava.googlecode.com/svn/trunk</url>
-        <connection>scm:svn:https://doclava.googlecode.com/svn/trunk</connection>
-        <developerConnection>scm:svn:https://doclava.googlecode.com/svn/trunk</developerConnection>
+        <url>scm:svn:http://doclava.googlecode.com/svn/tags/doclava-1.0.0</url>
+        <connection>scm:svn:https://doclava.googlecode.com/svn/tags/doclava-1.0.0</connection>
+        <developerConnection>scm:svn:https://doclava.googlecode.com/svn/tags/doclava-1.0.0</developerConnection>
     </scm>
 
     <distributionManagement>

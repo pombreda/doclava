@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.google.doclava</groupId>
     <artifactId>doclava</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>Doclava</name>
     <description>Doclava is a Javadoc Doclet that generates documentation for Java projects</description>
@@ -279,6 +279,7 @@
                             </execution>
                         </executions>
                         <configuration>
+                            <bootclasspath>${java.home}/lib/rt.jar:${java.home}/lib/jsse.jar</bootclasspath>
                             <doclet>com.google.doclava.Doclava</doclet>
                             <docletPath>${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}</docletPath>
                             <additionalparam>

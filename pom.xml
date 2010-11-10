@@ -49,6 +49,14 @@
         <connection>scm:svn:https://doclava.googlecode.com/svn/tags/doclava-1.0.0</connection>
         <developerConnection>scm:svn:https://doclava.googlecode.com/svn/tags/doclava-1.0.0</developerConnection>
     </scm>
+    
+    <developers>
+      <developer>
+        <id>bjdodson</id>
+        <name>Ben Dodson</name>
+        <email>bjdodson@gmail.com</email>
+      </developer>
+    </developers>
 
     <distributionManagement>
         <snapshotRepository>

@@ -292,8 +292,11 @@
                             <doclet>com.google.doclava.Doclava</doclet>
                             <docletPath>${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}</docletPath>
                             <additionalparam>
+                                -quiet
                                 -stubs ${project.build.directory}/stubs
                                 -hdf project.name "${project.name}"
+                                -federate JDK http://download.oracle.com/javase/6/docs/api/index.html?
+                                -federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
                             </additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                         </configuration>

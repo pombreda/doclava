@@ -147,6 +147,7 @@
                         <configuration>
                             <includes>
                                 <include>com.google.jsilver:jsilver</include>
+                                <include>com.google.guava:guava</include>
                             </includes>
                             <rules>
                                 <keep>
@@ -308,6 +309,12 @@
             <groupId>com.google.jsilver</groupId>
             <artifactId>jsilver</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>r06</version>
         </dependency>
         
         <dependency>

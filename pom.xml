@@ -101,10 +101,8 @@
         <directory>build</directory>
         <sourceDirectory>${basedir}/src</sourceDirectory>
         <outputDirectory>${project.build.directory}/classes</outputDirectory>
-        <!--
-          <testSourceDirectory>${basedir}/test</testSourceDirectory>
-          <testOutputDirectory>${project.build.directory}/test</testOutputDirectory>
-        -->
+        <testSourceDirectory>${basedir}/test</testSourceDirectory>
+        <testOutputDirectory>${project.build.directory}/test</testOutputDirectory>
 
         <plugins>
             <plugin>

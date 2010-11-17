@@ -45,9 +45,9 @@
     </issueManagement>
 
     <scm>
-        <url>scm:svn:http://doclava.googlecode.com/svn/tags/doclava-1.0.1</url>
-        <connection>scm:svn:https://doclava.googlecode.com/svn/tags/doclava-1.0.1</connection>
-        <developerConnection>scm:svn:https://doclava.googlecode.com/svn/tags/doclava-1.0.1</developerConnection>
+        <url>http://doclava.googlecode.com/svn/trunk</url>
+        <connection>scm:svn:https://doclava.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://doclava.googlecode.com/svn/trunk</developerConnection>
     </scm>
 
     <developers>

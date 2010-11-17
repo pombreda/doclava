@@ -279,7 +279,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <bootclasspath>${java.home}/lib/rt.jar:${java.home}/lib/jsse.jar</bootclasspath>
+                            <bootclasspath>${sun.boot.class.path}</bootclasspath>
                             <doclet>com.google.doclava.Doclava</doclet>
                             <docletPath>${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}</docletPath>
                             <additionalparam>

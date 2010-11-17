@@ -52,6 +52,15 @@
 
     <developers>
         <developer>
+          <name>Jesse Wilson</name>
+        </developer>
+        <developer>
+          <name>Joe Onorato</name>
+        </developer>
+        <developer>
+          <name>Dirk Dougherty</name>
+        </developer>
+        <developer>
             <id>bjdodson</id>
             <name>Ben Dodson</name>
             <email>bjdodson@gmail.com</email>

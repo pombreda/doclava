@@ -279,18 +279,35 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <bootclasspath>${sun.boot.class.path}</bootclasspath>
                             <doclet>com.google.doclava.Doclava</doclet>
                             <docletPath>${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}</docletPath>
                             <additionalparam>
                                 -quiet
                                 -stubs ${project.build.directory}/stubs
                                 -hdf project.name "${project.name}"
-                                -federate JDK http://download.oracle.com/javase/6/docs/api/index.html?
-                                -federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
                             </additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                         </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>2.2</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <attach>false</attach>
+                                    <descriptors>
+                                        <descriptor>bundle.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
 
                     <plugin>

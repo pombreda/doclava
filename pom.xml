@@ -285,6 +285,7 @@
                                 -quiet
                                 -stubs ${project.build.directory}/stubs
                                 -hdf project.name "${project.name}"
+                                -d ${project.build.directory}/apidocs
                             </additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                         </configuration>

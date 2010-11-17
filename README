@@ -1,7 +1,7 @@
--------------------------------------------------------------------------
+--------------------------------------------------------------------------
 ${project.name} ${project.version} (${implementation.build})
 ${project.description}
--------------------------------------------------------------------------
+--------------------------------------------------------------------------
 
 == Using Doclava with Apache Ant ==
 
@@ -54,6 +54,7 @@ ${project.description}
                  -federate JDK http://download.oracle.com/javase/6/docs/api/index.html?
                  -federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
                  -hdf project.name "$\{project.name\}"
+                 -d ${project.build.directory}/apidocs
                </additionalparam>
               <useStandardDocletOptions>false</useStandardDocletOptions>
             </configuration>

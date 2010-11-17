@@ -97,7 +97,7 @@
 
     <target name="doclava" depends="jar">
         <javadoc packagenames="com.google.*"
-                destdir="build/docs"
+                destdir="build/apidocs"
                 sourcepath="src"
                 docletpath="${jar.file}"
                 bootclasspath="${sun.boot.class.path}">

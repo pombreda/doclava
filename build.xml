@@ -85,7 +85,7 @@
            destdir="build/docs"
            sourcepath="src"
            docletpath="${jar.file}"
-           bootclasspath="${javahome}/jre/lib/rt.jar"
+           bootclasspath="${sun.boot.class.path}"
            >
       <doclet name="com.google.doclava.Doclava">
         <param name="-stubs" value="build/stubs" />

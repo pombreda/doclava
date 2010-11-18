@@ -202,6 +202,26 @@
     </build>
 
     <profiles>
+
+        <profile>
+            <id>default-tools.jar</id>
+            <activation>
+              <property>
+                <name>java.vendor</name>
+                <value>Sun Microsystems Inc.</value>
+              </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun</groupId>
+                    <artifactId>tools</artifactId>
+                    <version>1.4.2</version>
+                    <scope>system</scope>
+                    <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                    </dependency>
+            </dependencies>
+        </profile>
+
         <profile>
             <id>release</id>
             <build>
@@ -374,6 +394,8 @@
             <version>4.8.2</version>
             <scope>test</scope>
         </dependency>
+        
+        
     </dependencies>
 
 </project>

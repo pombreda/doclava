@@ -49,14 +49,18 @@ ${project.description}
                 <version>${project.version}</version>
               </docletArtifact>
               <doclet>com.google.doclava.Doclava</doclet>
+              <bootclasspath>${sun.boot.class.path}</bootclasspath>
               <additionalparam>
                  -quiet
                  -federate JDK http://download.oracle.com/javase/6/docs/api/index.html?
                  -federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
                  -hdf project.name "$\{project.name\}"
                  -d $\{project.build.directory\}/apidocs
-               </additionalparam>
+                 -federate JDK http://download.oracle.com/javase/6/docs/api/index.html?
+                 -federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
+              </additionalparam>
               <useStandardDocletOptions>false</useStandardDocletOptions>
+              <additionalJOption>-J-Xmx1024m</additionalJOption>
             </configuration>
           </plugin>
           ...

@@ -202,14 +202,13 @@
     </build>
 
     <profiles>
-
         <profile>
-            <id>default-tools.jar</id>
+            <id>sun-jvm</id>
             <activation>
-              <property>
-                <name>java.vendor</name>
-                <value>Sun Microsystems Inc.</value>
-              </property>
+                <property>
+                    <name>java.vendor</name>
+                    <value>Sun Microsystems Inc.</value>
+                </property>
             </activation>
             <dependencies>
                 <dependency>
@@ -218,7 +217,7 @@
                     <version>1.4.2</version>
                     <scope>system</scope>
                     <systemPath>${java.home}/../lib/tools.jar</systemPath>
-                    </dependency>
+                </dependency>
             </dependencies>
         </profile>
 

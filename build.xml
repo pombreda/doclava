@@ -106,6 +106,10 @@
                 <param name="-hdf"/>
                 <param name="project.name"/>
                 <param name="Doclava" />
+                <param name="-federate" /><param name="JDK"/>
+                <param name="http://download.oracle.com/javase/6/docs/api/index.html?"/>
+                <param name="-federationxml"/><param name="JDK"/>
+                <param name="http://doclava.googlecode.com/svn/static/api/openjdk-6.xml"/>
             </doclet>
         </javadoc>
     </target>

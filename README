@@ -49,7 +49,7 @@ ${project.description}
                 <version>${project.version}</version>
               </docletArtifact>
               <doclet>com.google.doclava.Doclava</doclet>
-              <bootclasspath>${sun.boot.class.path}</bootclasspath>
+              <bootclasspath>$\{sun.boot.class.path\}</bootclasspath>
               <additionalparam>
                  -quiet
                  -federate JDK http://download.oracle.com/javase/6/docs/api/index.html?

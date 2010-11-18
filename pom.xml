@@ -284,6 +284,8 @@
                                 -stubs ${project.build.directory}/stubs
                                 -hdf project.name "${project.name}"
                                 -d ${project.build.directory}/apidocs
+                                -federate JDK http://download.oracle.com/javase/6/docs/api/index.html?
+                                -federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
                             </additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
                         </configuration>

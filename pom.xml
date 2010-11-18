@@ -325,6 +325,36 @@
                             </execution>
                         </executions>
                     </plugin>
+
+                    <plugin>
+                        <groupId>com.googlecode.maven-gcu-plugin</groupId>
+                        <artifactId>maven-gcu-plugin</artifactId>
+                        <version>1.1</version>
+                        <executions>
+                            <execution>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>upload</goal>
+                                </goals>
+                                <configuration>
+                                    <failsOnError>false</failsOnError>
+                                    <projectName>doclava</projectName>
+                                    <uploads>
+                                         <upload>
+                                            <file>${project.build.directory}/${project.artifactId}-${project.version}-bundle.zip</file>
+                                            <summary>${project.name} ${project.version}</summary>
+                                            <labels>
+                                                <label>Featured</label>
+                                                <label>Type-Archive</label>
+                                                <label>Version-${project.version}</label>
+                                                <label>Build-${implementation.build}</label>
+                                            </labels>
+                                        </upload>
+                                    </uploads>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>

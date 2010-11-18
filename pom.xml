@@ -298,6 +298,7 @@
                         <configuration>
                             <doclet>com.google.doclava.Doclava</doclet>
                             <docletPath>${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}</docletPath>
+                            <bootclasspath>${sun.boot.class.path}</bootclasspath>
                             <additionalparam>
                                 -quiet
                                 -stubs ${project.build.directory}/stubs

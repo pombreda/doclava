@@ -308,6 +308,7 @@
                                 -federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
                             </additionalparam>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
+                            <additionalJOption>-J-Xmx1024m</additionalJOption>
                         </configuration>
                     </plugin>
 

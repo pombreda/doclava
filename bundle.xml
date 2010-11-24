@@ -44,6 +44,9 @@
         <file>
             <source>NOTICE</source>
         </file>
+        <file>
+            <source>KEYS</source>
+        </file>
     </files>
 
 </assembly>

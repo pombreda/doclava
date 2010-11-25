@@ -168,6 +168,15 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.0-beta-3</version>
+                <configuration>
+                    <siteDirectory>${basedir}/etc/site</siteDirectory>
+                </configuration>
+            </plugin>
         </plugins>
 
         <pluginManagement>
@@ -326,7 +335,7 @@
                                 <configuration>
                                     <attach>false</attach>
                                     <descriptors>
-                                        <descriptor>bundle.xml</descriptor>
+                                        <descriptor>${basedir}/etc/assembly/bundle.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>

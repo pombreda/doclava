@@ -947,17 +947,22 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
 
   public MethodInfo findMethod(String name, String[] params, String[] dimensions, boolean varargs) {
     // first look on our class, and our superclasses
+	MethodInfo rv;
 
     // for methods
-    MethodInfo rv = matchMethod(mAllSelfMethods, name, params, dimensions, varargs);
-    if (rv != null) {
-      return rv;
-    }
+	if (mAllSelfMethods != null) {
+	    rv = matchMethod(mAllSelfMethods, name, params, dimensions, varargs);
+	    if (rv != null) {
+	      return rv;
+	    }
+	}
 
     // for constructors
-    rv = matchMethod(mAllConstructors, name, params, dimensions, varargs);
-    if (rv != null) {
-      return rv;
+    if (mAllConstructors != null) {
+	    rv = matchMethod(mAllConstructors, name, params, dimensions, varargs);
+	    if (rv != null) {
+	      return rv;
+	    }
     }
 
     // then recursively look at our containing class

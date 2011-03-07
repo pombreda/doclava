@@ -1140,7 +1140,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
   private List<MethodInfo> mAllSelfMethods = new ArrayList<MethodInfo>();
   private List<MethodInfo> mAnnotationElements; // if this class is an annotation
   private List<FieldInfo> mAllSelfFields = new ArrayList<FieldInfo>();
-  private List<FieldInfo> mEnumConstants;
+  private List<FieldInfo> mEnumConstants = new ArrayList<FieldInfo>();
   private PackageInfo mContainingPackage;
   private ClassInfo mContainingClass;
   private ClassInfo mRealSuperclass;

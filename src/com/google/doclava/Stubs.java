@@ -37,7 +37,7 @@ public final class Stubs {
   public void initVisible(HashSet<String> stubPackages, Iterable<ClassInfo> allClasses) {
     // figure out which classes we need
     notStrippable = new LinkedHashSet<ClassInfo>();
-    // If a class is public or protected, not hidden, and marked as included,
+    // If a class is public or protected, available, and marked as included,
     // then we can't strip it
     for (ClassInfo cl : allClasses) {
       if (cl.checkLevel() && cl.isDefinedLocally()) {
@@ -48,9 +48,12 @@ public final class Stubs {
     // complain about anything that looks includable but is not supposed to
     // be written, e.g. hidden things
     for (ClassInfo cl : notStrippable) {
-      if (!cl.isHidden()) {
+      if (!cl.isDefinedLocally()) {
+        continue; // don't complain about third-party / platform classes
+      }
+      if (cl.checkLevel()) {
         for (MethodInfo m : cl.allSelfMethods()) {
-          if (m.isHidden()) {
+          if (!m.checkLevel()) {
             continue;
           }
           if (m.isDeprecated()) {
@@ -61,7 +64,7 @@ public final class Stubs {
           }
 
           ClassInfo returnClass = m.returnType().asClassInfo();
-          if (returnClass != null && returnClass.isHidden()) {
+          if (returnClass != null && !returnClass.checkLevel()) {
             Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Method " + cl.qualifiedName()
                 + "." + m.name() + " returns unavailable type " + returnClass.name());
           }
@@ -70,9 +73,9 @@ public final class Stubs {
           for (ParameterInfo p : params) {
             TypeInfo t = p.type();
             if (!t.isPrimitive()) {
-              if (t.asClassInfo().isHidden()) {
-                Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Parameter of hidden type "
-                    + t.fullName() + " in " + cl.qualifiedName() + "." + m.name() + "()");
+              if (!t.asClassInfo().checkLevel()) {
+                Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Parameter of unavailable " 
+                    + "type " + t.fullName() + " in " + cl.qualifiedName() + "." + m.name() + "()");
               }
             }
           }
@@ -80,11 +83,11 @@ public final class Stubs {
 
         // annotations are handled like methods
         for (MethodInfo m : cl.annotationElements()) {
-          if (m.isHidden()) {
+          if (!m.checkLevel()) {
             continue;
           }
           ClassInfo returnClass = m.returnType().asClassInfo();
-          if (returnClass != null && returnClass.isHidden()) {
+          if (returnClass != null && !returnClass.checkLevel()) {
             Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Annotation '" + m.name()
                 + "' returns unavailable type " + returnClass.name());
           }
@@ -92,7 +95,7 @@ public final class Stubs {
           for (ParameterInfo p : m.parameters()) {
             TypeInfo t = p.type();
             if (!t.isPrimitive()) {
-              if (t.asClassInfo().isHidden()) {
+              if (!t.asClassInfo().checkLevel()) {
                 Errors.error(Errors.UNAVAILABLE_SYMBOL, p.position(),
                     "Reference to unavailable annotation class " + t.fullName());
               }
@@ -100,7 +103,7 @@ public final class Stubs {
           }
         }
       } else if (cl.isDeprecated()) {
-        // not hidden, but deprecated
+        // not available, but deprecated
         Errors.error(Errors.DEPRECATED, cl.position(), "Class " + cl.qualifiedName()
             + " is deprecated");
       }
@@ -221,8 +224,8 @@ public final class Stubs {
     // blow open super class and interfaces
     ClassInfo supr = cl.realSuperclass();
     if (supr != null) {
-      if (supr.isHidden()) {
-        // cl is a public class declared as extending a hidden superclass.
+      if (!supr.checkLevel() && supr.isDefinedLocally()) {
+        // cl is a public class declared as extending an unavailable superclass.
         // this is not a desired practice but it's happened, so we deal
         // with it by stripping off the superclass relation for purposes of
         // generating the doc & stub information, and proceeding normally.
@@ -246,7 +249,7 @@ public final class Stubs {
     }
 
     for (MethodInfo mInfo : mInfos) {
-      if (mInfo.isHidden()) {
+      if (!mInfo.checkLevel()) {
         continue;
       }
 
@@ -265,11 +268,10 @@ public final class Stubs {
               for (TypeInfo tInfoType : pInfo.type().typeArguments()) {
                 if (tInfoType.asClassInfo() != null) {
                   ClassInfo tcl = tInfoType.asClassInfo();
-                  if (tcl.isHidden()) {
+                  if (!tcl.checkLevel()) {
                     Errors.error(Errors.UNAVAILABLE_SYMBOL, mInfo.position(),
-                        "Parameter of hidden type " + tInfoType.fullName() + " in "
-                            + mInfo.containingClass().qualifiedName() + '.' + mInfo.name()
-                            + "()");
+                        "Parameter of unavailable type " + tInfoType.fullName() + " in "
+                            + mInfo.containingClass().qualifiedName() + '.' + mInfo.name() + "()");
                   } else {
                     cantStripThis(tcl, notStrippable);
                   }
@@ -729,7 +731,7 @@ public final class Stubs {
 
   private static void writeAnnotations(PrintStream stream, AnnotationInstanceInfo[] annotations) {
     for (AnnotationInstanceInfo ann : annotations) {
-      if (!ann.type().isHidden()) {
+      if (ann.type().checkLevel()) {
         stream.println(ann.toString());
       }
     }

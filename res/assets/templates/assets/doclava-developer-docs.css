@@ -2,7 +2,7 @@
    info: developer doc styles
 */
 
-@import url("android-developer-core.css");
+@import url("doclava-developer-core.css");
 
 #title {
   border-bottom: 4px solid #ccc;

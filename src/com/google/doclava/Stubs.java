@@ -81,10 +81,8 @@ public final class Stubs {
         // annotations are handled like methods
         for (MethodInfo m : cl.annotationElements()) {
           if (m.isHidden()) {
-            Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Reference to hidden annotation "
-                + m.name());
+            continue;
           }
-
           ClassInfo returnClass = m.returnType().asClassInfo();
           if (returnClass != null && returnClass.isHidden()) {
             Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Annotation '" + m.name()

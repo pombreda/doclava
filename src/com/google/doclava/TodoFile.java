@@ -17,7 +17,7 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-import java.util.Collections;
+import com.google.common.collect.Ordering;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -69,8 +69,7 @@ public class TodoFile {
     Doclava.setPageTitle(data, "Missing Documentation");
     TreeMap<String, PackageStats> packageStats = new TreeMap<String, PackageStats>();
 
-    List<ClassInfo> classes = project.rootClasses();
-    Collections.sort(classes);
+    List<ClassInfo> classes = Ordering.natural().sortedCopy(project.rootClasses());
 
     int classIndex = 0;
 

@@ -48,8 +48,6 @@ public class NavTree {
   private static Node makePackageNode(PackageInfo pkg) {
     List<Node> children = new ArrayList<Node>();
 
-    children.add(new Node("Description", pkg.fullDescriptionHtmlPage(), null, null));
-
     addClassNodes(children, "Interfaces", pkg.getInterfaces());
     addClassNodes(children, "Classes", pkg.ordinaryClasses());
     addClassNodes(children, "Annotations", pkg.getAnnotations());

@@ -9,17 +9,17 @@
 | <?cs var:project.name ?>
 <?cs /if ?>
 </title>
-<link href="<?cs var:toassets ?>android-developer-docs.css" rel="stylesheet" type="text/css" />
+<link href="<?cs var:toassets ?>doclava-developer-docs.css" rel="stylesheet" type="text/css" />
 <link href="<?cs var:toassets ?>customizations.css" rel="stylesheet" type="text/css" />
 <script src="<?cs var:toassets ?>search_autocomplete.js" type="text/javascript"></script>
 <script src="<?cs var:toassets ?>jquery-resizable.min.js" type="text/javascript"></script>
-<script src="<?cs var:toassets ?>android-developer-docs.js" type="text/javascript"></script>
+<script src="<?cs var:toassets ?>doclava-developer-docs.js" type="text/javascript"></script>
 <script src="<?cs var:toassets ?>prettify.js" type="text/javascript"></script>
 <script type="text/javascript">
   setToRoot("<?cs var:toroot ?>", "<?cs var:toassets ?>");
 </script><?cs 
 if:reference ?>
-<script src="<?cs var:toassets ?>android-developer-reference.js" type="text/javascript"></script>
+<script src="<?cs var:toassets ?>doclava-developer-reference.js" type="text/javascript"></script>
 <script src="<?cs var:toassets ?>navtree_data.js" type="text/javascript"></script><?cs 
 /if ?>
 <script src="<?cs var:toassets ?>customizations.js" type="text/javascript"></script>

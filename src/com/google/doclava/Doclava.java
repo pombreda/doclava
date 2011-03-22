@@ -31,9 +31,11 @@ import com.sun.javadoc.LanguageVersion;
 import com.sun.javadoc.MemberDoc;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Type;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -93,6 +95,7 @@ public class Doclava {
   public static Map<Character, String> escapeChars = new HashMap<Character, String>();
   public static String title = "";
   public static SinceTagger sinceTagger = new SinceTagger();
+  public static HashSet<String> knownTags = new HashSet<String>();
   public static FederationTagger federationTagger = new FederationTagger();
   private static boolean generateDocs = true;
   private static boolean parseComments = false;
@@ -104,7 +107,7 @@ public class Doclava {
   public static boolean checkLevel(int level) {
     return (showLevel & level) == level;
   }
-  
+
   /**
    * Returns true if we should parse javadoc comments,
    * reporting errors in the process.
@@ -150,6 +153,7 @@ public class Doclava {
     String apiFile = null;
     String debugStubsFile = "";
     HashSet<String> stubPackages = null;
+    ArrayList<String> knownTagsFiles = new ArrayList<String>();
 
     root = r;
 
@@ -161,12 +165,14 @@ public class Doclava {
         ClearPage.addTemplateDir(a[1]);
       } else if (a[0].equals("-hdf")) {
         mHDFData.add(new String[] {a[1], a[2]});
+      } else if (a[0].equals("-knowntags")) {
+        knownTagsFiles.add(a[1]);
       } else if (a[0].equals("-toroot")) {
         ClearPage.toroot = a[1];
       } else if (a[0].equals("-samplecode")) {
         sampleCodes.add(new SampleCode(a[1], a[2], a[3]));
       } else if (a[0].equals("-htmldir")) {
-        ClearPage.htmlDir = a[1];
+        ClearPage.htmlDirs.add(a[1]);
       } else if (a[0].equals("-title")) {
         Doclava.title = a[1];
       } else if (a[0].equals("-werror")) {
@@ -241,6 +247,9 @@ public class Doclava {
       }
     }
 
+    if (!readKnownTagsFiles(knownTags, knownTagsFiles)) {
+      return false;
+    }
 
     // Set up the data structures
     project = new ProjectBuilder().build(r);
@@ -270,6 +279,7 @@ public class Doclava {
 
     // Reference documentation
     if (generateDocs) {
+      ClearPage.addBundledTemplateDir("assets/customizations");
       ClearPage.addBundledTemplateDir("assets/templates");
 
       List<ResourceLoader> resourceLoaders = new ArrayList<ResourceLoader>();
@@ -312,14 +322,11 @@ public class Doclava {
       }
 
       // HTML Pages
-      if (ClearPage.htmlDir != null) {
-        File f = new File(ClearPage.htmlDir);
-        if (!f.isDirectory()) {
-          System.err.println("htmlDir not a directory: " + ClearPage.htmlDir);
-          return false;
+      if (!ClearPage.htmlDirs.isEmpty()) {
+        for (String htmlDir : ClearPage.htmlDirs) {
+          File f = new File(htmlDir);
+          writeHTMLPages(f);
         }
-        
-        writeHTMLPages(f);
       } else {
         // Generate a simple index.html file
         JarFile thisJar = JarUtils.jarForClass(Doclava.class, null);
@@ -372,7 +379,7 @@ public class Doclava {
     }
 
     Errors.printErrors();
-    
+
     return !Errors.hadError;
   }
 
@@ -460,6 +467,55 @@ public class Doclava {
     return true;
   }
 
+    private static boolean readKnownTagsFiles(HashSet<String> knownTags,
+            ArrayList<String> knownTagsFiles) {
+        for (String fn: knownTagsFiles) {
+           BufferedReader in = null;
+           try {
+               in = new BufferedReader(new FileReader(fn));
+               int lineno = 0;
+               boolean fail = false;
+               while (true) {
+                   lineno++;
+                   String line = in.readLine();
+                   if (line == null) {
+                       break;
+                   }
+                   line = line.trim();
+                   if (line.length() == 0) {
+                       continue;
+                   } else if (line.charAt(0) == '#') {
+                       continue;
+                   }
+                   String[] words = line.split("\\s+", 2);
+                   if (words.length == 2) {
+                       if (words[1].charAt(0) != '#') {
+                           System.err.println(fn + ":" + lineno
+                                   + ": Only one tag allowed per line: " + line);
+                           fail = true;
+                           continue;
+                       }
+                   }
+                   knownTags.add(words[0]);
+               }
+               if (fail) {
+                   return false;
+               }
+           } catch (IOException ex) {
+               System.err.println("Error reading file: " + fn + " (" + ex.getMessage() + ")");
+               return false;
+           } finally {
+               if (in != null) {
+                   try {
+                       in.close();
+                   } catch (IOException ignored) {
+                   }
+               }
+           }
+        }
+        return true;
+    }
+
   public static String escape(String s) {
     if (escapeChars.size() == 0) {
       return s;
@@ -513,6 +569,9 @@ public class Doclava {
     }
     if (option.equals("-hdf")) {
       return 3;
+    }
+    if (option.equals("-knowntags")) {
+      return 2;
     }
     if (option.equals("-toroot")) {
       return 2;
@@ -835,7 +894,7 @@ public class Doclava {
   /**
    * Writes the list of classes that must be present in order to provide the non-hidden APIs known
    * to javadoc.
-   * 
+   *
    * @param filename the path to the file to write the list to
    */
   public static void writeKeepList(String filename) {
@@ -1159,7 +1218,7 @@ public class Doclava {
 
   /**
    * Collect the values used by the Dev tools and write them in files packaged with the SDK
-   * 
+   *
    * @param output the ouput directory for the files.
    */
   private static void writeSdkValues(String output) {
@@ -1284,7 +1343,7 @@ public class Doclava {
 
   /**
    * Writes a list of values into a text files.
-   * 
+   *
    * @param pathname the absolute os path of the output file.
    * @param values the list of values to write.
    */
@@ -1316,7 +1375,7 @@ public class Doclava {
 
   /**
    * Writes the widget/layout/layout param classes into a text files.
-   * 
+   *
    * @param pathname the absolute os path of the output file.
    * @param widgets the list of widget classes to write.
    * @param layouts the list of layout classes to write.
@@ -1358,7 +1417,7 @@ public class Doclava {
 
   /**
    * Writes a class name and its super class names into a {@link BufferedWriter}.
-   * 
+   *
    * @param writer the BufferedWriter to write into
    * @param clazz the class to write
    * @param prefix the prefix to put at the beginning of the line.
@@ -1383,7 +1442,7 @@ public class Doclava {
    * <code>android.view.ViewGroup$LayoutParams</code></li>
    * <li>{@link #TYPE_NONE}: in all other cases</li>
    * </ul>
-   * 
+   *
    * @param clazz the {@link ClassInfo} to check.
    */
   private static int checkInheritance(ClassInfo clazz) {

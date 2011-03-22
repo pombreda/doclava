@@ -39,7 +39,7 @@ public class ClearPage {
   private static ArrayList<String> mBundledTemplateDirs = new ArrayList<String>();
 
   public static String outputDir = "docs";
-  public static String htmlDir = null;
+  public static List<String> htmlDirs = new ArrayList<String>();
   public static String toroot = null;
 
   public static String getPathToRoot(String path) {
@@ -102,7 +102,7 @@ public class ClearPage {
   }
 
   public static void write(Data data, String templ, String filename, boolean fullPath, JSilver cs) {
-    if (htmlDir != null) {
+    if (!htmlDirs.isEmpty()) {
       data.setValue("hasindex", "true");
     }
 
@@ -116,9 +116,11 @@ public class ClearPage {
     }
 
     int i = 0;
-    if (htmlDir != null) {
-      data.setValue("hdf.loadpaths." + i, htmlDir);
-      i++;
+    if (!htmlDirs.isEmpty()) {
+        for (String dir : htmlDirs) {
+          data.setValue("hdf.loadpaths." + i, dir);
+          i++;
+        }
     }
     if (mTemplateDirSet) {
       for (String dir : mTemplateDirs) {

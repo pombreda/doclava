@@ -704,10 +704,8 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     // enum constants
     i = 0;
     for (FieldInfo field : enumConstants()) {
-      if (field.isConstant()) {
-        field.makeHDF(data, "class.enumConstants." + i);
-        i++;
-      }
+      field.makeHDF(data, "class.enumConstants." + i);
+      i++;
     }
 
     // constants

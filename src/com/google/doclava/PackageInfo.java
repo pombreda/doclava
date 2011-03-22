@@ -37,12 +37,12 @@ public final class PackageInfo extends DocInfo implements ContainerInfo {
     mName = name.isEmpty() ? DEFAULT_PACKAGE : name;
     mPackage = pkg;
   }
-  
+
   public PackageInfo(String name) {
     super("", null);
     mName = name;
   }
-  
+
   public PackageInfo(String name, SourcePositionInfo position) {
     super("", position);
     mName = name.isEmpty() ? DEFAULT_PACKAGE : name;

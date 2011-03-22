@@ -22,6 +22,7 @@
     <property name="javahome" value="${env.JAVA_HOME}" />
     <property name="jsilver" value="lib/jsilver.jar"/>
     <property name="junit" value="lib/junit-4.8.2.jar"/>
+    <property name="junit" value="lib/guava-r08.jar"/>
 
     <path id="classpath.main">
         <pathelement location="${jsilver}"/>

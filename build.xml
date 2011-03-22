@@ -22,7 +22,7 @@
     <property name="javahome" value="${env.JAVA_HOME}" />
     <property name="jsilver" value="lib/jsilver.jar"/>
     <property name="junit" value="lib/junit-4.8.2.jar"/>
-    <property name="junit" value="lib/guava-r08.jar"/>
+    <property name="guava" value="lib/guava-r08.jar"/>
 
     <path id="classpath.main">
         <pathelement location="${jsilver}"/>
@@ -58,6 +58,7 @@
         <jar jarfile="${jar.file}">
             <fileset dir="build/classes" />
             <zipfileset src="${jsilver}" />
+            <zipfileset src="${guava}" />
         </jar>
     </target>
 

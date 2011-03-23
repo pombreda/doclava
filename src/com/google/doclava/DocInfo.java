@@ -21,9 +21,20 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public abstract class DocInfo {
-  public DocInfo(String rawCommentText, SourcePositionInfo sp) {
+
+  /**
+   * @param base the container to resolve link references from or null for this.
+   */
+  public DocInfo(String rawCommentText, SourcePositionInfo sp, ContainerInfo base) {
+    if (rawCommentText == null || sp == null) {
+        throw new NullPointerException();
+    }
+    if (base == null) {
+      base = (ContainerInfo) this;
+    }
     mRawCommentText = rawCommentText;
     mPosition = sp;
+    mComment = new Comment(mRawCommentText, base, mPosition);
   }
 
   public void initVisible(Project project) {
@@ -67,17 +78,12 @@ public abstract class DocInfo {
   }
 
   public Comment comment() {
-    if (mComment == null) {
-      mComment = new Comment(mRawCommentText, parent(), mPosition);
-    }
     return mComment;
   }
 
   public SourcePositionInfo position() {
     return mPosition;
   }
-
-  public abstract ContainerInfo parent();
 
   public void setSince(String since) {
     mSince = since;
@@ -104,9 +110,9 @@ public abstract class DocInfo {
     }
   }
 
-  private String mRawCommentText;
-  private Comment mComment;
-  private SourcePositionInfo mPosition;
+  private final String mRawCommentText;
+  private final SourcePositionInfo mPosition;
+  private final Comment mComment;
   private String mSince;
   private Set<FederatedSite> mFederatedReferences = new LinkedHashSet<FederatedSite>();
 }

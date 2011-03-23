@@ -52,6 +52,9 @@ public class Comment {
       };
 
   public Comment(String text, ContainerInfo base, SourcePositionInfo sp) {
+    if (text == null || base == null || sp == null) {
+      throw new NullPointerException();
+    }
     mText = text;
     mBase = base;
     // sp now points to the end of the text, not the beginning!
@@ -306,6 +309,10 @@ public class Comment {
   }
 
   public void initVisible(Project project) {
+    if (mInitialized) {
+      throw new IllegalStateException();
+    }
+    
     isHidden();
     isDocOnly();
     isDeprecated();
@@ -320,7 +327,6 @@ public class Comment {
           SourcePositionInfo.add(mPosition, mText, 0)));
     }
 
-    mText = null;
     mInitialized = true;
 
     for (TagInfo tagInfo : Iterables.concat(mSeeTagsList, mInlineTagsList, mReturnTagsList,
@@ -355,9 +361,9 @@ public class Comment {
   int mHidden = -1;
   int mDocOnly = -1;
   int mDeprecated = -1;
-  String mText;
-  ContainerInfo mBase;
-  SourcePositionInfo mPosition;
+  final String mText;
+  final ContainerInfo mBase;
+  final SourcePositionInfo mPosition;
 
   List<TagInfo> mInlineTags;
   List<ParamTagInfo> mParamTags;
@@ -379,6 +385,4 @@ public class Comment {
   ArrayList<ParsedTagInfo> mDeprecatedTagsList = new ArrayList<ParsedTagInfo>();
   ArrayList<TagInfo> mUndeprecateTagsList = new ArrayList<TagInfo>();
   ArrayList<AttrTagInfo> mAttrTagsList = new ArrayList<AttrTagInfo>();
-
-
 }

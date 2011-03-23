@@ -40,7 +40,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
    * Constructs a stub representation of a class.
    */
   public ClassInfo(String qualifiedName) {
-    super("", SourcePositionInfo.UNKNOWN);
+    super("", SourcePositionInfo.UNKNOWN, null);
     
     mQualifiedName = qualifiedName;
     int pos = qualifiedName.lastIndexOf('.'); 
@@ -56,7 +56,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
       boolean isStatic, boolean isInterface, boolean isAbstract, boolean isOrdinaryClass,
       boolean isException, boolean isError, boolean isEnum, boolean isAnnotation, boolean isFinal,
       boolean isIncluded, String name, String qualifiedName) {
-    super(rawCommentText, position);
+    super(rawCommentText, position, null);
 
     mClass = cl;
     mIsPublic = isPublic;
@@ -130,11 +130,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
 
   public int compareTo(ClassInfo other) {
     return mQualifiedName.compareTo(other.mQualifiedName);
-  }
-
-  @Override
-  public ContainerInfo parent() {
-    return this;
   }
 
   public boolean isPublic() {
@@ -711,7 +706,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     // constants
     i = 0;
     for (FieldInfo field : getFields()) {
-      if (field.isConstant()) {
+      if (field.isConstant() && field.checkLevel()) {
         field.makeHDF(data, "class.constants." + i);
         i++;
       }
@@ -720,7 +715,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     // fields
     i = 0;
     for (FieldInfo field : getFields()) {
-      if (!field.isConstant()) {
+      if (!field.isConstant() && field.checkLevel()) {
         field.makeHDF(data, "class.fields." + i);
         i++;
       }
@@ -729,7 +724,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     // public constructors
     i = 0;
     for (MethodInfo ctor : getConstructors()) {
-      if (ctor.isPublic()) {
+      if (ctor.isPublic() && ctor.checkLevel()) {
         ctor.makeHDF(data, "class.ctors.public." + i);
         i++;
       }
@@ -739,7 +734,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     if (Doclava.checkLevel(Doclava.SHOW_PROTECTED)) {
       i = 0;
       for (MethodInfo ctor : getConstructors()) {
-        if (ctor.isProtected()) {
+        if (ctor.isProtected() && ctor.checkLevel()) {
           ctor.makeHDF(data, "class.ctors.protected." + i);
           i++;
         }
@@ -750,7 +745,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     if (Doclava.checkLevel(Doclava.SHOW_PACKAGE)) {
       i = 0;
       for (MethodInfo ctor : getConstructors()) {
-        if (ctor.isPackagePrivate()) {
+        if (ctor.isPackagePrivate() && ctor.checkLevel()) {
           ctor.makeHDF(data, "class.ctors.package." + i);
           i++;
         }
@@ -761,7 +756,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     if (Doclava.checkLevel(Doclava.SHOW_PRIVATE)) {
       i = 0;
       for (MethodInfo ctor : getConstructors()) {
-        if (ctor.isPrivate()) {
+        if (ctor.isPrivate() && ctor.checkLevel()) {
           ctor.makeHDF(data, "class.ctors.private." + i);
           i++;
         }
@@ -771,7 +766,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     // public methods
     i = 0;
     for (MethodInfo method : getMethods()) {
-      if (method.isPublic()) {
+      if (method.isPublic() && method.checkLevel()) {
         method.makeHDF(data, "class.methods.public." + i);
         i++;
       }
@@ -781,7 +776,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     if (Doclava.checkLevel(Doclava.SHOW_PROTECTED)) {
       i = 0;
       for (MethodInfo method : getMethods()) {
-        if (method.isProtected()) {
+        if (method.isProtected() && method.checkLevel()) {
           method.makeHDF(data, "class.methods.protected." + i);
           i++;
         }
@@ -792,7 +787,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     if (Doclava.checkLevel(Doclava.SHOW_PACKAGE)) {
       i = 0;
       for (MethodInfo method : getMethods()) {
-        if (method.isPackagePrivate()) {
+        if (method.isPackagePrivate() && method.checkLevel()) {
           method.makeHDF(data, "class.methods.package." + i);
           i++;
         }
@@ -803,7 +798,7 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable<Clas
     if (Doclava.checkLevel(Doclava.SHOW_PRIVATE)) {
       i = 0;
       for (MethodInfo method : getMethods()) {
-        if (method.isPrivate()) {
+        if (method.isPrivate() && method.checkLevel()) {
           method.makeHDF(data, "class.methods.private." + i);
           i++;
         }

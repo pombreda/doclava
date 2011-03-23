@@ -416,7 +416,7 @@ public class Doclava {
     }
 
     for (PackageInfo pkg : sorted.values()) {
-      if (pkg.isHidden()) {
+      if (!pkg.checkLevel()) {
         continue;
       }
 
@@ -707,7 +707,7 @@ public class Doclava {
     for (String s : sorted.keySet()) {
       PackageInfo pkg = sorted.get(s);
 
-      if (pkg.isHidden()) {
+      if (!pkg.checkLevel()) {
         continue;
       }
       Boolean allHidden = true;
@@ -735,7 +735,7 @@ public class Doclava {
             break;
         }
         for (ClassInfo cl : classesToCheck) {
-          if (!cl.isHidden()) {
+          if (cl.checkLevel()) {
             allHidden = false;
             break;
           }
@@ -777,7 +777,7 @@ public class Doclava {
           ClearPage.write(data, templ, filename, js);
         } else if (len > 3 && ".jd".equals(templ.substring(len - 3))) {
           String filename = templ.substring(0, len - 3) + htmlExtension;
-          DocFile.writePage(f.getAbsolutePath(), filename);
+          new DocFile(f.getAbsolutePath()).writePage(filename, project);
         } else {
           ClearPage.copyFile(f, new File(ensureSlash(ClearPage.outputDir) + templ));
         }
@@ -830,7 +830,7 @@ public class Doclava {
 
     SortedMap<String, Object> sorted = new TreeMap<String, Object>();
     for (ClassInfo cl : classes) {
-      if (cl.isHidden()) {
+      if (!cl.checkLevel()) {
         continue;
       }
       sorted.put(cl.qualifiedName(), cl);
@@ -905,7 +905,7 @@ public class Doclava {
     // If a class is public and not hidden, then it and everything it derives
     // from cannot be stripped. Otherwise we can strip it.
     for (ClassInfo cl : all) {
-      if (cl.isPublic() && !cl.isHidden()) {
+      if (cl.checkLevel()) {
         cantStripThis(cl, notStrippable);
       }
     }
@@ -1000,7 +1000,7 @@ public class Doclava {
     int i;
     Data data = makePackageHDF();
 
-    List<ClassInfo> classes = Visibility.filterHidden(project.rootClasses());
+    List<ClassInfo> classes = filterHidden(project.rootClasses());
     if (classes.isEmpty()) {
       return;
     }
@@ -1051,7 +1051,7 @@ public class Doclava {
   public static void writeHierarchy() {
     ArrayList<ClassInfo> info = new ArrayList<ClassInfo>();
     for (ClassInfo cl : project.rootClasses()) {
-      if (!cl.isHidden()) {
+      if (cl.checkLevel()) {
         info.add(cl);
       }
     }
@@ -1064,7 +1064,7 @@ public class Doclava {
   public static void writeClasses() {
     for (ClassInfo cl : project.rootClasses()) {
       Data data = makePackageHDF();
-      if (!cl.isHidden()) {
+      if (cl.checkLevel()) {
         writeClass(cl, data);
       }
     }
@@ -1082,7 +1082,7 @@ public class Doclava {
   public static void makeClassListHDF(Data data, String base, List<ClassInfo> classes) {
     int i = 0;
     for (ClassInfo cl : classes) {
-      if (!cl.isHidden()) {
+      if (cl.checkLevel()) {
         cl.makeShortDescrHDF(data, base + "." + i);
       }
       i++;
@@ -1157,6 +1157,20 @@ public class Doclava {
     } else {
       return o;
     }
+  }
+
+  public static <T extends Scoped> List<T> filterHidden(Iterable<T> iterable) {
+    ImmutableList.Builder<T> result = ImmutableList.builder();
+    for (T t : iterable) {
+      if (!t.isHidden()) {
+        result.add(t);
+      }
+    }
+    return result.build();
+  }
+
+  public static ImmutableList<ClassInfo> displayClasses(Iterable<ClassInfo> classInfos) {
+    return ImmutableList.copyOf(ClassInfo.ORDER_BY_NAME.sortedCopy(filterHidden(classInfos)));
   }
 
   /**

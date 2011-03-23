@@ -331,8 +331,8 @@ public final class MethodInfo extends MemberInfo implements AbstractMethodInfo, 
     // construct the results, and cache them for next time
     ParamTagInfo[] result = new ParamTagInfo[mParameters.size()];
     for (i = 0; i < mParameters.size(); i++) {
-      result[i] = new ParamTagInfo("@param", "@param", names[i] + " " + comments[i], parent(),
-              positions[i]);
+      result[i] = new ParamTagInfo("@param", "@param", names[i] + " " + comments[i],
+          mContainingClass, positions[i]);
 
       // while we're here, if we find any parameters that are still undocumented at this
       // point, complain. (this warning is off by default, because it's really, really

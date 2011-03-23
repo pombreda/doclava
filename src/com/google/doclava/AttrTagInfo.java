@@ -88,6 +88,7 @@ public class AttrTagInfo extends TagInfo {
     } else if (DESCRIPTION_COMMAND.equals(command)) {
       mCommand = command;
       mDescrComment = new Comment(more, base, position);
+      mDescrComment.initVisible(project);
     } else {
       Errors.error(Errors.BAD_ATTR_TAG, position, "Bad @attr command: " + command);
     }
@@ -134,5 +135,4 @@ public class AttrTagInfo extends TagInfo {
       }
     }
   }
-
 }

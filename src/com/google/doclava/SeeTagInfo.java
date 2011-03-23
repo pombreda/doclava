@@ -19,23 +19,29 @@ package com.google.doclava;
 import com.google.clearsilver.jsilver.data.Data;
 
 public class SeeTagInfo extends TagInfo {
-  private ContainerInfo mBase;
+  private final ContainerInfo mBase;
   LinkReference mLink;
 
   SeeTagInfo(String name, String kind, String text, ContainerInfo base, SourcePositionInfo position) {
     super(name, kind, text, position);
+    if (base == null) {
+      throw new NullPointerException();
+    }
     mBase = base;
   }
 
   public void initVisible(Project project) {
     super.initVisible(project);
-    mLink = LinkReference.parse(text(), mBase, position(), (!"@see".equals(name()))
-        && (mBase != null ? mBase.checkLevel() : true), project);
+    
+    if (mBase.checkLevel()) {
+      boolean printOnErrors = !"@see".equals(name());
+      mLink = LinkReference.parse(text(), mBase, position(), printOnErrors, project);
+    }
   }
 
   protected LinkReference linkReference() {
     if (mLink == null) {
-      throw new IllegalStateException("call initVisible() first!");
+      throw new IllegalStateException("mBase=" + mBase + " checkLevel=" + mBase.checkLevel()); 
     }
     return mLink;
   }

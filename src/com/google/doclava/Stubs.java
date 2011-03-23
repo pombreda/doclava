@@ -32,80 +32,72 @@ import java.util.Map;
 import java.util.Set;
 
 public final class Stubs {
-  private Set<ClassInfo> notStrippable;
+  private final Set<ClassInfo> notStrippable = new LinkedHashSet<ClassInfo>();
+  private final Set<ClassInfo> crawled = new HashSet<ClassInfo>();
 
   public void initVisible(HashSet<String> stubPackages, Iterable<ClassInfo> allClasses) {
     // figure out which classes we need
-    notStrippable = new LinkedHashSet<ClassInfo>();
     // If a class is public or protected, available, and marked as included,
     // then we can't strip it
     for (ClassInfo cl : allClasses) {
-      if (cl.checkLevel() && cl.isDefinedLocally()) {
-        cantStripThis(cl, notStrippable);
-      }
+      crawl(cl, false);
     }
 
     // complain about anything that looks includable but is not supposed to
     // be written, e.g. hidden things
     for (ClassInfo cl : notStrippable) {
-      if (!cl.isDefinedLocally()) {
-        continue; // don't complain about third-party / platform classes
+      if (!cl.isDefinedLocally() || !cl.checkLevel()) {
+        continue; // don't complain about private, or third-party/platform classes
       }
-      if (cl.checkLevel()) {
-        for (MethodInfo m : cl.allSelfMethods()) {
-          if (!m.checkLevel()) {
-            continue;
-          }
-          if (m.isDeprecated()) {
-            // don't bother reporting deprecated methods
-            // unless they are public
-            Errors.error(Errors.DEPRECATED, m.position(), "Method " + cl.qualifiedName() + "."
-                + m.name() + " is deprecated");
-          }
+      for (MethodInfo m : cl.allSelfMethods()) {
+        if (!m.checkLevel()) {
+          continue;
+        }
+        if (m.isDeprecated()) {
+          // don't bother reporting deprecated methods
+          // unless they are public
+          Errors.error(Errors.DEPRECATED, m.position(), "Method " + cl.qualifiedName() + "."
+              + m.name() + " is deprecated");
+        }
 
-          ClassInfo returnClass = m.returnType().asClassInfo();
-          if (returnClass != null && !returnClass.checkLevel()) {
-            Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Method " + cl.qualifiedName()
-                + "." + m.name() + " returns unavailable type " + returnClass.name());
-          }
+        ClassInfo returnClass = m.returnType().asClassInfo();
+        if (returnClass != null && !returnClass.checkLevel()) {
+          Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Method " + cl.qualifiedName()
+              + "." + m.name() + " returns unavailable type " + returnClass.name());
+        }
 
-          List<ParameterInfo> params = m.parameters();
-          for (ParameterInfo p : params) {
-            TypeInfo t = p.type();
-            if (!t.isPrimitive()) {
-              if (!t.asClassInfo().checkLevel()) {
-                Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Parameter of unavailable " 
-                    + "type " + t.fullName() + " in " + cl.qualifiedName() + "." + m.name() + "()");
-              }
+        List<ParameterInfo> params = m.parameters();
+        for (ParameterInfo p : params) {
+          TypeInfo t = p.type();
+          if (!t.isPrimitive()) {
+            if (!t.asClassInfo().checkLevel()) {
+              Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Parameter of unavailable "
+                  + "type " + t.fullName() + " in " + cl.qualifiedName() + "." + m.name() + "()");
             }
           }
         }
+      }
 
-        // annotations are handled like methods
-        for (MethodInfo m : cl.annotationElements()) {
-          if (!m.checkLevel()) {
-            continue;
-          }
-          ClassInfo returnClass = m.returnType().asClassInfo();
-          if (returnClass != null && !returnClass.checkLevel()) {
-            Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Annotation '" + m.name()
-                + "' returns unavailable type " + returnClass.name());
-          }
+      // annotations are handled like methods
+      for (MethodInfo m : cl.annotationElements()) {
+        if (!m.checkLevel()) {
+          continue;
+        }
+        ClassInfo returnClass = m.returnType().asClassInfo();
+        if (returnClass != null && !returnClass.checkLevel()) {
+          Errors.error(Errors.UNAVAILABLE_SYMBOL, m.position(), "Annotation '" + m.name()
+              + "' returns unavailable type " + returnClass.name());
+        }
 
-          for (ParameterInfo p : m.parameters()) {
-            TypeInfo t = p.type();
-            if (!t.isPrimitive()) {
-              if (!t.asClassInfo().checkLevel()) {
-                Errors.error(Errors.UNAVAILABLE_SYMBOL, p.position(),
-                    "Reference to unavailable annotation class " + t.fullName());
-              }
+        for (ParameterInfo p : m.parameters()) {
+          TypeInfo t = p.type();
+          if (!t.isPrimitive()) {
+            if (!t.asClassInfo().checkLevel()) {
+              Errors.error(Errors.UNAVAILABLE_SYMBOL, p.position(),
+                  "Reference to unavailable annotation class " + t.fullName());
             }
           }
         }
-      } else if (cl.isDeprecated()) {
-        // not available, but deprecated
-        Errors.error(Errors.DEPRECATED, cl.position(), "Class " + cl.qualifiedName()
-            + " is deprecated");
       }
     }
 
@@ -172,10 +164,18 @@ public final class Stubs {
     }
   }
 
-  private void cantStripThis(ClassInfo cl, Set<ClassInfo> notStrippable) {
-    if (!notStrippable.add(cl)) {
-      // slight optimization: if it already contains cl, it already contains
-      // all of cl's parents
+  /**
+   * @param supertype true if this class is a supertype of a nonstrippable
+   *     class. Supertypes must be crawled because their members are included
+   *     in the output docs.
+   */
+  private void crawl(ClassInfo cl, boolean supertype) {
+    if (!supertype && (!cl.isDefinedLocally() || !cl.checkLevel())) {
+      notStrippable.add(cl);
+      return; // don't crawl private or third-party/platform classes
+    }
+    if (!crawled.add(cl)) {
+      // visit each class only once
       return;
     }
 
@@ -190,12 +190,12 @@ public final class Stubs {
       for (FieldInfo fInfo : cl.allSelfFields()) {
         if (fInfo.type() != null) {
           if (fInfo.type().asClassInfo() != null) {
-            cantStripThis(fInfo.type().asClassInfo(), notStrippable);
+            crawl(fInfo.type().asClassInfo(), false);
           }
           if (fInfo.type().typeArguments() != null) {
             for (TypeInfo tTypeInfo : fInfo.type().typeArguments()) {
               if (tTypeInfo.asClassInfo() != null) {
-                cantStripThis(tTypeInfo.asClassInfo(), notStrippable);
+                crawl(tTypeInfo.asClassInfo(), false);
               }
             }
           }
@@ -207,7 +207,7 @@ public final class Stubs {
       if (cl.asTypeInfo().typeArguments() != null) {
         for (TypeInfo tInfo : cl.asTypeInfo().typeArguments()) {
           if (tInfo.asClassInfo() != null) {
-            cantStripThis(tInfo.asClassInfo(), notStrippable);
+            crawl(tInfo.asClassInfo(), false);
           }
         }
       }
@@ -215,16 +215,16 @@ public final class Stubs {
     // cant strip any of the annotation elements
     // cantStripThis(cl.annotationElements(), notStrippable);
     // take care of methods
-    cantStripThis(cl.allSelfMethods(), notStrippable);
-    cantStripThis(cl.allConstructors(), notStrippable);
+    crawl(cl.allSelfMethods());
+    crawl(cl.allConstructors());
     // blow the outer class open if this is an inner class
     if (cl.containingClass() != null) {
-      cantStripThis(cl.containingClass(), notStrippable);
+      crawl(cl.containingClass(), false);
     }
     // blow open super class and interfaces
     ClassInfo supr = cl.realSuperclass();
     if (supr != null) {
-      if (!supr.checkLevel() && supr.isDefinedLocally()) {
+      if (!supr.checkLevel()) {
         // cl is a public class declared as extending an unavailable superclass.
         // this is not a desired practice but it's happened, so we deal
         // with it by stripping off the superclass relation for purposes of
@@ -236,12 +236,12 @@ public final class Stubs {
         Errors.error(Errors.HIDDEN_SUPERCLASS, cl.position(), "Public class " + cl.qualifiedName()
             + " stripped of unavailable superclass " + supr.qualifiedName());
       } else {
-        cantStripThis(supr, notStrippable);
+        crawl(supr, true);
       }
     }
   }
 
-  private void cantStripThis(List<MethodInfo> mInfos, Set<ClassInfo> notStrippable) {
+  private void crawl(List<MethodInfo> mInfos) {
     // for each method, blow open the parameters, throws and return types. also blow open their
     // generics
     if (mInfos == null) {
@@ -256,14 +256,14 @@ public final class Stubs {
       if (mInfo.getTypeParameters() != null) {
         for (TypeInfo tInfo : mInfo.getTypeParameters()) {
           if (tInfo.asClassInfo() != null) {
-            cantStripThis(tInfo.asClassInfo(), notStrippable);
+            crawl(tInfo.asClassInfo(), false);
           }
         }
       }
       if (mInfo.parameters() != null) {
         for (ParameterInfo pInfo : mInfo.parameters()) {
           if (pInfo.type() != null && pInfo.type().asClassInfo() != null) {
-            cantStripThis(pInfo.type().asClassInfo(), notStrippable);
+            crawl(pInfo.type().asClassInfo(), false);
             if (pInfo.type().typeArguments() != null) {
               for (TypeInfo tInfoType : pInfo.type().typeArguments()) {
                 if (tInfoType.asClassInfo() != null) {
@@ -273,7 +273,7 @@ public final class Stubs {
                         "Parameter of unavailable type " + tInfoType.fullName() + " in "
                             + mInfo.containingClass().qualifiedName() + '.' + mInfo.name() + "()");
                   } else {
-                    cantStripThis(tcl, notStrippable);
+                    crawl(tcl, false);
                   }
                 }
               }
@@ -282,14 +282,14 @@ public final class Stubs {
         }
       }
       for (ClassInfo thrown : mInfo.thrownExceptions()) {
-          cantStripThis(thrown, notStrippable);
+          crawl(thrown, false);
       }
       if (mInfo.returnType() != null && mInfo.returnType().asClassInfo() != null) {
-        cantStripThis(mInfo.returnType().asClassInfo(), notStrippable);
+        crawl(mInfo.returnType().asClassInfo(), false);
         if (mInfo.returnType().typeArguments() != null) {
           for (TypeInfo tyInfo : mInfo.returnType().typeArguments()) {
             if (tyInfo.asClassInfo() != null) {
-              cantStripThis(tyInfo.asClassInfo(), notStrippable);
+              crawl(tyInfo.asClassInfo(), false);
             }
           }
         }

@@ -66,7 +66,9 @@ public class AttributeInfo {
       }
     }
     if (mComment == null) {
-      return new Comment("", mClass, SourcePositionInfo.UNKNOWN);
+      Comment result = new Comment("", mClass, SourcePositionInfo.UNKNOWN);
+      result.initVisible(null); // TODO: this is a hack
+      return result;
     }
     return mComment;
   }

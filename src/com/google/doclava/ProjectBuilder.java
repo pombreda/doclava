@@ -188,7 +188,7 @@ public final class ProjectBuilder {
 
   private SourcePositionInfo convertSourcePosition(SourcePosition sp) {
     if (sp == null) {
-      return null;
+      return SourcePositionInfo.UNKNOWN;
     }
     return new SourcePositionInfo(sp.file().toString(), sp.line(), sp.column());
   }

@@ -33,18 +33,18 @@ public final class PackageInfo extends DocInfo implements ContainerInfo {
   };
 
   public PackageInfo(PackageDoc pkg, String name, SourcePositionInfo position) {
-    super(pkg.getRawCommentText(), position);
+    super(pkg.getRawCommentText(), position, null);
     mName = name.isEmpty() ? DEFAULT_PACKAGE : name;
     mPackage = pkg;
   }
 
   public PackageInfo(String name) {
-    super("", null);
+    super("", SourcePositionInfo.UNKNOWN, null);
     mName = name;
   }
 
   public PackageInfo(String name, SourcePositionInfo position) {
-    super("", position);
+    super("", position, null);
     mName = name.isEmpty() ? DEFAULT_PACKAGE : name;
   }
 
@@ -68,11 +68,6 @@ public final class PackageInfo extends DocInfo implements ContainerInfo {
   
   public String fullDescriptionHtmlPage() {
     return htmlPage().replace("/package-summary.html", "/package-descr.html");
-  }
-
-  @Override
-  public ContainerInfo parent() {
-    return null;
   }
 
   @Override
@@ -179,12 +174,12 @@ public final class PackageInfo extends DocInfo implements ContainerInfo {
 
   public void initVisible(Project project) {
     super.initVisible(project);
-    mAnnotations = Visibility.displayClasses(project.getClasses(mPackage.annotationTypes()));
-    mInterfaces = Visibility.displayClasses(project.getClasses(mPackage.interfaces()));
-    mOrdinaryClasses = Visibility.displayClasses(project.getClasses(mPackage.ordinaryClasses()));
-    mEnums = Visibility.displayClasses(project.getClasses(mPackage.enums()));
-    mExceptions = Visibility.displayClasses(project.getClasses(mPackage.exceptions()));
-    mErrors = Visibility.displayClasses(project.getClasses(mPackage.errors()));
+    mAnnotations = Doclava.displayClasses(project.getClasses(mPackage.annotationTypes()));
+    mInterfaces = Doclava.displayClasses(project.getClasses(mPackage.interfaces()));
+    mOrdinaryClasses = Doclava.displayClasses(project.getClasses(mPackage.ordinaryClasses()));
+    mEnums = Doclava.displayClasses(project.getClasses(mPackage.enums()));
+    mExceptions = Doclava.displayClasses(project.getClasses(mPackage.exceptions()));
+    mErrors = Doclava.displayClasses(project.getClasses(mPackage.errors()));
   }
 
   public void addClass(ClassInfo cl) {

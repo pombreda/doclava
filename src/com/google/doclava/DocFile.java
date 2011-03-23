@@ -25,11 +25,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class DocFile {
+public final class DocFile implements ContainerInfo {
   private static final Pattern LINE = Pattern.compile("(.*)[\r]?\n", Pattern.MULTILINE);
   private static final Pattern PROP = Pattern.compile("([^=]+)=(.*)");
 
-  public static String readFile(String filename) {
+  private static String readFile(String filename) {
     try {
       File f = new File(filename);
       int length = (int) f.length();
@@ -52,8 +52,14 @@ public class DocFile {
       return null;
     }
   }
+  
+  private final String mDocfile;
 
-  public static void writePage(String docfile, String outfile) {
+  public DocFile(String docfile) {
+    mDocfile = docfile;
+  }
+
+  public void writePage(String outfile, Project project) {
     Data hdf = Doclava.makeHDF();
 
     /*
@@ -61,7 +67,7 @@ public class DocFile {
      * outfile + "'");
      */
 
-    String filedata = readFile(docfile);
+    String filedata = readFile(mDocfile);
 
     // The document is properties up until the line "@jd:body".
     // Any blank lines are ignored.
@@ -88,9 +94,9 @@ public class DocFile {
       lineno++;
     }
     if (start < 0) {
-      System.err.println(docfile + ":" + lineno + ": error parsing docfile");
+      System.err.println(mDocfile + ":" + lineno + ": error parsing docfile");
       if (line != null) {
-        System.err.println(docfile + ":" + lineno + ":" + line);
+        System.err.println(mDocfile + ":" + lineno + ":" + line);
       }
       System.exit(1);
     }
@@ -105,8 +111,8 @@ public class DocFile {
     // and the actual text after that
     String commentText = filedata.substring(start);
 
-    Comment comment = new Comment(commentText, null, new SourcePositionInfo(docfile, lineno, 1));
-
+    Comment comment = new Comment(commentText, this, new SourcePositionInfo(mDocfile, lineno, 1));
+    comment.initVisible(project);
     TagInfo.makeHDF(hdf, "root.descr", comment.tags());
 
     hdf.setValue("commentText", commentText);
@@ -139,4 +145,12 @@ public class DocFile {
       }
     }
   } // writePage
+
+  public String qualifiedName() {
+    return mDocfile;
+  }
+
+  public boolean checkLevel() {
+    return true;
+  }
 }

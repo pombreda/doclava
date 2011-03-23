@@ -16,11 +16,9 @@
 
 package com.google.doclava;
 
-import com.google.common.collect.Iterables;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.ArrayList;
 
 public class Comment {
   static final Pattern LEADING_WHITESPACE = Pattern.compile("^[ \t\n\r]*(.*)$", Pattern.DOTALL);
@@ -52,9 +50,6 @@ public class Comment {
       };
 
   public Comment(String text, ContainerInfo base, SourcePositionInfo sp) {
-    if (text == null || base == null || sp == null) {
-      throw new NullPointerException();
-    }
     mText = text;
     mBase = base;
     // sp now points to the end of the text, not the beginning!
@@ -71,7 +66,7 @@ public class Comment {
     m = TAG_BEGIN.matcher(text);
 
     int start = 0;
-    int end;
+    int end = 0;
     while (m.find()) {
       end = m.start();
 
@@ -98,6 +93,7 @@ public class Comment {
         m = INLINE_TAG.matcher(text);
         start = 0;
         while (m.find()) {
+          String str = m.group(1);
           String tagname = m.group(2);
           String tagvalue = m.group(3);
           tag(null, m.group(1), true, pos);
@@ -210,13 +206,13 @@ public class Comment {
     }
   }
 
-  public List<TagInfo> tags() {
-    checkInitVisibleCalled();
+  public TagInfo[] tags() {
+    init();
     return mInlineTags;
   }
 
   public TagInfo[] tags(String name) {
-    checkInitVisibleCalled();
+    init();
     ArrayList<TagInfo> results = new ArrayList<TagInfo>();
     int N = mInlineTagsList.size();
     for (int i = 0; i < N; i++) {
@@ -228,43 +224,43 @@ public class Comment {
     return results.toArray(new TagInfo[results.size()]);
   }
 
-  public List<ParamTagInfo> paramTags() {
-    checkInitVisibleCalled();
+  public ParamTagInfo[] paramTags() {
+    init();
     return mParamTags;
   }
 
-  public List<SeeTagInfo> seeTags() {
-    checkInitVisibleCalled();
+  public SeeTagInfo[] seeTags() {
+    init();
     return mSeeTags;
   }
 
-  public List<ThrowsTagInfo> throwsTags() {
-    checkInitVisibleCalled();
+  public ThrowsTagInfo[] throwsTags() {
+    init();
     return mThrowsTags;
   }
 
-  public List<TagInfo> returnTags() {
-    checkInitVisibleCalled();
+  public TagInfo[] returnTags() {
+    init();
     return mReturnTags;
   }
 
-  public List<TagInfo> deprecatedTags() {
-    checkInitVisibleCalled();
+  public TagInfo[] deprecatedTags() {
+    init();
     return mDeprecatedTags;
   }
 
-  public List<TagInfo> undeprecateTags() {
-    checkInitVisibleCalled();
+  public TagInfo[] undeprecateTags() {
+    init();
     return mUndeprecateTags;
   }
 
-  public List<AttrTagInfo> attrTags() {
-    checkInitVisibleCalled();
+  public AttrTagInfo[] attrTags() {
+    init();
     return mAttrTags;
   }
 
-  public List<TagInfo> briefTags() {
-    checkInitVisibleCalled();
+  public TagInfo[] briefTags() {
+    init();
     return mBriefTags;
   }
 
@@ -302,17 +298,13 @@ public class Comment {
     }
   }
 
-  private void checkInitVisibleCalled() {
+  private void init() {
     if (!mInitialized) {
-      throw new IllegalStateException("Expected initVisible() to have already been called");
+      initImpl();
     }
   }
 
-  public void initVisible(Project project) {
-    if (mInitialized) {
-      throw new IllegalStateException();
-    }
-    
+  private void initImpl() {
     isHidden();
     isDocOnly();
     isDeprecated();
@@ -327,25 +319,21 @@ public class Comment {
           SourcePositionInfo.add(mPosition, mText, 0)));
     }
 
+    mText = null;
     mInitialized = true;
 
-    for (TagInfo tagInfo : Iterables.concat(mSeeTagsList, mInlineTagsList, mReturnTagsList,
-        mParamTagsList, mThrowsTagsList, mDeprecatedTagsList, mUndeprecateTagsList, mAttrTagsList,
-        mBriefTagsList, mTagsList)) {
-      tagInfo.initVisible(project);
-    }
-
-    mInlineTags = mInlineTagsList;
-    mParamTags = mParamTagsList;
-    mSeeTags = mSeeTagsList;
-    mThrowsTags = mThrowsTagsList;
-    mReturnTags = ParsedTagInfo.joinTags(
-        mReturnTagsList.toArray(new ParsedTagInfo[mReturnTagsList.size()]));
-    mDeprecatedTags = ParsedTagInfo.joinTags(
-        mDeprecatedTagsList.toArray(new ParsedTagInfo[mDeprecatedTagsList.size()]));
-    mUndeprecateTags = mUndeprecateTagsList;
-    mAttrTags = mAttrTagsList;
-    mBriefTags = mBriefTagsList;
+    mInlineTags = mInlineTagsList.toArray(new TagInfo[mInlineTagsList.size()]);
+    mParamTags = mParamTagsList.toArray(new ParamTagInfo[mParamTagsList.size()]);
+    mSeeTags = mSeeTagsList.toArray(new SeeTagInfo[mSeeTagsList.size()]);
+    mThrowsTags = mThrowsTagsList.toArray(new ThrowsTagInfo[mThrowsTagsList.size()]);
+    mReturnTags =
+        ParsedTagInfo.joinTags(mReturnTagsList.toArray(new ParsedTagInfo[mReturnTagsList.size()]));
+    mDeprecatedTags =
+        ParsedTagInfo.joinTags(mDeprecatedTagsList.toArray(new ParsedTagInfo[mDeprecatedTagsList
+            .size()]));
+    mUndeprecateTags = mUndeprecateTagsList.toArray(new TagInfo[mUndeprecateTagsList.size()]);
+    mAttrTags = mAttrTagsList.toArray(new AttrTagInfo[mAttrTagsList.size()]);
+    mBriefTags = mBriefTagsList.toArray(new TagInfo[mBriefTagsList.size()]);
 
     mParamTagsList = null;
     mSeeTagsList = null;
@@ -361,19 +349,21 @@ public class Comment {
   int mHidden = -1;
   int mDocOnly = -1;
   int mDeprecated = -1;
-  final String mText;
-  final ContainerInfo mBase;
-  final SourcePositionInfo mPosition;
+  String mText;
+  ContainerInfo mBase;
+  SourcePositionInfo mPosition;
+  int mLine = 1;
 
-  List<TagInfo> mInlineTags;
-  List<ParamTagInfo> mParamTags;
-  List<SeeTagInfo> mSeeTags;
-  List<ThrowsTagInfo> mThrowsTags;
-  List<TagInfo> mBriefTags;
-  List<TagInfo> mReturnTags;
-  List<TagInfo> mDeprecatedTags;
-  List<TagInfo> mUndeprecateTags;
-  List<AttrTagInfo> mAttrTags;
+  TagInfo[] mInlineTags;
+  TagInfo[] mTags;
+  ParamTagInfo[] mParamTags;
+  SeeTagInfo[] mSeeTags;
+  ThrowsTagInfo[] mThrowsTags;
+  TagInfo[] mBriefTags;
+  TagInfo[] mReturnTags;
+  TagInfo[] mDeprecatedTags;
+  TagInfo[] mUndeprecateTags;
+  AttrTagInfo[] mAttrTags;
 
   ArrayList<TagInfo> mInlineTagsList = new ArrayList<TagInfo>();
   ArrayList<TagInfo> mTagsList = new ArrayList<TagInfo>();
@@ -385,4 +375,6 @@ public class Comment {
   ArrayList<ParsedTagInfo> mDeprecatedTagsList = new ArrayList<ParsedTagInfo>();
   ArrayList<TagInfo> mUndeprecateTagsList = new ArrayList<TagInfo>();
   ArrayList<AttrTagInfo> mAttrTagsList = new ArrayList<AttrTagInfo>();
+
+
 }

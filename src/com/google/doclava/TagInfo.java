@@ -17,22 +17,19 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-import java.util.List;
 
 public class TagInfo {
-  private final String mName;
-  private final String mText;
-  private final SourcePositionInfo mPosition;
+  private String mName;
+  private String mText;
   private String mKind;
+  private SourcePositionInfo mPosition;
 
   TagInfo(String n, String k, String t, SourcePositionInfo sp) {
     mName = n;
     mText = t;
-    mPosition = sp;
     mKind = k;
+    mPosition = sp;
   }
-
-  public void initVisible(Project project) {}
 
   String name() {
     return mName;
@@ -60,7 +57,7 @@ public class TagInfo {
     data.setValue(base + ".kind", kind());
   }
 
-  public static void makeHDF(Data data, String base, List<? extends TagInfo> tags) {
+  public static void makeHDF(Data data, String base, TagInfo[] tags) {
     makeHDF(data, base, tags, null, 0, 0);
   }
 
@@ -68,14 +65,15 @@ public class TagInfo {
     makeHDF(data, base, tags.tags(), tags.inherited(), 0, 0);
   }
 
-  private static int makeHDF(Data data, String base, List<? extends TagInfo> tags,
-      InheritedTags inherited, int j, int depth) {
+  private static int makeHDF(Data data, String base, TagInfo[] tags, InheritedTags inherited,
+      int j, int depth) {
     int i;
-    if (tags.isEmpty() && inherited != null) {
+    int len = tags.length;
+    if (len == 0 && inherited != null) {
       j = makeHDF(data, base, inherited.tags(), inherited.inherited(), j, depth + 1);
     } else {
-      for (i = 0; i < tags.size(); i++, j++) {
-        TagInfo t = tags.get(i);
+      for (i = 0; i < len; i++, j++) {
+        TagInfo t = tags[i];
         if (inherited != null && t.name().equals("@inheritDoc")) {
           j = makeHDF(data, base, inherited.tags(), inherited.inherited(), j, depth + 1);
         } else {
@@ -94,25 +92,21 @@ public class TagInfo {
    * Returns true if the given list of tags match. Tags must be ordered
    * equivalently for the lists to be equal.
    */
-  static boolean tagsEqual(List<TagInfo> first, List<TagInfo> second) {
-    if (first.size() != second.size()) {
+  static boolean tagsEqual(TagInfo[] first, TagInfo[] second) {
+    if (first.length != second.length) {
       return false;
     }
-    for (int i = 0; i < first.size(); i++) {
-      if (!first.get(i).mName.equals(second.get(i).mName)) {
+    for (int i = 0; i < first.length; i++) {
+      if (!first[i].mName.equals(second[i].mName)) {
         return false;
       }
-      if (!first.get(i).mKind.equals(second.get(i).mKind)) {
+      if (!first[i].mKind.equals(second[i].mKind)) {
         return false;
       }
-      if (!first.get(i).mText.equals(second.get(i).mText)) {
+      if (!first[i].mText.equals(second[i].mText)) {
         return false;
       }
     }
     return true;
-  }
-
-  @Override public String toString() {
-    return mName + ":" + mText;
   }
 }

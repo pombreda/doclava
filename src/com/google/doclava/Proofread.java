@@ -16,11 +16,10 @@
 
 package com.google.doclava;
 
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
-import java.util.regex.Matcher;
+import java.io.FileWriter;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class Proofread {
   static FileWriter out = null;
@@ -43,7 +42,7 @@ public class Proofread {
     }
   }
 
-  public static void finishProofread() {
+  public static void finishProofread(String filename) {
     if (out == null) {
       return;
     }
@@ -77,7 +76,7 @@ public class Proofread {
     write(" ===\n");
   }
 
-  public static void writeTagList(List<TagInfo> tags) {
+  public static void writeTagList(TagInfo[] tags) {
     if (out == null) {
       return;
     }
@@ -105,7 +104,7 @@ public class Proofread {
     }
   }
 
-  public static void writePackages(String filename, List<TagInfo> tags) {
+  public static void writePackages(String filename, TagInfo[] tags) {
     if (out == null) {
       return;
     }
@@ -114,7 +113,7 @@ public class Proofread {
     writeTagList(tags);
   }
 
-  public static void writePackage(String filename, List<TagInfo> tags) {
+  public static void writePackage(String filename, TagInfo[] tags) {
     if (out == null) {
       return;
     }
@@ -138,19 +137,19 @@ public class Proofread {
     }
 
     // fields
-    for (FieldInfo f : cl.getFields()) {
+    for (FieldInfo f : cl.selfFields()) {
       write("FIELD: " + f.name() + "\n");
       writeTagList(f.inlineTags());
     }
 
     // constructors
-    for (MethodInfo m : cl.getConstructors()) {
+    for (MethodInfo m : cl.constructors()) {
       write("CONSTRUCTOR: " + m.name() + "\n");
       writeTagList(m.inlineTags().tags());
     }
 
     // methods
-    for (MethodInfo m : cl.getMethods()) {
+    for (MethodInfo m : cl.selfMethods()) {
       write("METHOD: " + m.name() + "\n");
       writeTagList(m.inlineTags().tags());
     }

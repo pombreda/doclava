@@ -17,15 +17,16 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
+
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 
 public class ParameterInfo {
-  public ParameterInfo(String name, String typeName, TypeInfo type, SourcePositionInfo position) {
+  public ParameterInfo(String name, String typeName, TypeInfo type, boolean isVarArg,
+      SourcePositionInfo position) {
     mName = name;
     mTypeName = typeName;
     mType = type;
+    mIsVarArg = isVarArg;
     mPosition = position;
   }
 
@@ -45,18 +46,19 @@ public class ParameterInfo {
     return mPosition;
   }
   
+  boolean isVarArg() {
+    return mIsVarArg;
+  }
+
   public void makeHDF(Data data, String base, boolean isLastVararg, HashSet<String> typeVariables) {
     data.setValue(base + ".name", this.name());
     type().makeHDF(data, base + ".type", isLastVararg, typeVariables);
   }
 
-  public static void makeHDF(Data data, String base, List<ParameterInfo> params, boolean isVararg,
+  public static void makeHDF(Data data, String base, ParameterInfo[] params, boolean isVararg,
       HashSet<String> typeVariables) {
-    int i = 0;
-    for (Iterator<ParameterInfo> p = params.iterator(); p.hasNext();) {
-      ParameterInfo parameterInfo = p.next();
-      parameterInfo.makeHDF(data, base + "." + i, isVararg && !p.hasNext(), typeVariables);
-      i++;
+    for (int i = 0; i < params.length; i++) {
+      params[i].makeHDF(data, base + "." + i, isVararg && (i == params.length - 1), typeVariables);
     }
   }
   
@@ -72,12 +74,9 @@ public class ParameterInfo {
     return mType.dimension().equals(dimension);
   }
 
-  @Override public String toString() {
-    return mTypeName;
-  }
-
-  private String mName;
-  private String mTypeName;
-  private TypeInfo mType;
-  private SourcePositionInfo mPosition;
+  String mName;
+  String mTypeName;
+  TypeInfo mType;
+  boolean mIsVarArg;
+  SourcePositionInfo mPosition;
 }

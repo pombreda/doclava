@@ -18,11 +18,12 @@ package com.google.doclava;
 
 import com.google.clearsilver.jsilver.JSilver;
 import com.google.clearsilver.jsilver.data.Data;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

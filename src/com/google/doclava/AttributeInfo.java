@@ -17,6 +17,7 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -66,9 +67,7 @@ public class AttributeInfo {
       }
     }
     if (mComment == null) {
-      Comment result = new Comment("", mClass, SourcePositionInfo.UNKNOWN);
-      result.initVisible(null); // TODO: this is a hack
-      return result;
+      return new Comment("", mClass, SourcePositionInfo.UNKNOWN);
     }
     return mComment;
   }

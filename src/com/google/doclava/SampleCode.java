@@ -17,8 +17,9 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-import java.io.File;
-import java.util.TreeSet;
+
+import java.util.*;
+import java.io.*;
 
 
 public class SampleCode {

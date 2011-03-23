@@ -17,27 +17,14 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public abstract class DocInfo {
-
-  /**
-   * @param base the container to resolve link references from or null for this.
-   */
-  public DocInfo(String rawCommentText, SourcePositionInfo sp, ContainerInfo base) {
-    if (rawCommentText == null || sp == null) {
-        throw new NullPointerException();
-    }
-    if (base == null) {
-      base = (ContainerInfo) this;
-    }
+  public DocInfo(String rawCommentText, SourcePositionInfo sp) {
     mRawCommentText = rawCommentText;
     mPosition = sp;
-    mComment = new Comment(mRawCommentText, base, mPosition);
-  }
-
-  public void initVisible(Project project) {
   }
 
   /**
@@ -77,13 +64,22 @@ public abstract class DocInfo {
     return comment().isDocOnly();
   }
 
+  public String getRawCommentText() {
+    return mRawCommentText;
+  }
+
   public Comment comment() {
+    if (mComment == null) {
+      mComment = new Comment(mRawCommentText, parent(), mPosition);
+    }
     return mComment;
   }
 
   public SourcePositionInfo position() {
     return mPosition;
   }
+
+  public abstract ContainerInfo parent();
 
   public void setSince(String since) {
     mSince = since;
@@ -110,9 +106,9 @@ public abstract class DocInfo {
     }
   }
 
-  private final String mRawCommentText;
-  private final SourcePositionInfo mPosition;
-  private final Comment mComment;
+  private String mRawCommentText;
+  Comment mComment;
+  SourcePositionInfo mPosition;
   private String mSince;
   private Set<FederatedSite> mFederatedReferences = new LinkedHashSet<FederatedSite>();
 }

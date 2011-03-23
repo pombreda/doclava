@@ -17,12 +17,13 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
+
 import java.io.Reader;
-import java.util.regex.Matcher;
+import java.io.IOException;
+import java.io.FileReader;
+import java.io.LineNumberReader;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /*
  * SampleTagInfo copies text from a given file into the javadoc comment.

@@ -17,10 +17,9 @@
 package com.google.doclava;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ParsedTagInfo extends TagInfo {
-  private final ContainerInfo mContainer;
+  private ContainerInfo mContainer;
   private String mCommentText;
   private Comment mComment;
 
@@ -30,19 +29,9 @@ public class ParsedTagInfo extends TagInfo {
     mCommentText = text;
   }
 
-  public ContainerInfo getContainer() {
-    return mContainer;
-  }
-
-  @Override public void initVisible(Project project) {
-    super.initVisible(project);
-    mComment = new Comment(mCommentText, mContainer, position());
-    mComment.initVisible(project);
-  }
-
-  public List<TagInfo> commentTags() {
+  public TagInfo[] commentTags() {
     if (mComment == null) {
-      throw new IllegalStateException("Expected initVisible() to be called first");
+      mComment = new Comment(mCommentText, mContainer, position());
     }
     return mComment.tags();
   }
@@ -51,13 +40,16 @@ public class ParsedTagInfo extends TagInfo {
     mCommentText = comment;
   }
 
-  public static <T extends ParsedTagInfo> List<TagInfo> joinTags(T[] tags) {
-    ArrayList<TagInfo> result = new ArrayList<TagInfo>();
-    for (T tag : tags) {
-      for (TagInfo tagInfo : tag.commentTags()) {
-        result.add(tagInfo);
+  public static <T extends ParsedTagInfo> TagInfo[] joinTags(T[] tags) {
+    ArrayList<TagInfo> list = new ArrayList<TagInfo>();
+    final int N = tags.length;
+    for (int i = 0; i < N; i++) {
+      TagInfo[] t = tags[i].commentTags();
+      final int M = t.length;
+      for (int j = 0; j < M; j++) {
+        list.add(t[j]);
       }
     }
-    return result;
+    return list.toArray(new TagInfo[list.size()]);
   }
 }

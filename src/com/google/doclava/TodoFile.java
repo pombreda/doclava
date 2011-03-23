@@ -17,6 +17,8 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
+
+import java.util.*;
 import com.google.common.collect.Ordering;
 import java.util.List;
 import java.util.TreeMap;
@@ -35,7 +37,7 @@ public class TodoFile {
     return false;
   }
 
-  public static boolean areTagsUseful(List<TagInfo> tags) {
+  public static boolean areTagsUseful(TagInfo[] tags) {
     for (TagInfo t : tags) {
       if ("Text".equals(t.name()) && t.text().trim().length() != 0) {
         return true;
@@ -64,12 +66,13 @@ public class TodoFile {
     return "" + Math.round((((b - a) / (float) b)) * 100) + "%";
   }
 
-  public static void writeTodoFile(String filename, Project project) {
+  public static void writeTodoFile(String filename) {
     Data data = Doclava.makeHDF();
     Doclava.setPageTitle(data, "Missing Documentation");
     TreeMap<String, PackageStats> packageStats = new TreeMap<String, PackageStats>();
 
-    List<ClassInfo> classes = Ordering.natural().sortedCopy(project.rootClasses());
+    ClassInfo[] classes = Converter.rootClasses();
+    Arrays.sort(classes);
 
     int classIndex = 0;
 
@@ -90,7 +93,7 @@ public class TodoFile {
       }
 
 
-      for (MethodInfo m : cl.getConstructors()) {
+      for (MethodInfo m : cl.constructors()) {
         boolean good = true;
         total++;
         if (m.checkLevel()) {
@@ -104,7 +107,7 @@ public class TodoFile {
         }
       }
 
-      for (MethodInfo m : cl.getMethods()) {
+      for (MethodInfo m : cl.selfMethods()) {
         boolean good = true;
         total++;
         if (m.checkLevel()) {
@@ -133,7 +136,7 @@ public class TodoFile {
         }
       }
 
-      for (FieldInfo f : cl.getFields()) {
+      for (FieldInfo f : cl.selfFields()) {
         boolean good = true;
         total++;
         if (f.checkLevel()) {

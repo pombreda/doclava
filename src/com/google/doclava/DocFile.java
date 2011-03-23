@@ -17,19 +17,17 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.regex.Matcher;
+
+import java.io.*;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 
-public final class DocFile implements ContainerInfo {
+public class DocFile {
   private static final Pattern LINE = Pattern.compile("(.*)[\r]?\n", Pattern.MULTILINE);
   private static final Pattern PROP = Pattern.compile("([^=]+)=(.*)");
 
-  private static String readFile(String filename) {
+  public static String readFile(String filename) {
     try {
       File f = new File(filename);
       int length = (int) f.length();
@@ -52,14 +50,8 @@ public final class DocFile implements ContainerInfo {
       return null;
     }
   }
-  
-  private final String mDocfile;
 
-  public DocFile(String docfile) {
-    mDocfile = docfile;
-  }
-
-  public void writePage(String outfile, Project project) {
+  public static void writePage(String docfile, String relative, String outfile) {
     Data hdf = Doclava.makeHDF();
 
     /*
@@ -67,7 +59,7 @@ public final class DocFile implements ContainerInfo {
      * outfile + "'");
      */
 
-    String filedata = readFile(mDocfile);
+    String filedata = readFile(docfile);
 
     // The document is properties up until the line "@jd:body".
     // Any blank lines are ignored.
@@ -94,9 +86,9 @@ public final class DocFile implements ContainerInfo {
       lineno++;
     }
     if (start < 0) {
-      System.err.println(mDocfile + ":" + lineno + ": error parsing docfile");
+      System.err.println(docfile + ":" + lineno + ": error parsing docfile");
       if (line != null) {
-        System.err.println(mDocfile + ":" + lineno + ":" + line);
+        System.err.println(docfile + ":" + lineno + ":" + line);
       }
       System.exit(1);
     }
@@ -111,9 +103,10 @@ public final class DocFile implements ContainerInfo {
     // and the actual text after that
     String commentText = filedata.substring(start);
 
-    Comment comment = new Comment(commentText, this, new SourcePositionInfo(mDocfile, lineno, 1));
-    comment.initVisible(project);
-    TagInfo.makeHDF(hdf, "root.descr", comment.tags());
+    Comment comment = new Comment(commentText, null, new SourcePositionInfo(docfile, lineno, 1));
+    TagInfo[] tags = comment.tags();
+
+    TagInfo.makeHDF(hdf, "root.descr", tags);
 
     hdf.setValue("commentText", commentText);
 
@@ -145,12 +138,4 @@ public final class DocFile implements ContainerInfo {
       }
     }
   } // writePage
-
-  public String qualifiedName() {
-    return mDocfile;
-  }
-
-  public boolean checkLevel() {
-    return true;
-  }
 }

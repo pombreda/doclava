@@ -17,13 +17,8 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 public class TypeInfo {
   public static final Set<String> PRIMITIVE_TYPES = Collections.unmodifiableSet(
@@ -70,8 +65,9 @@ public class TypeInfo {
       TypeInfo info = new TypeInfo(typeString.substring(entryStartPos, paramEndPos).trim());
       generics.add(info);
       
-      mTypeArguments = generics;
-
+      mTypeArguments = new TypeInfo[generics.size()];
+      generics.toArray(mTypeArguments);
+      
       if (paramEndPos < typeString.length() - 1) {
         typeString = typeString.substring(0,paramStartPos) + typeString.substring(paramEndPos + 1);
       } else {
@@ -131,11 +127,11 @@ public class TypeInfo {
     }
   }
 
-  public static String typeArgumentsName(List<TypeInfo> args, HashSet<String> typeVars) {
+  public static String typeArgumentsName(TypeInfo[] args, HashSet<String> typeVars) {
     String result = "<";
-    for (int i = 0; i < args.size(); i++) {
-      result += args.get(i).fullName(typeVars);
-      if (i != args.size() - 1) {
+    for (int i = 0; i < args.length; i++) {
+      result += args[i].fullName(typeVars);
+      if (i != args.length - 1) {
         result += ", ";
       }
     }
@@ -149,7 +145,7 @@ public class TypeInfo {
   }
 
   public String fullNameNoDimension(HashSet<String> typeVars) {
-    String fullName;
+    String fullName = null;
     if (mIsTypeVariable) {
       if (typeVars.contains(mQualifiedTypeName)) {
         // don't recurse forever with the parameters. This handles
@@ -162,23 +158,23 @@ public class TypeInfo {
      * if (fullName != null) { return fullName; }
      */
     fullName = mQualifiedTypeName;
-    if (mTypeArguments != null && !mTypeArguments.isEmpty()) {
+    if (mTypeArguments != null && mTypeArguments.length > 0) {
       fullName += typeArgumentsName(mTypeArguments, typeVars);
-    } else if (mSuperBounds != null && !mSuperBounds.isEmpty()) {
-      fullName += " super " + mSuperBounds.get(0).fullName(typeVars);
-      for (int i = 1; i < mSuperBounds.size(); i++) {
-        fullName += " & " + mSuperBounds.get(i).fullName(typeVars);
+    } else if (mSuperBounds != null && mSuperBounds.length > 0) {
+      fullName += " super " + mSuperBounds[0].fullName(typeVars);
+      for (int i = 1; i < mSuperBounds.length; i++) {
+        fullName += " & " + mSuperBounds[i].fullName(typeVars);
       }
-    } else if (mExtendsBounds != null && !mExtendsBounds.isEmpty()) {
-      fullName += " extends " + mExtendsBounds.get(0).fullName(typeVars);
-      for (int i = 1; i < mExtendsBounds.size(); i++) {
-        fullName += " & " + mExtendsBounds.get(i).fullName(typeVars);
+    } else if (mExtendsBounds != null && mExtendsBounds.length > 0) {
+      fullName += " extends " + mExtendsBounds[0].fullName(typeVars);
+      for (int i = 1; i < mExtendsBounds.length; i++) {
+        fullName += " & " + mExtendsBounds[i].fullName(typeVars);
       }
     }
     return fullName;
   }
 
-  public List<TypeInfo> typeArguments() {
+  public TypeInfo[] typeArguments() {
     return mTypeArguments;
   }
 
@@ -212,7 +208,7 @@ public class TypeInfo {
         data.setValue(base + ".since.key", SinceTagger.keyForName(mClass.getSince()));
         data.setValue(base + ".since.name", mClass.getSince());
       } else {
-        Doclava.federationTagger.tagAll(ImmutableList.of(mClass));
+        Doclava.federationTagger.tagAll(new ClassInfo[] {mClass});
         if (!mClass.getFederatedReferences().isEmpty()) {
           FederatedSite site = mClass.getFederatedReferences().iterator().next();
           data.setValue(base + ".link", site.linkFor(mClass.relativePath()));
@@ -240,24 +236,23 @@ public class TypeInfo {
     }
   }
 
-  public static void makeHDF(Data data, String base, List<TypeInfo> types, boolean qualified,
+  public static void makeHDF(Data data, String base, TypeInfo[] types, boolean qualified,
       HashSet<String> typeVariables) {
-    int i = 0;
-    for (TypeInfo typeInfo : types) {
-      typeInfo.makeHDFRecursive(data, base + "." + i, qualified, false, typeVariables);
-      i++;
+    final int N = types.length;
+    for (int i = 0; i < N; i++) {
+      types[i].makeHDFRecursive(data, base + "." + i, qualified, false, typeVariables);
     }
   }
 
-  public static void makeHDF(Data data, String base, List<TypeInfo> types, boolean qualified) {
+  public static void makeHDF(Data data, String base, TypeInfo[] types, boolean qualified) {
     makeHDF(data, base, types, qualified, new HashSet<String>());
   }
 
-  void setTypeArguments(List<TypeInfo> args) {
+  void setTypeArguments(TypeInfo[] args) {
     mTypeArguments = args;
   }
 
-  void setBounds(List<TypeInfo> superBounds, List<TypeInfo> extendsBounds) {
+  void setBounds(TypeInfo[] superBounds, TypeInfo[] extendsBounds) {
     mSuperBounds = superBounds;
     mExtendsBounds = extendsBounds;
   }
@@ -270,11 +265,11 @@ public class TypeInfo {
     mIsWildcard = b;
   }
 
-  static HashSet<String> typeVariables(List<TypeInfo> params) {
+  static HashSet<String> typeVariables(TypeInfo[] params) {
     return typeVariables(params, new HashSet<String>());
   }
 
-  static HashSet<String> typeVariables(List<TypeInfo> params, HashSet<String> result) {
+  static HashSet<String> typeVariables(TypeInfo[] params, HashSet<String> result) {
     for (TypeInfo t : params) {
       if (t.mIsTypeVariable) {
         result.add(t.mQualifiedTypeName);
@@ -336,8 +331,8 @@ public class TypeInfo {
   private String mSimpleTypeName;
   private String mQualifiedTypeName;
   private ClassInfo mClass;
-  private List<TypeInfo> mTypeArguments;
-  private List<TypeInfo> mSuperBounds;
-  private List<TypeInfo> mExtendsBounds;
+  private TypeInfo[] mTypeArguments;
+  private TypeInfo[] mSuperBounds;
+  private TypeInfo[] mExtendsBounds;
   private String mFullName;
 }

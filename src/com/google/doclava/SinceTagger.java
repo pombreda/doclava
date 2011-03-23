@@ -20,11 +20,13 @@ import com.google.clearsilver.jsilver.data.Data;
 import com.google.doclava.apicheck.ApiCheck;
 import com.google.doclava.apicheck.ApiInfo;
 import com.google.doclava.apicheck.ApiParseException;
+
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 
 /**
@@ -51,7 +53,7 @@ public class SinceTagger {
     xmlToName.put(file, name);
   }
 
-  public void tagAll(List<ClassInfo> classDocs) {
+  public void tagAll(ClassInfo[] classDocs) {
     // read through the XML files in order, applying their since information
     // to the Javadoc models
     for (Map.Entry<String, String> versionSpec : xmlToName.entrySet()) {
@@ -105,7 +107,7 @@ public class SinceTagger {
    *        named version
    * @param classDocs the doc model to update
    */
-  private void applyVersionsFromSpec(String versionName, ApiInfo specApi, List<ClassInfo> classDocs) {
+  private void applyVersionsFromSpec(String versionName, ApiInfo specApi, ClassInfo[] classDocs) {
     for (ClassInfo classDoc : classDocs) {
       PackageInfo packageSpec
           = specApi.getPackages().get(classDoc.containingPackage().name());
@@ -150,7 +152,7 @@ public class SinceTagger {
    * Applies version information from {@code spec} to {@code doc} where not already present.
    */
   private void versionConstructors(String versionName, ClassInfo spec, ClassInfo doc) {
-    for (MethodInfo constructor : doc.getConstructors()) {
+    for (MethodInfo constructor : doc.constructors()) {
       if (constructor.getSince() == null
           && spec.hasConstructor(constructor)) {
         constructor.setSince(versionName);
@@ -162,7 +164,7 @@ public class SinceTagger {
    * Applies version information from {@code spec} to {@code doc} where not already present.
    */
   private void versionFields(String versionName, ClassInfo spec, ClassInfo doc) {
-    for (FieldInfo field : doc.getFields()) {
+    for (FieldInfo field : doc.fields()) {
       if (field.getSince() == null && spec.allFields().containsKey(field.name())) {
         field.setSince(versionName);
       }
@@ -173,7 +175,7 @@ public class SinceTagger {
    * Applies version information from {@code spec} to {@code doc} where not already present.
    */
   private void versionMethods(String versionName, ClassInfo spec, ClassInfo doc) {
-    for (MethodInfo method : doc.getMethods()) {
+    for (MethodInfo method : doc.methods()) {
       if (method.getSince() != null) {
         continue;
       }
@@ -192,7 +194,7 @@ public class SinceTagger {
    * zero warnings because {@code apicheck} guarantees that all symbols are present in the most
    * recent API.
    */
-  private void warnForMissingVersions(List<ClassInfo> classDocs) {
+  private void warnForMissingVersions(ClassInfo[] classDocs) {
     for (ClassInfo claz : classDocs) {
       if (!checkLevelRecursive(claz)) {
         continue;
@@ -203,17 +205,17 @@ public class SinceTagger {
             + claz.qualifiedName());
       }
 
-      for (FieldInfo field : missingVersions(claz.getFields())) {
+      for (FieldInfo field : missingVersions(claz.fields())) {
         Errors.error(Errors.NO_SINCE_DATA, field.position(), "XML missing field "
             + claz.qualifiedName() + "#" + field.name());
       }
 
-      for (MethodInfo constructor : missingVersions(claz.getConstructors())) {
+      for (MethodInfo constructor : missingVersions(claz.constructors())) {
         Errors.error(Errors.NO_SINCE_DATA, constructor.position(), "XML missing constructor "
             + claz.qualifiedName() + "#" + constructor.getHashableName());
       }
 
-      for (MethodInfo method : missingVersions(claz.getMethods())) {
+      for (MethodInfo method : missingVersions(claz.methods())) {
         Errors.error(Errors.NO_SINCE_DATA, method.position(), "XML missing method "
             + claz.qualifiedName() + "#" + method.getHashableName());
       }
@@ -223,7 +225,7 @@ public class SinceTagger {
   /**
    * Returns the DocInfos in {@code all} that are documented but do not have since tags.
    */
-  private <T extends MemberInfo> Iterable<T> missingVersions(Iterable<T> all) {
+  private <T extends MemberInfo> Iterable<T> missingVersions(T[] all) {
     List<T> result = Collections.emptyList();
     for (T t : all) {
       // if this member has version info or isn't documented, skip it

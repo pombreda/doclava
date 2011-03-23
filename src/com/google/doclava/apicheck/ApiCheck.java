@@ -19,6 +19,7 @@ package com.google.doclava.apicheck;
 import com.google.doclava.AnnotationInstanceInfo;
 import com.google.doclava.ClassInfo;
 import com.google.doclava.ConstructorInfo;
+import com.google.doclava.Converter;
 import com.google.doclava.ErrorReport;
 import com.google.doclava.Errors;
 import com.google.doclava.FieldInfo;
@@ -34,7 +35,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -43,8 +43,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 public class ApiCheck {
-  private final ApiProject apiProject = new ApiProject();
-
   // parse out and consume the -whatever command line flags
   private static ArrayList<String[]> parseFlags(ArrayList<String> allArgs) {
     ArrayList<String[]> ret = new ArrayList<String[]>();
@@ -181,7 +179,6 @@ public class ApiCheck {
       ApiInfo apiInfo = handler.getApi();
       apiInfo.resolveSuperclasses();
       apiInfo.resolveInterfaces();
-      apiInfo.initVisible();
       return apiInfo;
     } catch (Exception e) {
       throw new ApiParseException("Error parsing API", e);
@@ -195,7 +192,7 @@ public class ApiCheck {
     private ClassInfo mCurrentClass;
     private AbstractMethodInfo mCurrentMethod;
     private Stack<ClassInfo> mClassScope = new Stack<ClassInfo>();
-
+    
 
     public MakeHandler() {
       super();
@@ -225,7 +222,6 @@ public class ApiCheck {
         boolean isInterface = qName.equals("interface");
         boolean isAbstract = Boolean.valueOf(attributes.getValue("abstract"));
         boolean isOrdinaryClass = qName.equals("class");
-        // TODO: classes can be deprecated
         boolean isException = false; // TODO: check hierarchy for java.lang.Exception
         boolean isError = false; // TODO: not sure.
         boolean isEnum = false; // TODO: not sure.
@@ -234,12 +230,14 @@ public class ApiCheck {
         boolean isIncluded = false;
         String name = attributes.getValue("name");
         String qualifiedName = qualifiedName(mCurrentPackage.name(), name, mCurrentClass);
+        String qualifiedTypeName = null; // TODO: not sure
+        boolean isPrimitive = false;
         
         mCurrentClass =
             new ClassInfo(classDoc, rawCommentText, position, isPublic, isProtected, 
             isPackagePrivate, isPrivate, isStatic, isInterface, isAbstract, isOrdinaryClass, 
-            isException, isError, isEnum, isAnnotation, isFinal, isIncluded, name, qualifiedName
-            );
+            isException, isError, isEnum, isAnnotation, isFinal, isIncluded, name, qualifiedName,
+            qualifiedTypeName, isPrimitive);
         
         mCurrentClass.setContainingPackage(mCurrentPackage);
         String superclass = attributes.getValue("extends");
@@ -250,12 +248,12 @@ public class ApiCheck {
         // Resolve superclass after .xml completely parsed.
         mApi.mapClassToSuper(mCurrentClass, superclass);
         
-        TypeInfo typeInfo = apiProject.obtainTypeFromString(qualifiedName) ;
+        TypeInfo typeInfo = Converter.obtainTypeFromString(qualifiedName) ;
         mCurrentClass.setTypeInfo(typeInfo);
         mCurrentClass.setAnnotations(new AnnotationInstanceInfo[] {});
       } else if (qName.equals("method")) {
         String rawCommentText = "";
-        List<TypeInfo> typeParameters = new ArrayList<TypeInfo>();
+        TypeInfo[] typeParameters = new TypeInfo[0];
         String name = attributes.getValue("name");
         String signature = null; // TODO
         ClassInfo containingClass = mCurrentClass;
@@ -275,16 +273,16 @@ public class ApiCheck {
         String kind = qName;
         String flatSignature = null; // TODO
         MethodInfo overriddenMethod = null; // TODO
-        TypeInfo returnType = apiProject.obtainTypeFromString(attributes.getValue("return"));
-        List<ParameterInfo> parameters = new ArrayList<ParameterInfo>();
-        List<ClassInfo> thrownExceptions = new ArrayList<ClassInfo>();
+        TypeInfo returnType = Converter.obtainTypeFromString(attributes.getValue("return"));
+        ParameterInfo[] parameters = new ParameterInfo[0];
+        ClassInfo[] thrownExceptions = new ClassInfo[0];
         SourcePositionInfo position = SourcePositionInfo.fromXml(attributes.getValue("source"));
         AnnotationInstanceInfo[] annotations = new AnnotationInstanceInfo[] {}; // TODO
         
         mCurrentMethod = 
             new MethodInfo(rawCommentText, typeParameters, name, signature, containingClass,
             realContainingClass, isPublic, isProtected, isPackagePrivate, isPrivate, isFinal,
-            isStatic, isSynthetic, isAbstract, isSynchronized, isNative, kind,
+            isStatic, isSynthetic, isAbstract, isSynchronized, isNative, isAnnotationElement, kind,
             flatSignature, overriddenMethod, returnType, parameters, thrownExceptions, position,
             annotations);
         
@@ -303,7 +301,7 @@ public class ApiCheck {
         boolean isPrivate = visibility.equals("private");
         boolean isPackagePrivate = visibility.equals("");
         String typeName = attributes.getValue("type");
-        TypeInfo type = apiProject.obtainTypeFromString(typeName);
+        TypeInfo type = Converter.obtainTypeFromString(typeName);
         
         FieldInfo fInfo =
             new FieldInfo(attributes.getValue("name"), mCurrentClass, mCurrentClass, isPublic,
@@ -318,11 +316,11 @@ public class ApiCheck {
       } else if (qName.equals("parameter")) {
         String name = attributes.getValue("name");
         String typeName = attributes.getValue("type");
-        TypeInfo type = apiProject.obtainTypeFromString(typeName);
+        TypeInfo type = Converter.obtainTypeFromString(typeName);
         boolean isVarArg = typeName.endsWith("...");
         SourcePositionInfo position = null;
         
-        mCurrentMethod.addParameter(new ParameterInfo(name, typeName, type, position));
+        mCurrentMethod.addParameter(new ParameterInfo(name, typeName, type, isVarArg, position));
         mCurrentMethod.setVarargs(isVarArg);
       } else if (qName.equals("exception")) {
         mCurrentMethod.addException(attributes.getValue("type"));

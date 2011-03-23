@@ -16,9 +16,9 @@
 
 package com.google.doclava;
 
-import java.util.ArrayList;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.ArrayList;
 
 /**
  * Class that represents what you see in an link or see tag. This is factored out of SeeTagInfo so
@@ -77,7 +77,7 @@ public class LinkReference {
    *         and fills in href and label with error text.
    */
   public static LinkReference parse(String text, ContainerInfo base, SourcePositionInfo pos,
-      boolean printOnErrors, Project project) {
+      boolean printOnErrors) {
     LinkReference result = new LinkReference();
     result.text = text;
 
@@ -247,17 +247,17 @@ public class LinkReference {
       if (cl != null) {
         result.classInfo = cl.extendedFindClass(ref);
         if (result.classInfo == null) {
-          result.classInfo = cl.findClass(ref, project);
+          result.classInfo = cl.findClass(ref);
         }
         if (result.classInfo == null) {
-          result.classInfo = cl.findInnerClass(ref, project);
+          result.classInfo = cl.findInnerClass(ref);
         }
       }
       if (result.classInfo == null) {
-        result.classInfo = project.getClassByName(ref);
+        result.classInfo = Converter.obtainClass(ref);
       }
       if (result.classInfo == null) {
-        result.packageInfo = project.getPackage(ref);
+        result.packageInfo = Converter.obtainPackage(ref);
       }
     }
 

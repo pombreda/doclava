@@ -17,11 +17,10 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-import com.google.common.collect.Ordering;
-import java.util.List;
+import java.util.Comparator;
 
-public class FieldInfo extends MemberInfo implements Cloneable {
-  public static final Ordering<FieldInfo> ORDER_BY_NAME = new Ordering<FieldInfo>() {
+public class FieldInfo extends MemberInfo {
+  public static final Comparator<FieldInfo> comparator = new Comparator<FieldInfo>() {
     public int compare(FieldInfo a, FieldInfo b) {
       return a.name().compareTo(b.name());
     }
@@ -42,9 +41,10 @@ public class FieldInfo extends MemberInfo implements Cloneable {
   }
 
   public FieldInfo cloneForClass(ClassInfo newContainingClass) {
-    FieldInfo result = clone();
-    result.setContainingClass(newContainingClass);
-    return result;
+    return new FieldInfo(name(), newContainingClass, realContainingClass(), isPublic(),
+        isProtected(), isPackagePrivate(), isPrivate(), isFinal(), isStatic(), isTransient(),
+        isVolatile(), isSynthetic(), mType, getRawCommentText(), mConstantValue, position(),
+        annotations());
   }
 
   static String chooseKind(boolean isFinal, boolean isStatic, Object constantValue) {
@@ -77,11 +77,11 @@ public class FieldInfo extends MemberInfo implements Cloneable {
     return isConstant(isFinal(), isStatic(), mConstantValue);
   }
 
-  public List<TagInfo> firstSentenceTags() {
+  public TagInfo[] firstSentenceTags() {
     return comment().briefTags();
   }
 
-  public List<TagInfo> inlineTags() {
+  public TagInfo[] inlineTags() {
     return comment().tags();
   }
 
@@ -239,7 +239,7 @@ public class FieldInfo extends MemberInfo implements Cloneable {
       String str = null;
 
       if (val instanceof Boolean) {
-        str = val.toString();
+        str = ((Boolean) val).toString();
       } else if (val instanceof Byte) {
         dec = String.format("%d", val);
         hex = String.format("0x%02x", val);
@@ -247,9 +247,9 @@ public class FieldInfo extends MemberInfo implements Cloneable {
         dec = String.format("\'%c\'", val);
         hex = String.format("0x%04x", val);
       } else if (val instanceof Double) {
-        str = val.toString();
+        str = ((Double) val).toString();
       } else if (val instanceof Float) {
-        str = val.toString();
+        str = ((Float) val).toString();
       } else if (val instanceof Integer) {
         dec = String.format("%d", val);
         hex = String.format("0x%08x", val);
@@ -260,7 +260,7 @@ public class FieldInfo extends MemberInfo implements Cloneable {
         dec = String.format("%d", val);
         hex = String.format("0x%04x", val);
       } else if (val instanceof String) {
-        str = "\"" + val + "\"";
+        str = "\"" + ((String) val) + "\"";
       } else {
         str = "";
       }
@@ -363,18 +363,10 @@ public class FieldInfo extends MemberInfo implements Cloneable {
     return consistent;
   }
 
-  @Override protected FieldInfo clone() {
-    try {
-      return (FieldInfo) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError(e);
-    }
-  }
-
-  private boolean mIsTransient;
-  private boolean mIsVolatile;
-  private boolean mDeprecatedKnown;
-  private boolean mIsDeprecated;
-  private TypeInfo mType;
-  private Object mConstantValue;
+  boolean mIsTransient;
+  boolean mIsVolatile;
+  boolean mDeprecatedKnown;
+  boolean mIsDeprecated;
+  TypeInfo mType;
+  Object mConstantValue;
 }

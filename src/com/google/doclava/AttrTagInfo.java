@@ -17,9 +17,9 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-import java.util.List;
-import java.util.regex.Matcher;
+
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class AttrTagInfo extends TagInfo {
   private static final String REF_COMMAND = "ref";
@@ -41,18 +41,14 @@ public class AttrTagInfo extends TagInfo {
   // if mCommand == "description"
   private Comment mDescrComment;
 
-  AttrTagInfo(String name, String kind, String text, ContainerInfo base,
-      SourcePositionInfo position) {
+  AttrTagInfo(String name, String kind, String text, ContainerInfo base, SourcePositionInfo position) {
     super(name, kind, text, position);
     mBase = base;
+
+    parse(text, base, position);
   }
 
-  @Override public void initVisible(Project project) {
-    super.initVisible(project);
-    parse(text(), mBase, position(), project);
-  }
-
-  void parse(String text, ContainerInfo base, SourcePositionInfo position, Project project) {
+  void parse(String text, ContainerInfo base, SourcePositionInfo position) {
     Matcher m;
 
     m = TEXT.matcher(text);
@@ -66,7 +62,7 @@ public class AttrTagInfo extends TagInfo {
 
     if (REF_COMMAND.equals(command)) {
       String ref = more.trim();
-      LinkReference linkRef = LinkReference.parse(ref, mBase, position, false, project);
+      LinkReference linkRef = LinkReference.parse(ref, mBase, position, false);
       if (!linkRef.good) {
         Errors.error(Errors.BAD_ATTR_TAG, position, "Unresolved @attr ref: " + ref);
         return;
@@ -88,7 +84,6 @@ public class AttrTagInfo extends TagInfo {
     } else if (DESCRIPTION_COMMAND.equals(command)) {
       mCommand = command;
       mDescrComment = new Comment(more, base, position);
-      mDescrComment.initVisible(project);
     } else {
       Errors.error(Errors.BAD_ATTR_TAG, position, "Bad @attr command: " + command);
     }
@@ -116,7 +111,7 @@ public class AttrTagInfo extends TagInfo {
     mAttrInfo = info;
   }
 
-  public static void makeReferenceHDF(Data data, String base, List<AttrTagInfo> tags) {
+  public static void makeReferenceHDF(Data data, String base, AttrTagInfo[] tags) {
     int i = 0;
     for (AttrTagInfo t : tags) {
       if (REF_COMMAND.equals(t.mCommand)) {
@@ -135,4 +130,5 @@ public class AttrTagInfo extends TagInfo {
       }
     }
   }
+
 }

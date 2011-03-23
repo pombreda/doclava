@@ -21,9 +21,7 @@ import com.google.doclava.Errors;
 import com.google.doclava.PackageInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class ApiInfo {
 
@@ -48,11 +46,7 @@ public class ApiInfo {
         continue;
       }
       for (String iface : ifaces) {
-        ClassInfo classInfo = mAllClasses.get(iface);
-        // skip unseen interfaces from external projects. (TODO: use federation data?)
-        if (classInfo != null) {
-          cl.addInterface(classInfo);
-        }
+        cl.addInterface(mAllClasses.get(iface));
       }
     }
   }
@@ -121,22 +115,6 @@ public class ApiInfo {
         }
         cl.setSuperClass(superclass);
       }
-    }
-  }
-
-  public void initVisible() {
-    Set<ClassInfo> allTypes = new HashSet<ClassInfo>();
-    for (ClassInfo cl : mAllClasses.values()) {
-      cl.addAllTypes(allTypes);
-    }
-    for (PackageInfo packageInfo : mPackages.values()) {
-      for (ClassInfo classInfo : packageInfo.allClasses().values()) {
-        classInfo.addAllTypes(allTypes);
-      }
-    }
-
-    for (ClassInfo cl : allTypes) {
-      cl.initVisible(null);
     }
   }
 }

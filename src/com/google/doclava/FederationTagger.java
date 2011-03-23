@@ -45,7 +45,7 @@ public final class FederationTagger {
     federatedXmls.put(name, file);
   }
   
-  public void tagAll(List<ClassInfo> classDocs) {
+  public void tagAll(ClassInfo[] classDocs) {
     initialize();
     for (FederatedSite site : federatedSites) {
       applyFederation(site, classDocs);
@@ -83,7 +83,7 @@ public final class FederationTagger {
     initialized = true;
   }
   
-  private void applyFederation(FederatedSite federationSource, List<ClassInfo> classDocs) {
+  private void applyFederation(FederatedSite federationSource, ClassInfo[] classDocs) {
     for (ClassInfo classDoc : classDocs) {
       PackageInfo packageSpec
           = federationSource.apiInfo().getPackages().get(classDoc.containingPackage().name());
@@ -107,7 +107,7 @@ public final class FederationTagger {
   }
 
   private void federateMethods(FederatedSite site, ClassInfo federatedClass, ClassInfo localClass) {
-    for (MethodInfo method : localClass.getMethods()) {
+    for (MethodInfo method : localClass.methods()) {
       for (ClassInfo superclass : federatedClass.hierarchy()) {
         if (superclass.allMethods().containsKey(method.getHashableName())) {
           method.addFederatedReference(site);
@@ -119,7 +119,7 @@ public final class FederationTagger {
   
   private void federateConstructors(FederatedSite site, ClassInfo federatedClass,
       ClassInfo localClass) {
-    for (MethodInfo constructor : localClass.getConstructors()) {
+    for (MethodInfo constructor : localClass.constructors()) {
       if (federatedClass.hasConstructor(constructor)) {
         constructor.addFederatedReference(site);
       }
@@ -127,7 +127,7 @@ public final class FederationTagger {
   }
   
   private void federateFields(FederatedSite site, ClassInfo federatedClass, ClassInfo localClass) {
-    for (FieldInfo field : localClass.getFields()) {
+    for (FieldInfo field : localClass.fields()) {
       if (federatedClass.allFields().containsKey(field.name())) {
         field.addFederatedReference(site);
       }

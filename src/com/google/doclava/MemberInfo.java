@@ -22,7 +22,7 @@ public abstract class MemberInfo extends DocInfo implements Comparable, Scoped {
       boolean isProtected, boolean isPackagePrivate, boolean isPrivate, boolean isFinal,
       boolean isStatic, boolean isSynthetic, String kind, SourcePositionInfo position,
       AnnotationInstanceInfo[] annotations) {
-    super(rawCommentText, position, containingClass);
+    super(rawCommentText, position);
     mName = name;
     mSignature = signature;
     mContainingClass = containingClass;
@@ -76,10 +76,6 @@ public abstract class MemberInfo extends DocInfo implements Comparable, Scoped {
     return mContainingClass;
   }
 
-  protected void setContainingClass(ClassInfo containingClass) {
-    this.mContainingClass = containingClass;
-  }
-
   public boolean isPublic() {
     return mIsPublic;
   }
@@ -120,6 +116,11 @@ public abstract class MemberInfo extends DocInfo implements Comparable, Scoped {
 
   public boolean isSynthetic() {
     return mIsSynthetic;
+  }
+
+  @Override
+  public ContainerInfo parent() {
+    return mContainingClass;
   }
 
   public boolean checkLevel() {

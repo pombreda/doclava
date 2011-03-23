@@ -17,33 +17,27 @@
 package com.google.doclava;
 
 import com.google.clearsilver.jsilver.data.Data;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public final class ThrowsTagInfo extends ParsedTagInfo {
-  private static final Pattern PATTERN = Pattern.compile("(\\S+)\\s+(.*)", Pattern.DOTALL);
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+public class ThrowsTagInfo extends ParsedTagInfo {
+  static final Pattern PATTERN = Pattern.compile("(\\S+)\\s+(.*)", Pattern.DOTALL);
   private ClassInfo mException;
 
   public ThrowsTagInfo(String name, String kind, String text, ContainerInfo base,
       SourcePositionInfo sp) {
     super(name, kind, text, base, sp);
-  }
 
-  @Override public void initVisible(Project project) {
-    super.initVisible(project);
-
-    String text = text();
-    ContainerInfo base = getContainer();
     Matcher m = PATTERN.matcher(text);
     if (m.matches()) {
       setCommentText(m.group(2));
       String className = m.group(1);
       if (base instanceof ClassInfo) {
-        mException = ((ClassInfo) base).findClass(className, project);
+        mException = ((ClassInfo) base).findClass(className);
       }
       if (mException == null) {
-        mException = project.getClassByName(className);
+        mException = Converter.obtainClass(className);
       }
     }
   }
@@ -60,17 +54,21 @@ public final class ThrowsTagInfo extends ParsedTagInfo {
   }
 
   public TypeInfo exceptionType() {
-    return mException != null ? mException.asTypeInfo() : null;
-  }
-
-  public static void makeHDF(Data data, String base, List<ThrowsTagInfo> tags) {
-    int i = 0;
-    for (ThrowsTagInfo info : tags) {
-      TagInfo.makeHDF(data, base + '.' + i + ".comment", info.commentTags());
-      if (info.exceptionType() != null) {
-        info.exceptionType().makeHDF(data, base + "." + i + ".type");
-      }
-      i++;
+    if (mException != null) {
+      return mException.asTypeInfo();
+    } else {
+      return null;
     }
   }
+
+  public static void makeHDF(Data data, String base, ThrowsTagInfo[] tags) {
+    for (int i = 0; i < tags.length; i++) {
+      TagInfo.makeHDF(data, base + '.' + i + ".comment", tags[i].commentTags());
+      if (tags[i].exceptionType() != null) {
+        tags[i].exceptionType().makeHDF(data, base + "." + i + ".type");
+      }
+    }
+  }
+
+
 }

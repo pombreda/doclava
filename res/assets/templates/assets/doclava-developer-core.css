@@ -201,7 +201,7 @@ blockquote {
 }
 
 #header {
-  height: 34px;
+  height: 44px;
   position:relative;
   z-index:100;
   min-width:675px; /* min width for the tabs, before they wrap */
@@ -210,19 +210,23 @@ blockquote {
 }
 
 #headerLeft{
+  position:absolute;
   padding: 10px 0 0;
+  left:8px;
+  bottom:3px;
 }
-/*
-#headerLeft img{
-  height:50px;
-  width:180px;
-}
-*/
+
 #headerRight {
   position:absolute;
   right:0;
-  top:0;
+  bottom:3px;
+  padding:0;
   text-align:right;
+}
+
+#masthead-title {
+  font-size:28px;
+  color: #2f74ae;
 }
 
 /* Tabs in the header */
@@ -316,7 +320,6 @@ blockquote {
 }
 
 #search {
-  height:45px;
   margin:8px 10px 0 0;
 }
 

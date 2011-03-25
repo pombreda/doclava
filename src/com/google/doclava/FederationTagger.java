@@ -85,11 +85,16 @@ public final class FederationTagger {
   
   private void applyFederation(FederatedSite federationSource, ClassInfo[] classDocs) {
     for (ClassInfo classDoc : classDocs) {
+      // Make sure we're not referencing a class outside of our documentation scope
+      if (classDoc.containingPackage() == null || classDoc.containingPackage().name() == null) {
+    	  continue;
+      }
+
       PackageInfo packageSpec
           = federationSource.apiInfo().getPackages().get(classDoc.containingPackage().name());
 
       if (packageSpec == null) {
-        continue;
+    	  continue;
       }
 
       ClassInfo classSpec = packageSpec.allClasses().get(classDoc.name());
@@ -97,7 +102,7 @@ public final class FederationTagger {
       if (classSpec == null) {
         continue;
       }
-      
+
       federateMethods(federationSource, classSpec, classDoc);
       federateConstructors(federationSource, classSpec, classDoc);
       federateFields(federationSource, classSpec, classDoc);

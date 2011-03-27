@@ -519,7 +519,12 @@ public class Converter {
       = new Cache<AnnotationDesc, AnnotationInstanceInfo>() {
     @Override
     protected AnnotationInstanceInfo make(AnnotationDesc a) {
-      ClassInfo annotationType = Converter.obtainClass(a.annotationType());
+      ClassInfo annotationType;
+      try {
+    	  annotationType = Converter.obtainClass(a.annotationType());
+      } catch (ClassCastException e) {
+    	  throw new IllegalArgumentException("Could not find annotation " + a.toString() + " on classpath.", e);
+      }
       AnnotationDesc.ElementValuePair[] ev = a.elementValues();
       AnnotationValueInfo[] elementValues = new AnnotationValueInfo[ev.length];
       for (int i = 0; i < ev.length; i++) {

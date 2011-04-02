@@ -23,14 +23,9 @@ import com.google.clearsilver.jsilver.resourceloader.CompositeResourceLoader;
 import com.google.clearsilver.jsilver.resourceloader.FileSystemResourceLoader;
 import com.google.clearsilver.jsilver.resourceloader.ResourceLoader;
 
-import com.sun.javadoc.*;
-
 import java.util.*;
 import java.util.jar.JarFile;
-import java.io.*;
 import java.lang.reflect.Proxy;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.DocErrorReporter;
@@ -93,6 +88,7 @@ public class Doclava {
   public static HashSet<String> knownTags = new HashSet<String>();
   public static FederationTagger federationTagger = new FederationTagger();
   private static boolean generateDocs = true;
+  private static boolean generateSources = false;
   private static boolean parseComments = false;
   public static String apiVersion = null;
   
@@ -238,6 +234,8 @@ public class Doclava {
         apiVersion = a[1];
       } else if (a[0].equals("-assetsdir")) {
         assetsOutputDir = a[1];
+      } else if (a[0].equals("-generatesources")) {
+        generateSources = true;
       }
     }
 
@@ -589,6 +587,9 @@ public class Doclava {
     }
     if (option.equals("-assetsdir")) {
       return 2;
+    }
+    if (option.equals("-generatesources")) {
+    	return 1;
     }
     return 0;
   }
@@ -1082,11 +1083,21 @@ public class Doclava {
 
   public static void writeClasses() {
     ClassInfo[] classes = Converter.rootClasses();
-
-    for (ClassInfo cl : classes) {
-      Data data = makePackageHDF();
-      if (!cl.isHidden()) {
-        writeClass(cl, data);
+    if (generateSources) {
+    	mHDFData.add(new String[] {"doclava.generate.sources", "true"});
+    	for (ClassInfo cl : classes) {
+	      Data data = makePackageHDF();
+	      if (!cl.isHidden()) {
+	        writeSource(cl, data);
+	        writeClass(cl, data);
+	      }
+	    }
+    } else {
+      for (ClassInfo cl : classes) {
+        Data data = makePackageHDF();
+        if (!cl.isHidden()) {
+          writeClass(cl, data);
+        }
       }
     }
   }
@@ -1098,6 +1109,17 @@ public class Doclava {
     ClearPage.write(data, "class.cs", Doclava.javadocDir + cl.relativePath());
 
     Proofread.writeClass(cl.htmlPage(), cl);
+  }
+  
+  public static void writeSource(ClassInfo cl, Data data) {
+	  try {
+	    cl.makeHDF(data);
+	    data.setValue("class.source", SampleTagInfo.escapeHtml(cl.getSource()));
+	    setPageTitle(data, cl.name());
+	    ClearPage.write(data, "source.cs", Doclava.javadocDir + cl.relativePath("-source"));
+	  } catch (IOException e) {
+		  Errors.error(Errors.IO_ERROR, null, "Could not find source file for " + cl.name());
+	  }
   }
 
   public static void makeClassListHDF(Data data, String base, ClassInfo[] classes) {

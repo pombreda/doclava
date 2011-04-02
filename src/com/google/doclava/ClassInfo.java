@@ -19,6 +19,10 @@ package com.google.doclava;
 import com.google.clearsilver.jsilver.data.Data;
 
 import com.sun.javadoc.*;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Scoped {
@@ -660,6 +664,15 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
     s += ".html";
     return s;
   }
+  
+  public String relativePath(String suffix) {
+	    String s = containingPackage().name();
+	    s = s.replace('.', '/');
+	    s += '/';
+	    s += name() + suffix;
+	    s += ".html";
+	    return s;
+	  }
 
   /** Even indirectly */
   public boolean isDerivedFrom(ClassInfo cl) {
@@ -797,13 +810,6 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
               htmlPage + "#" + m.anchor(), "method in " + qualifiedName));
         }
       }
-    }
-  }
-
-  public void makeLink(Data data, String base) {
-    data.setValue(base + ".label", this.name());
-    if (!this.isPrimitive() && this.isDefinedLocally() && this.checkLevel()) {
-      data.setValue(base + ".link", this.htmlPage());
     }
   }
 
@@ -1718,5 +1724,28 @@ public class ClassInfo extends DocInfo implements ContainerInfo, Comparable, Sco
   
   public void setTypeInfo(TypeInfo typeInfo) {
     mTypeInfo = typeInfo;
+  }
+
+  public String getSource() throws IOException {
+	  StringBuffer stringBuffer = new StringBuffer();
+	  BufferedReader reader;
+	  
+      reader = new BufferedReader(new FileReader(mPosition.file));
+      String line = null;
+
+      while ((line = reader.readLine()) != null) {
+    	  stringBuffer.append(line)
+              .append(System.getProperty("line.separator"));
+      }
+
+      try {
+          if (reader != null) {
+              reader.close();
+          }
+      } catch (IOException e) {
+          
+      }
+
+      return stringBuffer.toString();
   }
 }

@@ -26,6 +26,11 @@
 <?cs /each ?>
 
 <div class="sum-details-links">
+<?cs if:doclava.generate.sources ?>
+<div>
+<a href="<?cs var:class.name ?>-source.html">View Source</a>
+</div>
+<?cs /if ?>
 <?cs if:inhattrs || inhconstants || inhfields || inhmethods || (!class.subclasses.hidden &&
      (subcount(class.subclasses.direct) || subcount(class.subclasses.indirect))) ?>
 Summary:

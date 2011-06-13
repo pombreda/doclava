@@ -33,10 +33,13 @@ import com.sun.javadoc.LanguageVersion;
 import com.sun.javadoc.MemberDoc;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Type;
+
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -845,7 +848,7 @@ public class Doclava {
     }
     PrintStream stream = null;
     try {
-      stream = new PrintStream(filename);
+      stream = new PrintStream(new BufferedOutputStream(new FileOutputStream(filename)));
       for (ClassInfo cl : notStrippable) {
         stream.println(getPrintableName(cl));
       }

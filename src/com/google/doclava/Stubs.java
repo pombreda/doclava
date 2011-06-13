@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 
 public class Stubs {
@@ -45,7 +47,7 @@ public class Stubs {
     if (xmlFile != null) {
       ClearPage.ensureDirectory(xmlFile);
       try {
-        xmlWriter = new PrintStream(xmlFile);
+        xmlWriter = new PrintStream(new BufferedOutputStream(new FileOutputStream(xmlFile)));
       } catch (FileNotFoundException e) {
         Errors.error(Errors.IO_ERROR, new SourcePositionInfo(xmlFile.getAbsolutePath(), 0, 0),
             "Cannot open file for write.");

@@ -76,7 +76,9 @@ public class JarUtils {
             out.write(buffer, 0, s);
           }
         } catch (IOException e) {
-          throw new IOException("Could not copy asset from jar file", e);
+           IOException ioException = new IOException("Could not copy asset from jar file");
+           ioException.initCause(e);
+           throw ioException;
         } finally {
           try {
             in.close();

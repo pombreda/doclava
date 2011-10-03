@@ -32,7 +32,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
 
   public PackageInfo(PackageDoc pkg, String name, SourcePositionInfo position) {
     super(pkg.getRawCommentText(), position);
-    if (name.isEmpty()) {
+    if (isEmpty(name)) {
       mName = DEFAULT_PACKAGE;
     } else {
       mName = name;
@@ -49,7 +49,7 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
   public PackageInfo(String name, SourcePositionInfo position) {
     super("", position);
     
-    if (name.isEmpty()) {
+    if (isEmpty(name)) {
       mName = "default package";
     } else {
       mName = name;
@@ -240,5 +240,9 @@ public class PackageInfo extends DocInfo implements ContainerInfo {
       }
     }
     return consistent;
+  }
+
+  private static boolean isEmpty(String str) {
+      return str == null || str.length() == 0;
   }
 }

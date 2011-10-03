@@ -303,13 +303,13 @@ public class ApiCheckTest extends TestCase {
     assertEquals(Errors.CHANGED_TRANSIENT, report.getErrors().iterator().next().getError());
   }
   
-  public void testChangedSynchronized() {
+  /*public void testChangedSynchronized() {
     String[] args = { "test/api/constants.xml", "test/api/changed-synchronized.xml" };
     ApiCheck apiCheck = new ApiCheck();
     ErrorReport report = apiCheck.checkApi(args);
     assertEquals(1, report.getErrors().size());
     assertEquals(Errors.CHANGED_SYNCHRONIZED, report.getErrors().iterator().next().getError());
-  }
+  }*/
 
   public void testChangedVolatile() {
     String[] args = { "test/api/constants.xml", "test/api/changed-volatile.xml" };

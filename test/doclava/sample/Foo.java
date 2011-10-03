@@ -51,7 +51,6 @@ public class Foo {
     /**
      * Baz implementation of {@link Fuzz#getFuzzy()}
      */
-    @Override
     public String getFuzzy() {
       return null;
     }

@@ -139,7 +139,6 @@ public class ConstructorInfo implements AbstractMethodInfo {
     return consistent;
   }
 
-  @Override
   public void setVarargs(boolean varargs) {
     mIsVarargs = varargs;
   }

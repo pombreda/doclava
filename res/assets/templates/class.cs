@@ -284,6 +284,7 @@ Summary:
 <!-- ======== NESTED CLASS SUMMARY ======== -->
 <table id="nestedclasses" class="jd-sumtable"><tr><th colspan="12">Nested Classes</th></tr>
 <?cs call:write_inners_summary(class.inners) ?>
+</table>
 <?cs /if ?>
 
 <?cs # this next line must be exactly like this to be parsed by eclipse ?>
@@ -291,6 +292,7 @@ Summary:
 <!-- =========== FIELD SUMMARY =========== -->
 <table id="lattrs" class="jd-sumtable"><tr><th colspan="12">XML Attributes</th></tr>
 <?cs call:write_attr_summary(class.attrs, 1) ?>
+</table>
 <?cs /if ?>
 
 <?cs # if there are inherited attrs, write the table ?>
@@ -334,6 +336,7 @@ Summary:
     </tr>
     <?cs set:count = count + #1 ?>
     <?cs /each ?>
+</table>
 <?cs /if ?>
 
 <?cs if:subcount(class.constants) ?>

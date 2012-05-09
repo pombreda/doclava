@@ -177,16 +177,16 @@ Summary:
 <?cs each:method = methods ?>
 	 <?cs # The apilevel-N class MUST BE LAST in the sequence of class names ?>
     <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:method.since.key ?>" >
-        <td class="jd-typecol"><nobr>
+        <td class="jd-typecol">
             <?cs var:method.abstract ?>
             <?cs var:method.synchronized ?>
             <?cs var:method.final ?>
             <?cs var:method.static ?>
             <?cs call:type_link(method.generic) ?>
-            <?cs call:type_link(method.returnType) ?></nobr>
+            <?cs call:type_link(method.returnType) ?>
         </td>
-        <td class="jd-linkcol" width="100%"><nobr>
-        <span class="sympad"><?cs call:cond_link(method.name, toroot, method.href, included) ?></span>(<?cs call:parameter_list(method.params) ?>)</nobr>
+        <td class="jd-linkcol" width="100%">
+        <span class="sympad"><?cs call:cond_link(method.name, toroot, method.href, included) ?></span>(<?cs call:parameter_list(method.params) ?>)
         <?cs if:subcount(method.shortDescr) || subcount(method.deprecated) ?>
         <div class="jd-descrdiv"><?cs call:short_descr(method) ?></div>
   <?cs /if ?>
@@ -199,11 +199,11 @@ Summary:
 <?cs set:count = #1 ?>
     <?cs each:field=fields ?>
       <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:field.since.key ?>" >
-          <td class="jd-typecol"><nobr>
+          <td class="jd-typecol">
           <?cs var:field.scope ?>
           <?cs var:field.static ?>
           <?cs var:field.final ?>
-          <?cs call:type_link(field.type) ?></nobr></td>
+          <?cs call:type_link(field.type) ?></td>
           <td class="jd-linkcol"><?cs call:cond_link(field.name, toroot, field.href, included) ?></td>
           <td class="jd-descrcol" width="100%"><?cs call:short_descr(field) ?></td>
       </tr>
@@ -226,9 +226,9 @@ Summary:
 <?cs def:write_attr_summary(attrs, included) ?>
 <?cs set:count = #1 ?>
     <tr>
-        <td><nobr><em>Attribute Name</em></nobr></td>
-        <td><nobr><em>Related Method</em></nobr></td>
-        <td><nobr><em>Description</em></nobr></td>
+        <td><em>Attribute Name</em></td>
+        <td><em>Related Method</em></td>
+        <td><em>Description</em></td>
     </tr>
     <?cs each:attr=attrs ?>
     <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:attr.since.key ?>" >
@@ -247,12 +247,12 @@ Summary:
 <?cs set:count = #1 ?>
   <?cs each:cl=class.inners ?>
     <tr class="<?cs if:count % #2 ?>alt-color<?cs /if ?> api apilevel-<?cs var:cl.since.key ?>" >
-      <td class="jd-typecol"><nobr>
+      <td class="jd-typecol">
         <?cs var:cl.scope ?>
         <?cs var:cl.static ?> 
         <?cs var:cl.final ?> 
         <?cs var:cl.abstract ?>
-        <?cs var:cl.kind ?></nobr></td>
+        <?cs var:cl.kind ?></td>
       <td class="jd-linkcol"><?cs call:type_link(cl.type) ?></td>
       <td class="jd-descrcol" width="100%"><?cs call:short_descr(cl) ?>&nbsp;</td>
     </tr>

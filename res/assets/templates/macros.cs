@@ -177,7 +177,7 @@ def:description(obj) ?><?cs
       each:tag=obj.paramTags ?>
         <tr>
           <th><?cs if:tag.isTypeParameter ?>&lt;<?cs /if ?><?cs var:tag.name
-                  ?><?cs if:tag.isTypeParameter ?>&gt;<?cs /if ?></td>
+                  ?><?cs if:tag.isTypeParameter ?>&gt;<?cs /if ?></th>
           <td><?cs call:tag_list(tag.comment) ?></td>
         </tr><?cs 
       /each ?>

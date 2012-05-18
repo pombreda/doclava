@@ -94,6 +94,7 @@ public class Doclava {
   private static boolean generateSources = false;
   private static boolean parseComments = false;
   public static String apiVersion = null;
+  private static String yamlNavFile = null;
   
   public static JSilver jSilver = null;
 
@@ -239,7 +240,10 @@ public class Doclava {
         assetsOutputDir = a[1];
       } else if (a[0].equals("-generatesources")) {
         generateSources = true;
+      } else if (a[0].equals("-yaml")) {
+        yamlNavFile = a[1];
       }
+      
     }
 
     if (!readKnownTagsFiles(knownTags, knownTagsFiles)) {
@@ -332,6 +336,10 @@ public class Doclava {
 
       // Navigation tree
       NavTree.writeNavTree(assetsOutputDir);
+      
+      if (yamlNavFile != null){
+        NavTree.writeYamlTree(assetsOutputDir,yamlNavFile);
+      }
 
       // Packages Pages
       writePackages(javadocDir + "packages" + htmlExtension);
@@ -594,6 +602,9 @@ public class Doclava {
     if (option.equals("-generatesources")) {
     	return 1;
     }
+    if (option.equals("-yaml")) {
+      return 2;
+  }
     return 0;
   }
 

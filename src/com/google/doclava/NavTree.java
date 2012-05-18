@@ -20,6 +20,8 @@ import com.google.clearsilver.jsilver.data.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class NavTree {
 
@@ -44,6 +46,89 @@ public class NavTree {
     Data data = Doclava.makeHDF();
     data.setValue("reference_tree", buf.toString());
     ClearPage.write(data, "navtree_data.cs", Doclava.ensureSlash(dir) + "navtree_data.js");
+  }
+  
+  /**
+   * Write the YAML formatted navigation tree.
+   * @see "http://yaml.org/"
+   */
+  public static void writeYamlTree(String dir, String fileName){
+    Data data = Doclava.makeHDF();    
+    
+    ClassInfo[] classes = Converter.rootClasses();
+
+    SortedMap<String, Object> sorted = new TreeMap<String, Object>();
+    for (ClassInfo cl : classes) {
+      if (cl.isHidden()) {
+        continue;
+      }
+      sorted.put(cl.qualifiedName(), cl);
+      
+      PackageInfo pkg = cl.containingPackage();
+      String name;
+      if (pkg == null) {
+        name = "";
+      } else {
+        name = pkg.name();
+      }
+      sorted.put(name, pkg);
+    }
+    
+    data = makeYamlHDF(sorted, "docs.pages", data);
+    
+    ClearPage.write(data, "yaml_navtree.plus.cs", Doclava.ensureSlash(dir) + fileName);
+    
+  }
+  
+  public static Data makeYamlHDF(SortedMap<String, Object> sorted, String base, Data data) {
+    
+    String key = "docs.pages.";
+    int i = 0;
+    for (String s : sorted.keySet()) {
+      Object o = sorted.get(s);   
+      
+      if (o instanceof PackageInfo) {
+        PackageInfo pkg = (PackageInfo) o;
+        
+        data.setValue("docs.pages." + i + ".id", "" + i);
+        data.setValue("docs.pages." + i + ".label", pkg.name());
+        data.setValue("docs.pages." + i + ".shortname", "API");
+        data.setValue("docs.pages." + i + ".link", pkg.htmlPage());
+        data.setValue("docs.pages." + i + ".type", "package");
+      } else if (o instanceof ClassInfo) {
+        ClassInfo cl = (ClassInfo) o;
+        
+        // skip classes that are the child of another class, recursion will handle those.
+        if (cl.containingClass() == null){
+          
+          data.setValue("docs.pages." + i + ".id", "" + i);
+
+          data = makeYamlHDF(cl, "docs.pages."+i, data);
+        }
+      }
+      
+      i++;
+    }
+    return data;
+  }
+  
+  public static Data makeYamlHDF(ClassInfo cl, String base, Data data){
+    
+    data.setValue(base + ".label", cl.name());
+    data.setValue(base + ".shortname", cl.name().substring(cl.name().lastIndexOf(".")+1));
+    data.setValue(base + ".link", cl.htmlPage());
+    data.setValue(base + ".type", cl.kind());
+    
+    if (cl.innerClasses().length > 0){
+      
+      int j = 0;
+      for (ClassInfo cl2 : cl.innerClasses()){
+        data = makeYamlHDF(cl2, base + ".children." + j, data);
+        j++;
+      }
+    }
+    
+    return data;
   }
 
   private static Node makePackageNode(PackageInfo pkg) {

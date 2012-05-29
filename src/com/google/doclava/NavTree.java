@@ -76,7 +76,7 @@ public class NavTree {
     
     data = makeYamlHDF(sorted, "docs.pages", data);
     
-    ClearPage.write(data, "yaml_navtree.plus.cs", Doclava.ensureSlash(dir) + fileName);
+    ClearPage.write(data, "yaml_navtree.cs", Doclava.ensureSlash(dir) + fileName);
     
   }
   

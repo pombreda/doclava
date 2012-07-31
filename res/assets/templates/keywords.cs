@@ -16,7 +16,7 @@
 </div>
 
 <?cs each:letter=keywords ?>
-<a name="letter_<?cs name:letter ?>"></a>
+<a id="letter_<?cs name:letter ?>"></a>
 <h2><?cs name:letter ?></h2>
 <ul class="jd-letterentries">
 <?cs each:entry=letter

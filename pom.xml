@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.google.doclava</groupId>
     <artifactId>doclava</artifactId>
-    <version>1.0.6-SNAPSHOT</version>
+    <version>1.0.6</version>
     <packaging>jar</packaging>
     <name>Doclava</name>
     <description>Doclava is a Javadoc Doclet that generates documentation for Java projects</description>
@@ -45,9 +45,9 @@
     </issueManagement>
 
     <scm>
-        <url>http://doclava.googlecode.com/svn/trunk</url>
-        <connection>scm:svn:https://doclava.googlecode.com/svn/trunk</connection>
-        <developerConnection>scm:svn:https://doclava.googlecode.com/svn/trunk</developerConnection>
+        <url>http://doclava.googlecode.com/svn/tags/doclava-1.0.6</url>
+        <connection>scm:svn:https://doclava.googlecode.com/svn/tags/doclava-1.0.6</connection>
+        <developerConnection>scm:svn:https://doclava.googlecode.com/svn/tags/doclava-1.0.6</developerConnection>
     </scm>
 
     <developers>
@@ -213,12 +213,9 @@
 
     <profiles>
         <profile>
-            <id>sun-jvm</id>
+            <id>default-tools.jar</id>
             <activation>
-                <property>
-                    <name>java.vendor</name>
-                    <value>Sun Microsystems Inc.</value>
-                </property>
+              <jdk>1.6</jdk>
             </activation>
             <dependencies>
                 <dependency>

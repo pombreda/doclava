@@ -3,7 +3,7 @@
 <html>
 <?cs include:"head_tag.cs" ?>
 <body class="gc-documentation">
-<a name="top"></a>
+<a id="top"></a>
 <?cs call:custom_masthead() ?>
 
 <div id="body-content">

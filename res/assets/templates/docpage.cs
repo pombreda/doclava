@@ -5,7 +5,7 @@
 <body class="gc-documentation">
 <?cs include:"header.cs" ?>
 
-<div class="g-unit" id="doc-content"><a name="top"></a>
+<div class="g-unit" id="doc-content"><a id="top"></a>
 
 <div id="jd-header" class="guide-header">
   <span class="crumb">

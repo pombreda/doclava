@@ -7,7 +7,7 @@
 <body class="gc-documentation">
 
 
-<a name="top"></a>
+<a id="top"></a>
 <div class="g-unit" id="doc-content">
  <div id="jd-header" class="guide-header">
   <span class="crumb">&nbsp;</span>

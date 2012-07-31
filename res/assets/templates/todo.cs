@@ -79,7 +79,7 @@
 <h2>Detail</h2>
 
 <?cs each:cl=classes ?>
-<h3><a name="class_<?cs var:cl.qualified ?>"><?cs var:cl.qualified ?></a></h3>
+<h3><a id="class_<?cs var:cl.qualified ?>"><?cs var:cl.qualified ?></a></h3>
 <p>Errors: <?cs var:cl.errorCount ?><br/>
 Total: <?cs var:cl.totalCount ?><br/>
 Percent Good: <?cs var:cl.percentGood ?></p>

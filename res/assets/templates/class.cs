@@ -485,7 +485,7 @@ From <?cs var:cl.kind ?>
 <?cs each:field=fields ?>
 <?cs # this next line must be exactly like this to be parsed by eclipse ?>
 <?cs # the A tag in the next line must remain where it is, so that Eclipse can parse the docs ?>
-<A NAME="<?cs var:field.anchor ?>"></A>
+<a id="<?cs var:field.anchor ?>"></a>
 <?cs # The apilevel-N class MUST BE LAST in the sequence of class names ?>
 <div class="jd-details api apilevel-<?cs var:field.since.key ?>"> 
     <h4 class="jd-details-title">
@@ -524,7 +524,7 @@ From <?cs var:cl.kind ?>
 <?cs def:write_method_details(methods) ?>
 <?cs each:method=methods ?>
 <?cs # the A tag in the next line must remain where it is, so that Eclipse can parse the docs ?>
-<A NAME="<?cs var:method.anchor ?>"></A>
+<a id="<?cs var:method.anchor ?>"></a>
 <?cs # The apilevel-N class MUST BE LAST in the sequence of class names ?>
 <div class="jd-details api apilevel-<?cs var:method.since.key ?>"> 
     <h4 class="jd-details-title">
@@ -553,7 +553,7 @@ From <?cs var:cl.kind ?>
 <?cs def:write_attr_details(attrs) ?>
 <?cs each:attr=attrs ?>
 <?cs # the A tag in the next line must remain where it is, so that Eclipse can parse the docs ?>
-<A NAME="<?cs var:attr.anchor ?>"></A>
+<a id="<?cs var:attr.anchor ?>"></a>
 <?cs # The apilevel-N class MUST BE LAST in the sequence of class names ?>
 <div class="jd-details api apilevel-<?cs var:attr.since.key ?>"> 
     <h4 class="jd-details-title"><?cs var:attr.name ?>
@@ -643,7 +643,7 @@ From <?cs var:cl.kind ?>
 
 <?cs # the next two lines must be exactly like this to be parsed by eclipse ?>
 <!-- ========= END OF CLASS DATA ========= -->
-<A NAME="navbar_top"></A>
+<a id="navbar_top"></a>
 
 <?cs include:"footer.cs" ?>
 </div> <!-- jd-content -->
